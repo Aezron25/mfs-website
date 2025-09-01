@@ -182,7 +182,7 @@ export default function Home() {
               </p>
             </div>
           </div>
-          <div className="mx-auto grid max-w-sm items-start gap-8 sm:max-w-4xl sm:grid-cols-2 lg:max-w-none lg:grid-cols-3 mt-12">
+          <div className="mx-auto grid grid-cols-1 items-start gap-8 sm:grid-cols-2 lg:grid-cols-3 mt-12">
             {testimonials.map(testimonial => (
               <Card
                 key={testimonial.name}
