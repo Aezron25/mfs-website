@@ -41,21 +41,21 @@ const services = [
 
 const testimonials = [
   {
-    name: 'Amina Yusuf',
-    title: 'CEO, Tech Innovators',
+    name: 'Bwalya Chisanga',
+    title: 'CEO, Agri-Innovate Zambia',
     avatar: 'https://picsum.photos/100/100?random=1',
     dataAiHint: 'woman portrait',
     text: "Mwanakombo's consultancy services were a game-changer for our business. Their insights were invaluable for our strategic planning.",
   },
   {
-    name: 'John Mwangi',
-    title: 'Small Business Owner',
+    name: 'Tendai Zulu',
+    title: 'Owner, T&Z Logistics',
     avatar: 'https://picsum.photos/100/100?random=2',
     dataAiHint: 'man portrait',
     text: 'The tax team is incredibly knowledgeable and helped us navigate a complex tax situation with ease. Highly recommended!',
   },
   {
-    name: 'Fatima Hassan',
+    name: 'Chipo Banda',
     title: 'Individual Client',
     avatar: 'https://picsum.photos/100/100?random=3',
     dataAiHint: 'person smiling',

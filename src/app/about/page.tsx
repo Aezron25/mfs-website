@@ -4,32 +4,32 @@ import { Card, CardContent } from "@/components/ui/card";
 
 const teamMembers = [
   {
-    name: "Khadija Mwanakombo",
+    name: "Thandiwe Mwanakombo",
     role: "Founder & CEO",
     avatar: "https://picsum.photos/200/200?random=8",
     dataAiHint: "woman ceo",
-    bio: "With over 20 years of experience in the financial industry, Khadija leads the firm with a passion for client success and ethical practice.",
+    bio: "With over 20 years of experience in the financial industry, Thandiwe leads the firm with a passion for client success and ethical practice.",
   },
   {
-    name: "David Chen",
+    name: "Besa Mwila",
     role: "Head of Audit",
     avatar: "https://picsum.photos/200/200?random=9",
     dataAiHint: "man professional",
-    bio: "David is a certified public accountant with a meticulous eye for detail, ensuring the highest standards of accuracy and compliance.",
+    bio: "Besa is a certified public accountant with a meticulous eye for detail, ensuring the highest standards of accuracy and compliance.",
   },
   {
-    name: "Maria Rodriguez",
+    name: "Lumbani Phiri",
     role: "Director of Tax Services",
     avatar: "https://picsum.photos/200/200?random=10",
     dataAiHint: "woman smiling",
-    bio: "Maria specializes in corporate and international tax law, helping clients navigate complex tax landscapes with confidence.",
+    bio: "Lumbani specializes in corporate and international tax law, helping clients navigate complex tax landscapes with confidence.",
   },
   {
-    name: "James O'Connell",
+    name: "Chanda Tembo",
     role: "Lead Consultant",
     avatar: "https://picsum.photos/200/200?random=11",
     dataAiHint: "man consultant",
-    bio: "James brings a strategic mindset to our consultancy team, with a track record of driving growth for businesses of all sizes.",
+    bio: "Chanda brings a strategic mindset to our consultancy team, with a track record of driving growth for businesses of all sizes.",
   },
 ];
 

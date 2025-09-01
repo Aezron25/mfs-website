@@ -22,7 +22,7 @@ export default function ContactPage() {
               </div>
               <div>
                 <h3 className="font-semibold">Our Office</h3>
-                <p className="text-muted-foreground">123 Finance Street, Capital City, 10100</p>
+                <p className="text-muted-foreground">Stand 237, Great East Road, Lusaka, Zambia</p>
               </div>
             </div>
             <div className="flex items-start gap-4">
@@ -40,7 +40,7 @@ export default function ContactPage() {
               </div>
               <div>
                 <h3 className="font-semibold">Call Us</h3>
-                <p className="text-muted-foreground">+254 700 123 456</p>
+                <p className="text-muted-foreground">+260 977 123 456</p>
               </div>
             </div>
           </div>
