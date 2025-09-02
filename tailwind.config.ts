@@ -19,8 +19,8 @@ const config = {
     },
     extend: {
       fontFamily: {
-        body: ['PT Sans', 'sans-serif'],
-        headline: ['Playfair Display', 'serif'],
+        body: ['Roboto', 'sans-serif'],
+        headline: ['TASA Explorer', 'serif'],
         code: ['monospace'],
       },
       colors: {
