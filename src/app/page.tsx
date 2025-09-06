@@ -17,25 +17,25 @@ const services = [
     icon: <BookCheck className="h-8 w-8 text-primary" />,
     title: 'Audit Services',
     description:
-      'Ensuring accuracy and compliance with our comprehensive audit solutions.',
+      'Independent audits to ensure accuracy, strengthen controls, and build investor confidence.',
   },
   {
     icon: <Calculator className="h-8 w-8 text-primary" />,
     title: 'Tax Services',
     description:
-      'Optimize your tax strategy and ensure compliance with our expert guidance.',
+      'Stay compliant with ZRA and minimize tax liabilities with our expert tax strategies.',
   },
   {
     icon: <Briefcase className="h-8 w-8 text-primary" />,
     title: 'Consultancy Services',
     description:
-      'Strategic advice to help your business grow and thrive in a competitive market.',
+      'Tailored financial consultancy to help SMEs and startups achieve sustainable growth.',
   },
   {
     icon: <Wallet className="h-8 w-8 text-primary" />,
     title: 'Consumer Finance',
     description:
-      'Personalized financial solutions to help you achieve your personal goals.',
+      'Personalized financial management to help you achieve long-term stability.',
   },
 ];
 
@@ -78,7 +78,7 @@ export default function Home() {
         <div className="absolute inset-0 bg-primary/70" />
         <div className="relative container mx-auto flex h-full flex-col items-center justify-center text-center text-primary-foreground">
           <h1 className="scroll-m-20 text-4xl font-extrabold tracking-tight lg:text-6xl font-headline animate-fade-in-up">
-            Your Trusted Partner in Financial Excellence
+            Empowering SMEs, Startups, and Individuals with Financial Discipline
           </h1>
           <p className="mt-4 max-w-2xl text-lg md:text-xl animate-fade-in-up [animation-delay:300ms]">
             At Mwanakombo Financial Services, we provide expert financial

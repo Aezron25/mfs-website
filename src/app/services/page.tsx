@@ -6,28 +6,28 @@ const services = [
   {
     icon: <BookCheck className="h-10 w-10 text-primary" />,
     title: "Audit Services",
-    description: "Our audit and assurance services provide you with a high-quality audit that is tailored to your needs. We use a risk-based approach to ensure that your financial statements are free from material misstatement and that you are compliant with all relevant regulations.",
+    description: "Delivering independent and reliable audits that ensure accuracy, strengthen internal controls, and build investor and stakeholder confidence. We help businesses meet statutory requirements while identifying opportunities to improve efficiency and performance.",
     image: "https://picsum.photos/600/400?random=4",
     dataAiHint: "accounting documents",
   },
   {
     icon: <Calculator className="h-10 w-10 text-primary" />,
     title: "Tax Services",
-    description: "Navigating the complexities of tax is a challenge. Our tax experts provide comprehensive tax planning, compliance, and advisory services to both individuals and businesses. We help you minimize your tax liability while ensuring full compliance with the law.",
+    description: "Helping you stay compliant with ZRA requirements while minimizing tax liabilities. From VAT and PAYE to corporate tax planning, our experts design tax strategies that free up resources and keep your business ahead of deadlines.",
     image: "https://picsum.photos/600/400?random=5",
     dataAiHint: "calculator tax",
   },
   {
     icon: <Briefcase className="h-10 w-10 text-primary" />,
     title: "Consultancy Services",
-    description: "Our consultancy services are designed to help you achieve your business objectives. We offer strategic planning, financial forecasting, risk management, and process improvement services to help you make informed decisions and drive your business forward.",
+    description: "Providing tailored business and financial consultancy to help SMEs and startups grow sustainably. From budgeting and forecasting to compliance training and systems setup, we guide you with practical solutions that unlock business potential.",
     image: "https://picsum.photos/600/400?random=6",
     dataAiHint: "business strategy",
   },
   {
     icon: <Wallet className="h-10 w-10 text-primary" />,
     title: "Consumer Finance",
-    description: "We provide accessible and responsible consumer finance solutions. Whether you're looking for a personal loan, asset financing, or other credit facilities, our team is here to provide a solution that fits your personal financial situation and goals.",
+    description: "Supporting individuals with personalized financial management—from savings plans and budgeting to debt management and financial literacy training. We help you make smarter financial decisions and achieve long-term stability.",
     image: "https://picsum.photos/600/400?random=7",
     dataAiHint: "personal finance",
   },
@@ -44,7 +44,7 @@ export default function ServicesPage() {
                 Our Services
               </h1>
               <p className="max-w-[900px] text-muted-foreground md:text-xl/relaxed lg:text-base/relaxed xl:text-xl/relaxed">
-                Tailored financial solutions to empower your growth and stability.
+                Empowering SMEs, Startups, and Individuals with Financial Discipline
               </p>
             </div>
           </div>
