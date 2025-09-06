@@ -7,14 +7,14 @@ const services = [
     icon: <BookCheck className="h-10 w-10 text-primary" />,
     title: "Audit Services",
     description: "Delivering independent and reliable audits that ensure accuracy, strengthen internal controls, and build investor and stakeholder confidence. We help businesses meet statutory requirements while identifying opportunities to improve efficiency and performance.",
-    image: "/images/Audit Services.png",
+    image: "/images/audit-services.png",
     dataAiHint: "accounting documents",
   },
   {
     icon: <Calculator className="h-10 w-10 text-primary" />,
     title: "Tax Services",
     description: "Helping you stay compliant with ZRA requirements while minimizing tax liabilities. From VAT and PAYE to corporate tax planning, our experts design tax strategies that free up resources and keep your business ahead of deadlines.",
-    image: "/images/Tax Services.png",
+    image: "/images/tax-services.png",
     dataAiHint: "calculator tax",
   },
   {
