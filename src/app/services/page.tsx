@@ -7,7 +7,7 @@ const services = [
     icon: <BookCheck className="h-10 w-10 text-primary" />,
     title: "Audit Services",
     description: "Delivering independent and reliable audits that ensure accuracy, strengthen internal controls, and build investor and stakeholder confidence. We help businesses meet statutory requirements while identifying opportunities to improve efficiency and performance.",
-    image: "/images/Audit Services.jpg",
+    image: "/images/audit services.png",
     dataAiHint: "accounting documents",
   },
   {
