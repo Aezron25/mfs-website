@@ -14,7 +14,7 @@ const services = [
     icon: <Calculator className="h-10 w-10 text-primary" />,
     title: "Tax Services",
     description: "Helping you stay compliant with ZRA requirements while minimizing tax liabilities. From VAT and PAYE to corporate tax planning, our experts design tax strategies that free up resources and keep your business ahead of deadlines.",
-    image: "https://picsum.photos/600/400?random=5",
+    image: "/images/tax services.png",
     dataAiHint: "calculator tax",
   },
   {
