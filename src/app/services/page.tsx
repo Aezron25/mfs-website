@@ -7,7 +7,7 @@ const services = [
     icon: <BookCheck className="h-10 w-10 text-primary" />,
     title: "Audit Services",
     description: "Delivering independent and reliable audits that ensure accuracy, strengthen internal controls, and build investor and stakeholder confidence. We help businesses meet statutory requirements while identifying opportunities to improve efficiency and performance.",
-    image: "https://picsum.photos/600/400?random=12",
+    image: "/images/accounting-audit.png",
     dataAiHint: "accounting documents",
   },
   {
@@ -67,7 +67,7 @@ export default function ServicesPage() {
                   alt={service.title}
                   width={600}
                   height={400}
-                  className="mx-auto aspect-video overflow-hidden rounded-xl object-cover object-center sm:w-full"
+                  className="mx-auto aspect-video overflow-hidden rounded-xl object-contain object-center sm:w-full"
                   data-ai-hint={service.dataAiHint}
                 />
               </div>
