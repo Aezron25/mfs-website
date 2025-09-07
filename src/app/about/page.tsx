@@ -1,6 +1,4 @@
 import Image from "next/image";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Card, CardContent } from "@/components/ui/card";
 
 export default function AboutPage() {
   return (
@@ -20,7 +18,7 @@ export default function AboutPage() {
             </div>
             <div className="flex items-center justify-center">
               <Image
-                src="https://picsum.photos/600/600"
+                src="/images/moses.png"
                 alt="Mwanakombo"
                 width={600}
                 height={600}
