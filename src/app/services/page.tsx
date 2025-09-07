@@ -6,28 +6,28 @@ const services = [
   {
     icon: <BookCheck className="h-10 w-10 text-primary" />,
     title: "Audit Services",
-    description: "Delivering independent and reliable audits that ensure accuracy, strengthen internal controls, and build investor and stakeholder confidence. We help businesses meet statutory requirements while identifying opportunities to improve efficiency and performance.",
+    description: "Delivering independent and reliable audits that ensure accuracy, strengthen internal controls, and build investor and stakeholder confidence. I help businesses meet statutory requirements while identifying opportunities to improve efficiency and performance.",
     image: "/images/audit-services.png",
     dataAiHint: "accounting documents",
   },
   {
     icon: <Calculator className="h-10 w-10 text-primary" />,
     title: "Tax Services",
-    description: "Helping you stay compliant with ZRA requirements while minimizing tax liabilities. From VAT and PAYE to corporate tax planning, our experts design tax strategies that free up resources and keep your business ahead of deadlines.",
+    description: "Helping you stay compliant with ZRA requirements while minimizing tax liabilities. From VAT and PAYE to corporate tax planning, I design tax strategies that free up resources and keep your business ahead of deadlines.",
     image: "/images/tax-services.png",
     dataAiHint: "calculator tax",
   },
   {
     icon: <Briefcase className="h-10 w-10 text-primary" />,
     title: "Consultancy Services",
-    description: "Providing tailored business and financial consultancy to help SMEs and startups grow sustainably. From budgeting and forecasting to compliance training and systems setup, we guide you with practical solutions that unlock business potential.",
+    description: "Providing tailored business and financial consultancy to help SMEs and startups grow sustainably. From budgeting and forecasting to compliance training and systems setup, I guide you with practical solutions that unlock business potential.",
     image: "/images/consultancy-services.png",
     dataAiHint: "business strategy",
   },
   {
     icon: <Wallet className="h-10 w-10 text-primary" />,
-    title: "Consumer Finance",
-    description: "Supporting individuals with personalized financial management—from savings plans and budgeting to debt management and financial literacy training. We help you make smarter financial decisions and achieve long-term stability.",
+    title: "Personal Finance",
+    description: "Supporting individuals with personalized financial management—from savings plans and budgeting to debt management and financial literacy training. I help you make smarter financial decisions and achieve long-term stability.",
     image: "/images/consumer-finance.png",
     dataAiHint: "personal finance",
   },
@@ -41,7 +41,7 @@ export default function ServicesPage() {
           <div className="flex flex-col items-center justify-center space-y-4 text-center">
             <div className="space-y-2">
               <h1 className="text-3xl font-bold tracking-tighter sm:text-5xl font-headline">
-                Our Services
+                My Services
               </h1>
               <p className="max-w-[900px] text-muted-foreground md:text-xl/relaxed lg:text-base/relaxed xl:text-xl/relaxed">
                 Empowering SMEs, Startups, and Individuals with Financial Discipline

@@ -23,7 +23,7 @@ const services = [
     icon: <Calculator className="h-8 w-8 text-primary" />,
     title: 'Tax Services',
     description:
-      'Stay compliant with ZRA and minimize tax liabilities with our expert tax strategies.',
+      'Stay compliant with ZRA and minimize tax liabilities with my expert tax strategies.',
   },
   {
     icon: <Briefcase className="h-8 w-8 text-primary" />,
@@ -33,7 +33,7 @@ const services = [
   },
   {
     icon: <Wallet className="h-8 w-8 text-primary" />,
-    title: 'Consumer Finance',
+    title: 'Personal Finance',
     description:
       'Personalized financial management to help you achieve long-term stability.',
   },
@@ -45,21 +45,21 @@ const testimonials = [
     title: 'CEO, Agri-Innovate Zambia',
     avatar: 'https://picsum.photos/100/100?random=1',
     dataAiHint: 'woman portrait',
-    text: "Mwanakombo's consultancy services were a game-changer for our business. Their insights were invaluable for our strategic planning.",
+    text: "Mwanakombo's consultancy services were a game-changer for our business. His insights were invaluable for our strategic planning.",
   },
   {
     name: 'Tendai Zulu',
     title: 'Owner, T&Z Logistics',
     avatar: 'https://picsum.photos/100/100?random=2',
     dataAiHint: 'man portrait',
-    text: 'The tax team is incredibly knowledgeable and helped us navigate a complex tax situation with ease. Highly recommended!',
+    text: 'His tax knowledge is incredible. He helped us navigate a complex tax situation with ease. Highly recommended!',
   },
   {
     name: 'Chipo Banda',
     title: 'Individual Client',
     avatar: 'https://picsum.photos/100/100?random=3',
     dataAiHint: 'person smiling',
-    text: 'Their consumer finance options were flexible and transparent. The team guided me through every step of the process.',
+    text: 'Mwanakombo guided me through every step of managing my personal finances. The advice was clear, transparent, and effective.',
   },
 ];
 
@@ -73,16 +73,15 @@ export default function Home() {
           fill
           className="object-cover"
           priority
-          data-ai-hint="business meeting"
+          data-ai-hint="business portrait"
         />
         <div className="absolute inset-0 bg-primary/70" />
         <div className="relative container mx-auto flex h-full flex-col items-center justify-center text-center text-primary-foreground">
           <h1 className="scroll-m-20 text-4xl font-extrabold tracking-tight lg:text-6xl font-headline animate-fade-in-up">
-            Empowering SMEs, Startups, and Individuals with Financial Discipline
+            Your Personal Guide to Financial Discipline and Growth
           </h1>
           <p className="mt-4 max-w-2xl text-lg md:text-xl animate-fade-in-up [animation-delay:300ms]">
-            At Mwanakombo Financial Services, we provide expert financial
-            solutions tailored to your unique needs.
+            I'm Mwanakombo, a financial expert dedicated to providing tailored solutions for SMEs, startups, and individuals.
           </p>
           <Button
             asChild
@@ -90,7 +89,7 @@ export default function Home() {
             className="mt-8 animate-fade-in-up [animation-delay:600ms]"
           >
             <Link href="/services">
-              Explore Our Services <ArrowRight className="ml-2 h-5 w-5" />
+              Explore My Services <ArrowRight className="ml-2 h-5 w-5" />
             </Link>
           </Button>
         </div>
@@ -101,14 +100,14 @@ export default function Home() {
           <div className="flex flex-col items-center justify-center space-y-4 text-center">
             <div className="space-y-2">
               <div className="inline-block rounded-lg bg-muted px-3 py-1 text-sm">
-                Our Services
+                My Services
               </div>
               <h2 className="text-3xl font-bold tracking-tighter sm:text-5xl font-headline">
                 Comprehensive Financial Solutions
               </h2>
               <p className="max-w-[900px] text-muted-foreground md:text-xl/relaxed lg:text-base/relaxed xl:text-xl/relaxed">
-                We offer a wide range of services to meet the diverse needs of
-                our clients, from individuals to large corporations.
+                I offer a wide range of services to meet the diverse needs of
+                my clients, from individuals to growing businesses.
               </p>
             </div>
           </div>
@@ -143,8 +142,8 @@ export default function Home() {
               Not Sure Where to Start?
             </h2>
             <p className="max-w-[600px] text-muted-foreground md:text-xl/relaxed lg:text-base/relaxed xl:text-xl/relaxed">
-              Use our AI-powered tool to get a personalized service
-              recommendation. Just describe your financial needs, and we'll
+              Use my AI-powered tool to get a personalized service
+              recommendation. Just describe your financial needs, and I'll
               suggest the best service for you.
             </p>
             <Button asChild size="lg">
@@ -174,11 +173,11 @@ export default function Home() {
                 Testimonials
               </div>
               <h2 className="text-3xl font-bold tracking-tighter sm:text-5xl font-headline">
-                What Our Clients Say
+                What My Clients Say
               </h2>
               <p className="max-w-[900px] text-muted-foreground md:text-xl/relaxed lg:text-base/relaxed xl:text-xl/relaxed">
-                We are proud to have earned the trust of our clients. Here's
-                what they have to say about their experience with us.
+                I'm proud to have earned the trust of my clients. Here's
+                what they have to say about their experience with me.
               </p>
             </div>
           </div>

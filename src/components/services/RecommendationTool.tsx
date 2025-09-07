@@ -44,7 +44,7 @@ export function RecommendationTool() {
       toast({
         variant: "destructive",
         title: "Uh oh! Something went wrong.",
-        description: "There was a problem with our AI service. Please try again later.",
+        description: "There was a problem with the AI service. Please try again later.",
       });
     } finally {
       setIsLoading(false);
@@ -59,7 +59,7 @@ export function RecommendationTool() {
         </div>
         <CardTitle className="text-3xl font-headline">AI-Powered Service Recommendation</CardTitle>
         <CardDescription>
-          Describe your financial situation or question below, and our AI will suggest the best service for you.
+          Describe your financial situation or question below, and my AI will suggest the best service for you.
         </CardDescription>
       </CardHeader>
       <CardContent>

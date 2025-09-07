@@ -2,7 +2,7 @@
 'use server';
 
 /**
- * @fileOverview AI-powered service recommendation flow for Mwanakombo Financial Services.
+ * @fileOverview AI-powered service recommendation flow for Mwanakombo.
  *
  * This file exports:
  * - `recommendService`: An async function that takes a user inquiry and returns a service recommendation.
@@ -30,7 +30,7 @@ const AIServiceRecommendationOutputSchema = z.object({
   recommendedService: z
     .string()
     .describe(
-      'The service recommended by the AI. Options are: audit services, tax services, consultancy services, and consumer finance.'
+      'The service recommended by the AI. Options are: audit services, tax services, consultancy services, and personal finance.'
     ),
   reason: z
     .string()
@@ -54,13 +54,13 @@ const aiServiceRecommendationPrompt = ai.definePrompt({
   name: 'aiServiceRecommendationPrompt',
   input: { schema: AIServiceRecommendationInputSchema },
   output: { schema: AIServiceRecommendationOutputSchema },
-  prompt: `You are an AI assistant designed to recommend the most suitable financial service provided by Mwanakombo Financial Services based on user inquiries.
+  prompt: `You are an AI assistant for Mwanakombo, a financial expert. You are designed to recommend the most suitable financial service he provides based on user inquiries.
 
 You must select one of the following services:
 - audit services
 - tax services
 - consultancy services
-- consumer finance
+- personal finance
 
 Analyze the following inquiry and determine which service is most appropriate. Provide a clear and concise reason for your recommendation.
 

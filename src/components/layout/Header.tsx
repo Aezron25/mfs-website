@@ -40,7 +40,7 @@ export function Header() {
           <Link href="/" className="mr-6 flex items-center space-x-2">
             <Mountain className="h-6 w-6 text-primary" />
             <span className="hidden font-bold sm:inline-block font-headline">
-              Mwanakombo Financial Services
+              Mwanakombo
             </span>
           </Link>
           <nav className="flex items-center space-x-6 text-sm font-medium">
@@ -53,7 +53,7 @@ export function Header() {
         <div className="flex flex-1 items-center justify-between md:hidden">
            <Link href="/" className="flex items-center space-x-2" onClick={() => setIsMobileMenuOpen(false)}>
             <Mountain className="h-6 w-6 text-primary" />
-             <span className="font-bold font-headline text-base">MFS</span>
+             <span className="font-bold font-headline text-base">Mwanakombo</span>
           </Link>
           <Sheet open={isMobileMenuOpen} onOpenChange={setIsMobileMenuOpen}>
             <SheetTrigger asChild>
@@ -63,16 +63,16 @@ export function Header() {
               </Button>
             </SheetTrigger>
             <SheetContent side="left" className="pr-0">
-                <SheetHeader className="sr-only">
-                  <SheetTitle>Mobile Menu</SheetTitle>
-                  <SheetDescription>
-                    Navigation links for Mwanakombo Financial Services.
-                  </SheetDescription>
-                </SheetHeader>
+               <SheetHeader>
+                 <SheetTitle className="sr-only">Mobile Menu</SheetTitle>
+                 <SheetDescription className="sr-only">
+                   Navigation links for Mwanakombo's financial services.
+                 </SheetDescription>
+               </SheetHeader>
                <Link href="/" className="flex items-center space-x-2" onClick={() => setIsMobileMenuOpen(false)}>
                   <Mountain className="h-6 w-6 text-primary" />
                   <span className="font-bold sm:inline-block font-headline">
-                    Mwanakombo Financial
+                    Mwanakombo
                   </span>
                 </Link>
               <div className="grid gap-2 py-6">
