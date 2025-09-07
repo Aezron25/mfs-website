@@ -18,12 +18,11 @@ export default function AboutPage() {
             </div>
             <div className="flex items-center justify-center">
               <Image
-                src="https://picsum.photos/600/600"
-                alt="A plant growing, representing financial growth"
+                src="/images/moses.jpg"
+                alt="Mwanakombo"
                 width={600}
                 height={600}
                 className="rounded-full shadow-lg aspect-square object-cover"
-                data-ai-hint="plant growing"
               />
             </div>
           </div>
