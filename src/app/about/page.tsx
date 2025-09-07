@@ -13,7 +13,7 @@ export default function AboutPage() {
               </h1>
                <p className="text-primary text-xl font-semibold">Financial Expert & Consultant</p>
               <p className="text-muted-foreground md:text-xl">
-                With over 20 years of experience in the financial industry, I am dedicated to providing transparent, expert, and personalized financial guidance. My mission is to build long-term relationships with my clients based on trust, integrity, and a shared goal of achieving financial success.
+                As a seasoned financial expert, I am dedicated to providing transparent, expert, and personalized financial guidance. My mission is to build long-term relationships with my clients based on trust, integrity, and a shared goal of achieving financial success.
               </p>
             </div>
             <div className="flex items-center justify-center">
