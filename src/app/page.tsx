@@ -68,12 +68,12 @@ export default function Home() {
     <div className="flex flex-col min-h-[100dvh]">
       <section className="relative w-full h-[60vh] md:h-[80vh]">
         <Image
-          src="/images/moses.png"
+          src="https://picsum.photos/1920/1080"
           alt="Financial meeting"
           fill
           className="object-cover"
           priority
-          data-ai-hint="business portrait"
+          data-ai-hint="finance office"
         />
         <div className="absolute inset-0 bg-primary/70" />
         <div className="relative container mx-auto flex h-full flex-col items-center justify-center text-center text-primary-foreground">
