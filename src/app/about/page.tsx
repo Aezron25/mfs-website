@@ -2,14 +2,7 @@ import Image from "next/image";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Card, CardContent } from "@/components/ui/card";
 
-const teamMembers = [
-  {
-    name: "Chanda Tembo",
-    role: "Lead Consultant",
-    avatar: "https://picsum.photos/200/200?random=11",
-    dataAiHint: "man consultant",
-    bio: "Chanda brings a strategic mindset to our consultancy team, with a track record of driving growth for businesses of all sizes.",
-  },
+const teamMembers: { name: string; role: string; avatar: string; dataAiHint: string; bio: string; }[] = [
 ];
 
 export default function AboutPage() {
