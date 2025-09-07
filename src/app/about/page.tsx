@@ -4,13 +4,6 @@ import { Card, CardContent } from "@/components/ui/card";
 
 const teamMembers = [
   {
-    name: "Besa Mwila",
-    role: "Head of Audit",
-    avatar: "https://picsum.photos/200/200?random=9",
-    dataAiHint: "man professional",
-    bio: "Besa is a certified public accountant with a meticulous eye for detail, ensuring the highest standards of accuracy and compliance.",
-  },
-  {
     name: "Lumbani Phiri",
     role: "Director of Tax Services",
     avatar: "https://picsum.photos/200/200?random=10",
