@@ -21,7 +21,7 @@ export default function ContactPage() {
                 <MapPin className="h-6 w-6 text-primary" />
               </div>
               <div>
-                <h3 className="font-semibold">Our Office</h3>
+                <h3 className="font-semibold">My Office</h3>
                 <p className="text-muted-foreground">Stand 237, Great East Road, Lusaka, Zambia</p>
               </div>
             </div>
