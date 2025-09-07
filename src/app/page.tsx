@@ -68,12 +68,12 @@ export default function Home() {
     <div className="flex flex-col min-h-[100dvh]">
       <section className="relative w-full h-[60vh] md:h-[80vh]">
         <Image
-          src="https://picsum.photos/1920/1080"
+          src="https://picsum.photos/1920/1080?grayscale&blur=2"
           alt="Financial meeting"
           fill
           className="object-cover"
           priority
-          data-ai-hint="finance office"
+          data-ai-hint="finance office professional"
         />
         <div className="absolute inset-0 bg-primary/70" />
         <div className="relative container mx-auto flex h-full flex-col items-center justify-center text-center text-primary-foreground">
@@ -128,39 +128,6 @@ export default function Home() {
                 </p>
               </div>
             ))}
-          </div>
-        </div>
-      </section>
-
-      <section
-        id="ai-recommender"
-        className="w-full py-12 md:py-24 lg:py-32 bg-muted"
-      >
-        <div className="container grid items-center gap-6 px-4 md:px-6 lg:grid-cols-2 lg:gap-10">
-          <div className="space-y-4">
-            <h2 className="text-3xl font-bold tracking-tighter md:text-4xl/tight font-headline">
-              Not Sure Where to Start?
-            </h2>
-            <p className="max-w-[600px] text-muted-foreground md:text-xl/relaxed lg:text-base/relaxed xl:text-xl/relaxed">
-              Use my AI-powered tool to get a personalized service
-              recommendation. Just describe your financial needs, and I'll
-              suggest the best service for you.
-            </p>
-            <Button asChild size="lg">
-              <Link href="/services#recommendation-tool">
-                Get Your Recommendation <ArrowRight className="ml-2 h-5 w-5" />
-              </Link>
-            </Button>
-          </div>
-          <div className="flex justify-center">
-            <Image
-              src="/images/moses.png"
-              alt="AI illustration"
-              width={600}
-              height={400}
-              className="rounded-xl shadow-2xl object-cover"
-              data-ai-hint="man portrait"
-            />
           </div>
         </div>
       </section>

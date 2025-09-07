@@ -1,4 +1,4 @@
-import { RecommendationTool } from "@/components/services/RecommendationTool";
+
 import { BookCheck, Calculator, Briefcase, Wallet } from "lucide-react";
 import Image from "next/image";
 
@@ -73,12 +73,6 @@ export default function ServicesPage() {
               </div>
             ))}
           </div>
-        </div>
-      </section>
-
-      <section className="w-full py-12 md:py-24 lg:py-32 bg-muted">
-        <div className="container px-4 md:px-6">
-          <RecommendationTool />
         </div>
       </section>
     </>
