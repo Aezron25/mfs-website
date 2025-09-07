@@ -40,7 +40,7 @@ export function Header() {
           <Link href="/" className="mr-6 flex items-center space-x-2">
             <Mountain className="h-6 w-6 text-primary" />
             <span className="hidden font-bold sm:inline-block font-headline">
-              Mwanakombo
+              Mwanakombo Financial Services
             </span>
           </Link>
           <nav className="flex items-center space-x-6 text-sm font-medium">
@@ -72,7 +72,7 @@ export function Header() {
                <Link href="/" className="flex items-center space-x-2" onClick={() => setIsMobileMenuOpen(false)}>
                   <Mountain className="h-6 w-6 text-primary" />
                   <span className="font-bold sm:inline-block font-headline">
-                    Mwanakombo
+                    Mwanakombo Financial Services
                   </span>
                 </Link>
               <div className="grid gap-2 py-6">

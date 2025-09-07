@@ -6,7 +6,7 @@ import { Footer } from '@/components/layout/Footer';
 import { Toaster } from '@/components/ui/toaster';
 
 export const metadata: Metadata = {
-  title: 'Mwanakombo | Financial Expert',
+  title: 'Mwanakombo Financial Services | Financial Expert',
   description:
     'Expert financial guidance from Mwanakombo. Specializing in audit, tax, consultancy, and personal finance.',
   icons: {
