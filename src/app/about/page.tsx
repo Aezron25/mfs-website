@@ -18,7 +18,7 @@ export default function AboutPage() {
             </div>
             <div className="flex items-center justify-center">
               <Image
-                src="/images/moses.png"
+                src="/images/moses.jpg"
                 alt="Mwanakombo"
                 width={600}
                 height={600}
