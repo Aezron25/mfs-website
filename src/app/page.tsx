@@ -68,7 +68,7 @@ export default function Home() {
     <div className="flex flex-col min-h-[100dvh]">
       <section className="relative w-full h-[60vh] md:h-[80vh]">
         <Image
-          src="https://picsum.photos/1800/1200"
+          src="/images/moses.png"
           alt="Financial meeting"
           fill
           className="object-cover"
