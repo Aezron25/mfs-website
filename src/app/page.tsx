@@ -154,12 +154,12 @@ export default function Home() {
           </div>
           <div className="flex justify-center">
             <Image
-              src="https://picsum.photos/600/400"
+              src="/images/moses.png"
               alt="AI illustration"
               width={600}
               height={400}
-              className="rounded-xl shadow-2xl"
-              data-ai-hint="artificial intelligence"
+              className="rounded-xl shadow-2xl object-cover"
+              data-ai-hint="man portrait"
             />
           </div>
         </div>
