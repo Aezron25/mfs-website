@@ -7,10 +7,9 @@ import {
   Briefcase,
   Wallet,
   ArrowRight,
-  Search,
-  DraftingCompass,
+  FileSignature,
   Rocket,
-  TrendingUp,
+  Handshake,
 } from 'lucide-react';
 
 const services = [
@@ -40,26 +39,21 @@ const services = [
   },
 ];
 
-const processSteps = [
+const whyChooseMe = [
   {
-    icon: <Search className="h-8 w-8 text-primary" />,
-    title: '1. Discovery Call',
-    description: 'We start by understanding your current financial situation, challenges, and long-term goals.',
-  },
-  {
-    icon: <DraftingCompass className="h-8 w-8 text-primary" />,
-    title: '2. Strategy Design',
-    description: 'I craft a bespoke financial plan and a clear roadmap tailored specifically to your needs.',
+    icon: <FileSignature className="h-8 w-8 text-primary" />,
+    title: 'Personalized Strategy',
+    description: 'Every client gets a bespoke financial plan, not a one-size-fits-all solution.',
   },
   {
     icon: <Rocket className="h-8 w-8 text-primary" />,
-    title: '3. Implementation',
-    description: 'We put your tailored plan into action, handling the details to ensure a smooth transition.',
+    title: 'SME & Startup Focus',
+    description: 'Specialized expertise in navigating the unique financial challenges of growing businesses.',
   },
   {
-    icon: <TrendingUp className="h-8 w-8 text-primary" />,
-    title: '4. Ongoing Review',
-    description: 'I continuously monitor progress, track results, and make adjustments to keep you on track.',
+    icon: <Handshake className="h-8 w-8 text-primary" />,
+    title: 'Long-Term Partnership',
+    description: 'Committed to building lasting relationships based on trust and shared goals.',
   },
 ];
 
@@ -69,7 +63,7 @@ export default function Home() {
     <div className="flex flex-col min-h-[100dvh]">
       <section className="relative w-full h-[60vh] md:h-[80vh]">
         <Image
-          src="https://picsum.photos/1920/1080?grayscale"
+          src="https://picsum.photos/1920/1080"
           alt="Financial meeting"
           fill
           className="object-cover"
@@ -133,35 +127,35 @@ export default function Home() {
         </div>
       </section>
 
-      <section id="process" className="w-full py-12 md:py-24 lg:py-32 bg-muted">
+      <section id="why-choose-me" className="w-full py-12 md:py-24 lg:py-32 bg-muted">
         <div className="container px-4 md:px-6">
           <div className="flex flex-col items-center justify-center space-y-4 text-center">
             <div className="space-y-2">
               <div className="inline-block rounded-lg bg-background px-3 py-1 text-sm">
-                My Process
+                Why Choose Me?
               </div>
               <h2 className="text-3xl font-bold tracking-tighter sm:text-5xl font-headline">
-                A Clear Path to Financial Success
+                Your Trusted Financial Partner
               </h2>
               <p className="max-w-[900px] text-muted-foreground md:text-xl/relaxed lg:text-base/relaxed xl:text-xl/relaxed">
-                I follow a structured and transparent process to ensure your financial goals are met with precision and care.
+                I am committed to providing you with the highest level of service and expertise.
               </p>
             </div>
           </div>
-          <div className="mx-auto grid max-w-5xl items-start gap-8 sm:grid-cols-2 md:gap-12 lg:max-w-none lg:grid-cols-4 mt-12">
-            {processSteps.map((step) => (
+          <div className="mx-auto grid max-w-5xl items-start gap-8 sm:grid-cols-1 md:gap-12 lg:max-w-none lg:grid-cols-3 mt-12">
+            {whyChooseMe.map((item) => (
                <div
-                key={step.title}
+                key={item.title}
                 className="flex flex-col items-center text-center gap-4"
               >
                 <div className="bg-background rounded-full p-4">
-                  {step.icon}
+                  {item.icon}
                 </div>
                 <h3 className="text-xl font-bold font-headline">
-                  {step.title}
+                  {item.title}
                 </h3>
                 <p className="text-sm text-muted-foreground">
-                  {step.description}
+                  {item.description}
                 </p>
               </div>
             ))}
