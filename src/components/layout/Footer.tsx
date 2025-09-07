@@ -21,7 +21,7 @@ export function Footer() {
              <h4 className="font-semibold text-foreground">Contact Us</h4>
              <div className="flex items-center gap-3">
                 <Phone className="h-5 w-5 text-primary flex-shrink-0"/>
-                <a href="tel:0972088113" className="hover:text-primary break-all">0972088113</a>
+                <a href="tel:+260972088113" className="hover:text-primary break-all">+260 972 088 113</a>
              </div>
              <div className="flex items-center gap-3">
                 <Mail className="h-5 w-5 text-primary flex-shrink-0"/>
