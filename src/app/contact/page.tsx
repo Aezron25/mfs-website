@@ -31,7 +31,7 @@ export default function ContactPage() {
               </div>
               <div>
                 <h3 className="font-semibold">Email Us</h3>
-                <p className="text-muted-foreground">contact@mwanakombo.finance</p>
+                <p className="text-muted-foreground">mosesmwanakombo890@gmail.com</p>
               </div>
             </div>
             <div className="flex items-start gap-4">
