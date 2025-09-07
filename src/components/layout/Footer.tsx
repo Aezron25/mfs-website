@@ -33,7 +33,7 @@ export function Footer() {
              </div>
              <div className="flex items-start gap-3">
                 <MapPin className="h-5 w-5 text-primary mt-1 flex-shrink-0"/>
-                <p>Silverest chongwe Lusaka, Zambia</p>
+                <p>Silverest, Chongwe, Lusaka Zambia</p>
              </div>
           </div>
            <div className="space-y-4">
