@@ -1,15 +1,16 @@
 import Image from 'next/image';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import {
   BookCheck,
   Calculator,
   Briefcase,
   Wallet,
   ArrowRight,
-  Star,
+  Search,
+  DraftingCompass,
+  Rocket,
+  TrendingUp,
 } from 'lucide-react';
 
 const services = [
@@ -39,36 +40,36 @@ const services = [
   },
 ];
 
-const testimonials = [
+const processSteps = [
   {
-    name: 'Bwalya Chisanga',
-    title: 'CEO, Agri-Innovate Zambia',
-    avatar: 'https://picsum.photos/100/100?random=1',
-    dataAiHint: 'woman portrait',
-    text: "Mwanakombo's consultancy services were a game-changer for our business. His insights were invaluable for our strategic planning.",
+    icon: <Search className="h-8 w-8 text-primary" />,
+    title: '1. Discovery Call',
+    description: 'We start by understanding your current financial situation, challenges, and long-term goals.',
   },
   {
-    name: 'Tendai Zulu',
-    title: 'Owner, T&Z Logistics',
-    avatar: 'https://picsum.photos/100/100?random=2',
-    dataAiHint: 'man portrait',
-    text: 'His tax knowledge is incredible. He helped us navigate a complex tax situation with ease. Highly recommended!',
+    icon: <DraftingCompass className="h-8 w-8 text-primary" />,
+    title: '2. Strategy Design',
+    description: 'I craft a bespoke financial plan and a clear roadmap tailored specifically to your needs.',
   },
   {
-    name: 'Chipo Banda',
-    title: 'Individual Client',
-    avatar: 'https://picsum.photos/100/100?random=3',
-    dataAiHint: 'person smiling',
-    text: 'Mwanakombo guided me through every step of managing my personal finances. The advice was clear, transparent, and effective.',
+    icon: <Rocket className="h-8 w-8 text-primary" />,
+    title: '3. Implementation',
+    description: 'We put your tailored plan into action, handling the details to ensure a smooth transition.',
+  },
+  {
+    icon: <TrendingUp className="h-8 w-8 text-primary" />,
+    title: '4. Ongoing Review',
+    description: 'I continuously monitor progress, track results, and make adjustments to keep you on track.',
   },
 ];
+
 
 export default function Home() {
   return (
     <div className="flex flex-col min-h-[100dvh]">
       <section className="relative w-full h-[60vh] md:h-[80vh]">
         <Image
-          src="https://picsum.photos/1920/1080?grayscale&blur=2"
+          src="https://picsum.photos/1920/1080?grayscale"
           alt="Financial meeting"
           fill
           className="object-cover"
@@ -132,66 +133,37 @@ export default function Home() {
         </div>
       </section>
 
-      <section id="testimonials" className="w-full py-12 md:py-24 lg:py-32">
+      <section id="process" className="w-full py-12 md:py-24 lg:py-32 bg-muted">
         <div className="container px-4 md:px-6">
           <div className="flex flex-col items-center justify-center space-y-4 text-center">
             <div className="space-y-2">
-              <div className="inline-block rounded-lg bg-muted px-3 py-1 text-sm">
-                Testimonials
+              <div className="inline-block rounded-lg bg-background px-3 py-1 text-sm">
+                My Process
               </div>
               <h2 className="text-3xl font-bold tracking-tighter sm:text-5xl font-headline">
-                What My Clients Say
+                A Clear Path to Financial Success
               </h2>
               <p className="max-w-[900px] text-muted-foreground md:text-xl/relaxed lg:text-base/relaxed xl:text-xl/relaxed">
-                I'm proud to have earned the trust of my clients. Here's
-                what they have to say about their experience with me.
+                I follow a structured and transparent process to ensure your financial goals are met with precision and care.
               </p>
             </div>
           </div>
-          <div className="mx-auto grid grid-cols-1 items-start gap-8 sm:grid-cols-2 lg:grid-cols-3 mt-12">
-            {testimonials.map(testimonial => (
-              <Card
-                key={testimonial.name}
-                className="bg-card hover:shadow-lg transition-shadow"
+          <div className="mx-auto grid max-w-5xl items-start gap-8 sm:grid-cols-2 md:gap-12 lg:max-w-none lg:grid-cols-4 mt-12">
+            {processSteps.map((step) => (
+               <div
+                key={step.title}
+                className="flex flex-col items-center text-center gap-4"
               >
-                <CardHeader>
-                  <div className="flex items-center gap-4">
-                    <Avatar>
-                      <AvatarImage
-                        src={testimonial.avatar}
-                        alt={testimonial.name}
-                        data-ai-hint={testimonial.dataAiHint}
-                        width={100}
-                        height={100}
-                      />
-                      <AvatarFallback>
-                        {testimonial.name.charAt(0)}
-                      </AvatarFallback>
-                    </Avatar>
-                    <div>
-                      <CardTitle className="text-base font-bold">
-                        {testimonial.name}
-                      </CardTitle>
-                      <p className="text-sm text-muted-foreground">
-                        {testimonial.title}
-                      </p>
-                    </div>
-                  </div>
-                </CardHeader>
-                <CardContent>
-                  <div className="flex gap-0.5 mb-2">
-                    {[...Array(5)].map((_, i) => (
-                      <Star
-                        key={i}
-                        className="h-4 w-4 fill-accent text-accent"
-                      />
-                    ))}
-                  </div>
-                  <p className="text-sm text-muted-foreground italic">
-                    "{testimonial.text}"
-                  </p>
-                </CardContent>
-              </Card>
+                <div className="bg-background rounded-full p-4">
+                  {step.icon}
+                </div>
+                <h3 className="text-xl font-bold font-headline">
+                  {step.title}
+                </h3>
+                <p className="text-sm text-muted-foreground">
+                  {step.description}
+                </p>
+              </div>
             ))}
           </div>
         </div>
