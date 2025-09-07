@@ -1,6 +1,10 @@
 "use server";
 
 import { z } from "zod";
+import { Resend } from "resend";
+import { ContactEmailTemplate } from "@/components/contact/ContactEmailTemplate";
+
+const resend = new Resend(process.env.RESEND_API_KEY);
 
 const contactFormSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters."),
@@ -33,11 +37,25 @@ export async function submitContactForm(
     };
   }
 
+  const { name, email, message } = validatedFields.data;
+
   try {
-    // Here you would typically send an email.
-    // For this example, we'll just log it and simulate success.
-    console.log("New contact form submission:");
-    console.log(validatedFields.data);
+    const { data, error } = await resend.emails.send({
+      from: 'Contact Form <onboarding@resend.dev>', // You can use onbarding@resend.dev for testing
+      to: 'mosesmwanakombo890@gmail.com',
+      subject: `New message from ${name}`,
+      reply_to: email,
+      react: ContactEmailTemplate({ name, email, message }),
+      text: `Name: ${name}\nEmail: ${email}\nMessage: ${message}`
+    });
+
+    if (error) {
+      console.error("Resend API error:", error);
+      return {
+        message: "Something went wrong. Please try again later.",
+        status: "error",
+      };
+    }
 
     return {
       message: "Thank you for your message! We will get back to you shortly.",
