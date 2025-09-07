@@ -4,13 +4,6 @@ import { Card, CardContent } from "@/components/ui/card";
 
 const teamMembers = [
   {
-    name: "Thandiwe Mwanakombo",
-    role: "Founder & CEO",
-    avatar: "https://picsum.photos/200/200?random=8",
-    dataAiHint: "woman ceo",
-    bio: "With over 20 years of experience in the financial industry, Thandiwe leads the firm with a passion for client success and ethical practice.",
-  },
-  {
     name: "Besa Mwila",
     role: "Head of Audit",
     avatar: "https://picsum.photos/200/200?random=9",
