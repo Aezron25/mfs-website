@@ -5,17 +5,17 @@ import { Mail, Phone, MapPin } from "lucide-react";
 export default function ContactPage() {
   return (
     <div className="container py-12 md:py-24 lg:py-32">
-      <div className="grid gap-12 lg:grid-cols-2">
+      <div className="grid gap-12 lg:grid-cols-1">
         <div className="space-y-6">
-          <div className="space-y-2">
+          <div className="space-y-2 text-center">
             <h1 className="text-3xl font-bold tracking-tighter sm:text-5xl font-headline">
               Get in Touch
             </h1>
-            <p className="max-w-[600px] text-muted-foreground md:text-xl/relaxed">
+            <p className="max-w-[600px] text-muted-foreground md:text-xl/relaxed mx-auto">
               We're here to help. Whether you have a question about our services or want to discuss your financial needs, our team is ready to answer your questions.
             </p>
           </div>
-          <div className="space-y-4">
+          <div className="mx-auto max-w-sm space-y-4">
             <div className="flex items-start gap-4">
               <div className="bg-muted rounded-md p-3 flex-shrink-0">
                 <MapPin className="h-6 w-6 text-primary" />
@@ -45,6 +45,7 @@ export default function ContactPage() {
             </div>
           </div>
         </div>
+        {/* 
         <div>
           <Card>
             <CardHeader>
@@ -58,6 +59,7 @@ export default function ContactPage() {
             </CardContent>
           </Card>
         </div>
+        */}
       </div>
     </div>
   );
