@@ -64,11 +64,11 @@ export default function Home() {
       <section className="relative w-full h-[60vh] md:h-[80vh]">
         <Image
           src="https://picsum.photos/1920/1080"
-          alt="Financial meeting"
+          alt="Financial planning charts and graphs"
           fill
           className="object-cover"
           priority
-          data-ai-hint="finance office professional"
+          data-ai-hint="financial charts"
         />
         <div className="absolute inset-0 bg-primary/70" />
         <div className="relative container mx-auto flex h-full flex-col items-center justify-center text-center text-primary-foreground">
