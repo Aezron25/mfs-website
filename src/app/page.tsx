@@ -63,12 +63,11 @@ export default function Home() {
     <div className="flex flex-col min-h-[100dvh]">
       <section className="relative w-full h-[60vh] md:h-[80vh]">
         <Image
-          src="https://picsum.photos/1920/1081"
+          src="/images/finance1.jpg"
           alt="Abstract image representing financial growth"
           fill
           className="object-cover"
           priority
-          data-ai-hint="finance"
         />
         <div className="absolute inset-0 bg-primary/70" />
         <div className="relative container mx-auto flex h-full flex-col items-center justify-center text-center text-primary-foreground">
