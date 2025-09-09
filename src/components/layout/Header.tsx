@@ -3,10 +3,11 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Menu } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription, SheetTrigger } from "@/components/ui/sheet";
 import { cn } from "@/lib/utils";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 const navItems = [
   { href: "/", label: "Home" },
@@ -34,6 +35,12 @@ const MfsLogo = (props: React.SVGProps<SVGSVGElement>) => (
 export function Header() {
   const pathname = usePathname();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const isMobile = useIsMobile();
+  const [isClient, setIsClient] = useState(false);
+
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
 
   const NavLink = ({ href, label, className }: { href: string; label: string, className?: string }) => (
     <Link
@@ -52,52 +59,59 @@ export function Header() {
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="container flex h-14 items-center">
-        <div className="mr-4 hidden md:flex items-center">
-          <Link href="/" className="mr-6 flex items-center space-x-2">
-            <MfsLogo className="h-6 w-6 text-primary" />
-            <span className="hidden font-bold sm:inline-block font-headline">
-              Mwanakombo Financial Services
-            </span>
-          </Link>
-          <nav className="flex items-center space-x-6 text-sm font-medium">
-            {navItems.map((item) => (
-              <NavLink key={item.href} {...item} />
-            ))}
-          </nav>
-        </div>
+        {!isClient || !isMobile ? (
+          <div className="mr-4 hidden md:flex items-center">
+            <Link href="/" className="mr-6 flex items-center space-x-2">
+              <MfsLogo className="h-6 w-6 text-primary" />
+              <span className="hidden font-bold sm:inline-block font-headline">
+                Mwanakombo Financial Services
+              </span>
+            </Link>
+            <nav className="flex items-center space-x-6 text-sm font-medium">
+              {navItems.map((item) => (
+                <NavLink key={item.href} {...item} />
+              ))}
+            </nav>
+          </div>
+        ) : null}
 
-        <div className="flex flex-1 items-center justify-between md:hidden">
-           <Link href="/" className="flex items-center space-x-2" onClick={() => setIsMobileMenuOpen(false)}>
-            <MfsLogo className="h-6 w-6 text-primary" />
-             <span className="font-bold font-headline text-base">MFS</span>
-          </Link>
-          <Sheet open={isMobileMenuOpen} onOpenChange={setIsMobileMenuOpen}>
-            <SheetTrigger asChild>
-              <Button variant="ghost" size="icon">
-                <Menu className="h-5 w-5" />
-                <span className="sr-only">Open Menu</span>
-              </Button>
-            </SheetTrigger>
-            <SheetContent side="left" className="pr-0">
-               <SheetHeader>
-                 <SheetTitle className="sr-only">Mobile Menu</SheetTitle>
-                 <SheetDescription className="sr-only">
-                   Navigation links for Mwanakombo's financial services.
-                 </SheetDescription>
-               </SheetHeader>
-               <Link href="/" className="flex items-center space-x-2" onClick={() => setIsMobileMenuOpen(false)}>
+        {isClient && isMobile ? (
+          <div className="flex flex-1 items-center justify-between md:hidden">
+            <Link href="/" className="flex items-center space-x-2" onClick={() => setIsMobileMenuOpen(false)}>
+              <MfsLogo className="h-6 w-6 text-primary" />
+              <span className="font-bold font-headline text-base">MFS</span>
+            </Link>
+            <Sheet open={isMobileMenuOpen} onOpenChange={setIsMobileMenuOpen}>
+              <SheetTrigger asChild>
+                <Button variant="ghost" size="icon">
+                  <Menu className="h-5 w-5" />
+                  <span className="sr-only">Open Menu</span>
+                </Button>
+              </SheetTrigger>
+              <SheetContent side="left" className="pr-0">
+                <SheetHeader>
+                  <SheetTitle className="sr-only">Mobile Menu</SheetTitle>
+                  <SheetDescription className="sr-only">
+                    Navigation links for Mwanakombo's financial services.
+                  </SheetDescription>
+                </SheetHeader>
+                <Link href="/" className="flex items-center space-x-2" onClick={() => setIsMobileMenuOpen(false)}>
                   <MfsLogo className="h-6 w-6 text-primary" />
                   <span className="font-bold sm:inline-block font-headline">
                     Mwanakombo Financial Services
                   </span>
                 </Link>
-              <div className="grid gap-2 py-6">
-                  {navItems.map((item) => (
-                    <NavLink key={item.href} {...item} className="text-lg py-2" />
-                  ))}
-              </div>
-            </SheetContent>
-          </Sheet>
+                <div className="grid gap-2 py-6">
+                    {navItems.map((item) => (
+                      <NavLink key={item.href} {...item} className="text-lg py-2" />
+                    ))}
+                </div>
+              </SheetContent>
+            </Sheet>
+          </div>
+        ) : null}
+         <div className="flex-1 items-center justify-end hidden md:flex">
+          {/* This space could be used for a CTA or other links in the future */}
         </div>
       </div>
     </header>
