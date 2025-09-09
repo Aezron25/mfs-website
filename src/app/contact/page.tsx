@@ -12,7 +12,7 @@ export default function ContactPage() {
               Get in Touch
             </h1>
             <p className="max-w-[600px] text-muted-foreground md:text-xl/relaxed mx-auto">
-              We're here to help. Whether you have a question about our services or want to discuss your financial needs, our team is ready to answer your questions.
+              I'm here to help. Whether you have a question about my services or want to discuss your financial needs, I'm ready to answer your questions. Please feel free to get in touch with me directly.
             </p>
           </div>
           <div className="mx-auto max-w-sm space-y-4">
