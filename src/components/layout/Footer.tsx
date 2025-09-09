@@ -1,5 +1,20 @@
 import Link from "next/link";
-import { Mountain, Phone, Mail, MapPin } from "lucide-react";
+import { Phone, Mail, MapPin } from "lucide-react";
+
+const MfsLogo = (props: React.SVGProps<SVGSVGElement>) => (
+    <svg 
+    width="24" 
+    height="24" 
+    viewBox="0 0 24 24" 
+    fill="none" 
+    xmlns="http://www.w3.org/2000/svg"
+    {...props}
+    >
+        <path d="M4 4H8V20H4V4Z" fill="currentColor"/>
+        <path d="M8 4H12L16 12L20 4H24V20H20V8L16 16L12 8V20H8V4Z" fill="currentColor" />
+        <path d="M4 12H8V16H4V12Z" fill="currentColor"/>
+    </svg>
+)
 
 export function Footer() {
   return (
@@ -8,7 +23,7 @@ export function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
           <div className="flex flex-col items-start gap-4 md:col-span-2 lg:col-span-1">
             <Link href="/" className="flex items-center space-x-2">
-              <Mountain className="h-6 w-6 text-primary" />
+              <MfsLogo className="h-6 w-6 text-primary" />
               <span className="font-bold text-lg text-foreground">
                 Mwanakombo Financial Services (MFS)
               </span>

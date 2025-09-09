@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Mountain, Menu } from "lucide-react";
+import { Menu } from "lucide-react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription, SheetTrigger } from "@/components/ui/sheet";
@@ -14,6 +14,22 @@ const navItems = [
   { href: "/about", label: "About" },
   { href: "/contact", label: "Contact" },
 ];
+
+const MfsLogo = (props: React.SVGProps<SVGSVGElement>) => (
+    <svg 
+    width="24" 
+    height="24" 
+    viewBox="0 0 24 24" 
+    fill="none" 
+    xmlns="http://www.w3.org/2000/svg"
+    {...props}
+    >
+        <path d="M4 4H8V20H4V4Z" fill="currentColor"/>
+        <path d="M8 4H12L16 12L20 4H24V20H20V8L16 16L12 8V20H8V4Z" fill="currentColor" />
+        <path d="M4 12H8V16H4V12Z" fill="currentColor"/>
+    </svg>
+)
+
 
 export function Header() {
   const pathname = usePathname();
@@ -38,7 +54,7 @@ export function Header() {
       <div className="container flex h-14 items-center">
         <div className="mr-4 hidden md:flex items-center">
           <Link href="/" className="mr-6 flex items-center space-x-2">
-            <Mountain className="h-6 w-6 text-primary" />
+            <MfsLogo className="h-6 w-6 text-primary" />
             <span className="hidden font-bold sm:inline-block font-headline">
               Mwanakombo Financial Services
             </span>
@@ -52,7 +68,7 @@ export function Header() {
 
         <div className="flex flex-1 items-center justify-between md:hidden">
            <Link href="/" className="flex items-center space-x-2" onClick={() => setIsMobileMenuOpen(false)}>
-            <Mountain className="h-6 w-6 text-primary" />
+            <MfsLogo className="h-6 w-6 text-primary" />
              <span className="font-bold font-headline text-base">Mwanakombo</span>
           </Link>
           <Sheet open={isMobileMenuOpen} onOpenChange={setIsMobileMenuOpen}>
@@ -70,7 +86,7 @@ export function Header() {
                  </SheetDescription>
                </SheetHeader>
                <Link href="/" className="flex items-center space-x-2" onClick={() => setIsMobileMenuOpen(false)}>
-                  <Mountain className="h-6 w-6 text-primary" />
+                  <MfsLogo className="h-6 w-6 text-primary" />
                   <span className="font-bold sm:inline-block font-headline">
                     Mwanakombo Financial Services
                   </span>
