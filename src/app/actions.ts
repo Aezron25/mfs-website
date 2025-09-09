@@ -44,6 +44,7 @@ export async function submitContactForm(
         from: 'MFS Contact Form <onboarding@resend.dev>',
         to: ['mosesmwanakombo890@gmail.com'],
         subject: `New Message from ${name}`,
+        reply_to: email,
         react: ContactEmailTemplate({ name, email, message })
     });
 
