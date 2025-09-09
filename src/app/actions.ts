@@ -1,6 +1,10 @@
 "use server";
 
 import { z } from "zod";
+import { Resend } from "resend";
+import { ContactEmailTemplate } from "@/components/contact/ContactEmailTemplate";
+
+const resend = new Resend(process.env.RESEND_API_KEY);
 
 const contactFormSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters."),
@@ -36,12 +40,20 @@ export async function submitContactForm(
   const { name, email, message } = validatedFields.data;
 
   try {
-    // This is a placeholder. In a real application, you would send this data
-    // to your backend or a third-party service (e.g., an email API).
-    console.log("New contact form submission:");
-    console.log("Name:", name);
-    console.log("Email:", email);
-    console.log("Message:", message);
+    const { data, error } = await resend.emails.send({
+        from: 'MFS Contact Form <contact@resend.dev>',
+        to: ['mosesmwanakombo890@gmail.com'],
+        subject: `New Message from ${name}`,
+        react: ContactEmailTemplate({ name, email, message })
+    });
+
+    if (error) {
+        console.error("Resend API error:", error);
+        return {
+            message: "Something went wrong. Please try again later.",
+            status: "error",
+        };
+    }
 
     return {
       message: "Thank you for your message! We will get back to you shortly.",
