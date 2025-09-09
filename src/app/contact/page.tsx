@@ -30,7 +30,7 @@ export default function ContactPage() {
                 <Mail className="h-6 w-6 text-primary" />
               </div>
               <div>
-                <h3 className="font-semibold">Email Us</h3>
+                <h3 className="font-semibold">Email</h3>
                 <p className="text-muted-foreground">mosesmwanakombo890@gmail.com</p>
               </div>
             </div>
@@ -39,7 +39,7 @@ export default function ContactPage() {
                 <Phone className="h-6 w-6 text-primary" />
               </div>
               <div>
-                <h3 className="font-semibold">Call Us</h3>
+                <h3 className="font-semibold">Call Me</h3>
                 <p className="text-muted-foreground">+260 972 088 113</p>
               </div>
             </div>
