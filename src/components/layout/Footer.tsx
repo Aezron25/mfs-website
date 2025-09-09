@@ -55,7 +55,7 @@ export function Footer() {
              </div>
               <div className="flex items-center gap-3">
                 <Linkedin className="h-5 w-5 text-primary flex-shrink-0"/>
-                <a href="https://www.linkedin.com" target="_blank" rel="noopener noreferrer" className="hover:text-primary break-all">LinkedIn</a>
+                <a href="https://www.linkedin.com/in/moses-mwanakombo-a1a9572b4?utm_source=share&utm_campaign=share_via&utm_content=profile&utm_medium=ios_app" target="_blank" rel="noopener noreferrer" className="hover:text-primary break-all">LinkedIn</a>
              </div>
              <div className="flex items-start gap-3">
                 <MapPin className="h-5 w-5 text-primary mt-1 flex-shrink-0"/>
