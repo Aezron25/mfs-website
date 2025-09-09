@@ -41,7 +41,7 @@ export async function submitContactForm(
 
   try {
     const { data, error } = await resend.emails.send({
-        from: 'MFS Contact Form <contact@resend.dev>',
+        from: 'MFS Contact Form <onboarding@resend.dev>',
         to: ['mosesmwanakombo890@gmail.com'],
         subject: `New Message from ${name}`,
         react: ContactEmailTemplate({ name, email, message })
