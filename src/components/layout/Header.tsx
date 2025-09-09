@@ -69,7 +69,7 @@ export function Header() {
         <div className="flex flex-1 items-center justify-between md:hidden">
            <Link href="/" className="flex items-center space-x-2" onClick={() => setIsMobileMenuOpen(false)}>
             <MfsLogo className="h-6 w-6 text-primary" />
-             <span className="font-bold font-headline text-base">Mwanakombo</span>
+             <span className="font-bold font-headline text-base">MFS</span>
           </Link>
           <Sheet open={isMobileMenuOpen} onOpenChange={setIsMobileMenuOpen}>
             <SheetTrigger asChild>
