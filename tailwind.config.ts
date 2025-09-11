@@ -19,8 +19,8 @@ const config = {
     },
     extend: {
       fontFamily: {
-        body: ['var(--font-roboto)', 'sans-serif'],
-        headline: ['var(--font-tasa-explorer)', 'serif'],
+        body: ['Arimo', 'sans-serif'],
+        headline: ['"TASA Explorer"', 'serif'],
         code: ['monospace'],
       },
       colors: {

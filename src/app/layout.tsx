@@ -1,46 +1,10 @@
 
 import type { Metadata } from 'next';
-import { Roboto, TASA_Explorer } from 'next/font/google';
-import localFont from 'next/font/local';
 import './globals.css';
 import { cn } from '@/lib/utils';
 import { Header } from '@/components/layout/Header';
 import { Footer } from '@/components/layout/Footer';
 import { Toaster } from '@/components/ui/toaster';
-
-const fontRoboto = Roboto({
-  subsets: ['latin'],
-  display: 'swap',
-  variable: '--font-roboto',
-  weight: ['100', '300', '400', '500', '700', '900'],
-});
-
-const fontTasaExplorer = localFont({
-  src: [
-    {
-      path: '../../public/fonts/TASAExplorer-Regular.woff2',
-      weight: '400',
-      style: 'normal',
-    },
-    {
-      path: '../../public/fonts/TASAExplorer-Medium.woff2',
-      weight: '500',
-      style: 'normal',
-    },
-    {
-      path: '../../public/fonts/TASAExplorer-Bold.woff2',
-      weight: '700',
-      style: 'normal',
-    },
-    {
-      path: '../../public/fonts/TASAExplorer-Black.woff2',
-      weight: '800',
-      style: 'normal',
-    },
-  ],
-  variable: '--font-tasa-explorer',
-  display: 'swap',
-});
 
 export const metadata: Metadata = {
   title: 'Mwanakombo Financial Services | Financial Expert',
@@ -58,11 +22,14 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
+       <head>
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        <link href="https://fonts.googleapis.com/css2?family=Arimo:ital,wght@0,400..700;1,400..700&family=Roboto:ital,wght@0,100..900;1,100..900&family=TASA+Explorer:wght@400..800&display=swap" rel="stylesheet" />
+      </head>
       <body
         className={cn(
-          'min-h-screen bg-background font-body antialiased',
-          fontRoboto.variable,
-          fontTasaExplorer.variable
+          'min-h-screen bg-background font-body antialiased'
         )}
       >
         <div className="relative flex min-h-dvh flex-col">
