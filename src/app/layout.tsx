@@ -17,22 +17,22 @@ const fontRoboto = Roboto({
 const fontTasaExplorer = localFont({
   src: [
     {
-      path: '../../public/fonts/TASAExplorer-Regular.woff2',
+      path: '../fonts/TASAExplorer-Regular.woff2',
       weight: '400',
       style: 'normal',
     },
     {
-      path: '../../public/fonts/TASAExplorer-Medium.woff2',
+      path: '../fonts/TASAExplorer-Medium.woff2',
       weight: '500',
       style: 'normal',
     },
     {
-      path: '../../public/fonts/TASAExplorer-Bold.woff2',
+      path: '../fonts/TASAExplorer-Bold.woff2',
       weight: '700',
       style: 'normal',
     },
     {
-      path: '../../public/fonts/TASAExplorer-Black.woff2',
+      path: '../fonts/TASAExplorer-Black.woff2',
       weight: '800',
       style: 'normal',
     },
