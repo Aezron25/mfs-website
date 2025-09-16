@@ -16,6 +16,18 @@ const MfsLogo = (props: React.SVGProps<SVGSVGElement>) => (
     </svg>
 )
 
+const FacebookIcon = (props: React.SVGProps<SVGSVGElement>) => (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    viewBox="0 0 320 512"
+    fill="currentColor"
+    {...props}
+  >
+    <path d="M279.14 288l14.22-92.66h-88.91v-60.13c0-25.35 12.42-50.06 52.24-50.06h40.42V6.26S260.43 0 225.36 0c-73.22 0-121.08 44.38-121.08 124.72v70.62H22.89V288h81.39v224h100.17V288z" />
+  </svg>
+);
+
+
 export function Footer() {
   return (
     <footer className="bg-muted text-muted-foreground">
@@ -57,6 +69,17 @@ export function Footer() {
                 <Linkedin className="h-5 w-5 text-primary flex-shrink-0"/>
                 <a href="https://www.linkedin.com/in/moses-mwanakombo-a1a9572b4?utm_source=share&utm_campaign=share_via&utm_content=profile&utm_medium=ios_app" target="_blank" rel="noopener noreferrer" className="hover:text-primary break-all">LinkedIn</a>
              </div>
+             <div className="flex items-center gap-3">
+                <FacebookIcon className="h-5 w-5 text-primary flex-shrink-0" />
+                <a
+                  href="https://www.facebook.com/share/1Cvhna9TJZ/?mibextid=wwXIfr"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="hover:text-primary break-all"
+                >
+                  Facebook
+                </a>
+              </div>
              <div className="flex items-start gap-3">
                 <MapPin className="h-5 w-5 text-primary mt-1 flex-shrink-0"/>
                 <p>Silverest, Chongwe, Lusaka Zmabia</p>
