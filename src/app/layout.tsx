@@ -10,9 +10,6 @@ export const metadata: Metadata = {
   title: 'Mwanakombo Financial Services | Financial Expert',
   description:
     'Expert financial guidance from Mwanakombo. Specializing in audit, tax, consultancy, and personal finance.',
-  icons: {
-    icon: '/favicon.ico',
-  },
 };
 
 export default function RootLayout({
