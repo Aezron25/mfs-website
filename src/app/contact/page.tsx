@@ -5,17 +5,18 @@ import { Mail, Phone, MapPin } from "lucide-react";
 export default function ContactPage() {
   return (
     <div className="container py-12 md:py-24 lg:py-32">
-      <div className="grid gap-12 lg:grid-cols-1">
+      <div className="space-y-6 text-center mb-12">
+        <h1 className="text-3xl font-bold tracking-tighter sm:text-5xl font-headline">
+          Get in Touch
+        </h1>
+        <p className="max-w-[600px] text-muted-foreground md:text-xl/relaxed mx-auto">
+          I'm here to help. Whether you have a question about my services or want to discuss your financial needs, I'm ready to answer your questions. Please feel free to get in touch with me directly or use the form below.
+        </p>
+      </div>
+      <div className="grid gap-12 lg:grid-cols-2 lg:gap-16 items-start">
         <div className="space-y-6">
-          <div className="space-y-2 text-center">
-            <h1 className="text-3xl font-bold tracking-tighter sm:text-5xl font-headline">
-              Get in Touch
-            </h1>
-            <p className="max-w-[600px] text-muted-foreground md:text-xl/relaxed mx-auto">
-              I'm here to help. Whether you have a question about my services or want to discuss your financial needs, I'm ready to answer your questions. Please feel free to get in touch with me directly.
-            </p>
-          </div>
-          <div className="mx-auto max-w-sm space-y-4">
+          <h2 className="text-2xl font-bold text-center lg:text-left">Direct Contact</h2>
+          <div className="mx-auto max-w-sm lg:mx-0 lg:max-w-none space-y-4">
             <div className="flex items-start gap-4">
               <div className="bg-muted rounded-md p-3 flex-shrink-0">
                 <MapPin className="h-6 w-6 text-primary" />
@@ -45,13 +46,13 @@ export default function ContactPage() {
             </div>
           </div>
         </div>
-        {/* 
+        
         <div>
           <Card>
             <CardHeader>
-              <CardTitle>Send Us a Message</CardTitle>
+              <CardTitle>Send Me a Message</CardTitle>
               <CardDescription>
-                Fill out the form below and we'll get back to you as soon as possible.
+                Fill out the form below and I'll get back to you as soon as possible.
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -59,7 +60,6 @@ export default function ContactPage() {
             </CardContent>
           </Card>
         </div>
-        */}
       </div>
     </div>
   );
