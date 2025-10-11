@@ -1,0 +1,105 @@
+/**
+ * @fileoverview Firestore Security Rules for Mwanakombo Financial Services.
+ *
+ * Core Philosophy:
+ * This ruleset enforces a strict user-ownership model for client profiles and messages,
+ * combined with role-based access control for administrators.
+ *
+ * Data Structure:
+ * - /client_profiles/{clientProfileId}: Stores client profile data, accessible only to the authenticated user.
+ * - /client_profiles/{clientProfileId}/messages/{messageId}: Stores messages sent by a client.
+ *   Each message contains a denormalized `clientProfileId` for authorization.
+ * - /roles_admin/{adminProfileId}:  Admin profiles. Existence grants admin privileges.
+ *
+ * Key Security Decisions:
+ * - Clients can only access their own profile data and messages.
+ * - Administrators are defined by the existence of a document in the `roles_admin` collection.
+ * - Read-only collections are not present in this data model.
+ * - All write operations require authentication.
+ *
+ * Denormalization for Authorization:
+ * - The `messages` subcollection includes the `clientProfileId`, allowing rules to verify ownership without
+ *   additional `get()` calls. This ensures authorization independence and improves performance.
+ *
+ * Structural Segregation:
+ * - Client profiles and admin roles are stored in separate collections, clearly separating client data
+ *   from admin roles.
+ */
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    /**
+     * @description Enforces that only the authenticated user can access their own client profile.
+     * @path /client_profiles/{clientProfileId}
+     * @allow (get, create, update, delete) User with UID 'user_abc' can access /client_profiles/user_abc
+     * @deny (get, create, update, delete) User with UID 'user_xyz' cannot access /client_profiles/user_abc
+     * @principle Enforces document ownership for reads and writes.  Validates ID on create and immutability on update.
+     */
+    match /client_profiles/{clientProfileId} {
+      function isOwner(clientProfileId) {
+        return request.auth != null && request.auth.uid == clientProfileId;
+      }
+
+      function isExistingOwner(clientProfileId) {
+        return isOwner(clientProfileId) && resource != null;
+      }
+
+      allow get: if isOwner(clientProfileId);
+      allow list: if false;
+      allow create: if isOwner(clientProfileId) && request.resource.data.id == clientProfileId;
+      allow update: if isExistingOwner(clientProfileId) && request.resource.data.id == resource.data.id;
+      allow delete: if isExistingOwner(clientProfileId);
+    }
+
+    /**
+     * @description Enforces that only the owner of the client profile can access their messages.
+     * @path /client_profiles/{clientProfileId}/messages/{messageId}
+     * @allow (create) User with UID 'user_abc' can create a message under /client_profiles/user_abc/messages/message_123 if message.clientProfileId == 'user_abc'.
+     * @allow (get, update, delete) User with UID 'user_abc' can access /client_profiles/user_abc/messages/message_123 if message.clientProfileId == 'user_abc'.
+     * @deny (create) User with UID 'user_xyz' cannot create a message under /client_profiles/user_abc/messages/message_123.
+     * @deny (get, update, delete) User with UID 'user_xyz' cannot access /client_profiles/user_abc/messages/message_123.
+     * @principle Enforces document ownership for writes. Messages store the clientProfileId.
+     */
+    match /client_profiles/{clientProfileId}/messages/{messageId} {
+      function isOwner(clientProfileId) {
+        return request.auth != null && request.auth.uid == clientProfileId;
+      }
+
+       function isMessageOwner(clientProfileId) {
+        return request.auth != null && request.auth.uid == clientProfileId && request.resource.data.clientProfileId == clientProfileId;
+      }
+
+      function isExistingMessageOwner(clientProfileId) {
+        return isMessageOwner(clientProfileId) && resource != null && resource.data.clientProfileId == clientProfileId;
+      }
+
+      allow get: if isExistingMessageOwner(clientProfileId);
+      allow list: if isOwner(clientProfileId);
+      allow create: if isMessageOwner(clientProfileId);
+      allow update: if isExistingMessageOwner(clientProfileId) && request.resource.data.clientProfileId == resource.data.clientProfileId;
+      allow delete: if isExistingMessageOwner(clientProfileId);
+    }
+
+    /**
+     * @description Grants admin privileges based on the existence of a document in this collection.
+     * @path /roles_admin/{adminProfileId}
+     * @allow (get, create, update, delete) User with UID 'admin_abc' can access /roles_admin/admin_abc if they are authenticated as 'admin_abc'.
+     * @deny (get, create, update, delete) User with UID 'user_xyz' cannot access /roles_admin/admin_abc.
+     */
+    match /roles_admin/{adminProfileId} {
+      function isAdmin(adminProfileId) {
+        return request.auth != null && request.auth.uid == adminProfileId;
+      }
+
+      function isExistingAdmin(adminProfileId) {
+        return isAdmin(adminProfileId) && resource != null;
+      }
+      allow get: if isAdmin(adminProfileId);
+      allow list: if false;
+      allow create: if isAdmin(adminProfileId) && request.resource.data.id == adminProfileId;
+      allow update: if isExistingAdmin(adminProfileId) && request.resource.data.id == resource.data.id;
+      allow delete: if isExistingAdmin(adminProfileId);
+    }
+  }
+}

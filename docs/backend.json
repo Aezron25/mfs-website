@@ -1,0 +1,182 @@
+{
+  "entities": {
+    "ClientProfile": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "ClientProfile",
+      "type": "object",
+      "description": "Represents a client's profile within the Mwanakombo Financial Services website.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the ClientProfile entity."
+        },
+        "firstName": {
+          "type": "string",
+          "description": "Client's first name."
+        },
+        "lastName": {
+          "type": "string",
+          "description": "Client's last name."
+        },
+        "email": {
+          "type": "string",
+          "description": "Client's email address.",
+          "format": "email"
+        },
+        "phoneNumber": {
+          "type": "string",
+          "description": "Client's phone number."
+        },
+        "companyName": {
+          "type": "string",
+          "description": "Client's company name, if applicable."
+        },
+        "address": {
+          "type": "string",
+          "description": "Client's address."
+        }
+      },
+      "required": [
+        "id",
+        "firstName",
+        "lastName",
+        "email"
+      ]
+    },
+    "AdminProfile": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "AdminProfile",
+      "type": "object",
+      "description": "Represents an administrator's profile for managing the Mwanakombo Financial Services website.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the AdminProfile entity."
+        },
+        "firstName": {
+          "type": "string",
+          "description": "Administrator's first name."
+        },
+        "lastName": {
+          "type": "string",
+          "description": "Administrator's last name."
+        },
+        "email": {
+          "type": "string",
+          "description": "Administrator's email address.",
+          "format": "email"
+        },
+        "role": {
+          "type": "string",
+          "description": "Administrator's role (e.g., superadmin, editor)."
+        }
+      },
+      "required": [
+        "id",
+        "firstName",
+        "lastName",
+        "email",
+        "role"
+      ]
+    },
+    "Message": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "Message",
+      "type": "object",
+      "description": "Represents a message sent by a logged-in client to Mwanakombo Financial Services.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the Message entity."
+        },
+        "clientProfileId": {
+          "type": "string",
+          "description": "Reference to ClientProfile. (Relationship: ClientProfile 1:N Message)"
+        },
+        "sentAt": {
+          "type": "string",
+          "description": "Timestamp indicating when the message was sent.",
+          "format": "date-time"
+        },
+        "subject": {
+          "type": "string",
+          "description": "Subject of the message."
+        },
+        "body": {
+          "type": "string",
+          "description": "Content of the message."
+        }
+      },
+      "required": [
+        "id",
+        "clientProfileId",
+        "sentAt",
+        "subject",
+        "body"
+      ]
+    }
+  },
+  "auth": {
+    "providers": [
+      "password",
+      "anonymous"
+    ]
+  },
+  "firestore": {
+    "structure": [
+      {
+        "path": "/client_profiles/{clientProfileId}",
+        "definition": {
+          "entityName": "ClientProfile",
+          "schema": {
+            "$ref": "#/backend/entities/ClientProfile"
+          },
+          "description": "Stores client profile data.  Accessible only to the authenticated user with a matching UID.",
+          "params": [
+            {
+              "name": "clientProfileId",
+              "description": "The unique identifier for the client profile, matching the Firebase Auth UID."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/client_profiles/{clientProfileId}/messages/{messageId}",
+        "definition": {
+          "entityName": "Message",
+          "schema": {
+            "$ref": "#/backend/entities/Message"
+          },
+          "description": "Stores messages sent by a client. Includes denormalized 'clientProfileId' for authorization independence.",
+          "params": [
+            {
+              "name": "clientProfileId",
+              "description": "The unique identifier for the client profile (owner of the message)."
+            },
+            {
+              "name": "messageId",
+              "description": "The unique identifier for the message."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/roles_admin/{adminProfileId}",
+        "definition": {
+          "entityName": "AdminProfile",
+          "schema": {
+            "$ref": "#/backend/entities/AdminProfile"
+          },
+          "description": "Collection to store admin profiles.  The existence of a document grants admin privileges.",
+          "params": [
+            {
+              "name": "adminProfileId",
+              "description": "The unique identifier for the admin profile, matching the Firebase Auth UID."
+            }
+          ]
+        }
+      }
+    ],
+    "reasoning": "This design prioritizes security and scalability for the Mwanakombo Financial Services website, focusing on user authentication (clients and admins) and message handling. It leverages path-based ownership and role-based access control with denormalization to ensure authorization independence.\n\n*   **/client_profiles/{clientProfileId}**: Stores client profile data. This path ensures only the authenticated user (client) can access their own profile.\n*   **/client_profiles/{clientProfileId}/messages/{messageId}**: Stores messages sent by clients. The `clientProfileId` is denormalized within each message to ensure security rules can validate that the authenticated user owns the message, making `list` operations secure (QAPs).\n*   **/roles_admin/{adminProfileId}**:  Acts as the admin role assignment.  Existence of a document in this collection grants admin privileges.\n\nThis structure facilitates simple and robust security rules by:\n\n1.  **Authorization Independence:** The `messages` subcollection includes the `clientProfileId`, eliminating the need for `get()` calls to the parent `client_profiles` document.  Security rules can directly verify ownership based on `request.auth.uid` and the `clientProfileId` within the message.\n2.  **Clarity of Intent:**  The structure clearly separates client profiles, admin roles, and client messages, making authorization intent explicit.\n3.  **DBAC:** Admin roles are managed through document existence in `/roles_admin/{uid}`, avoiding custom claims.\n4.  **QAPs:**  Segregation of client messages into a subcollection under their profile ensures secure `list` operations. Rules can easily filter messages based on `request.auth.uid` matching the `clientProfileId` in the message.\n5.  **Invariants:**  The structure supports the integrity of ownership.  The `clientProfileId` within messages ensures that only the owner can create, read, update, or delete their messages."
+  }
+}
