@@ -1,13 +1,14 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
-import { Menu } from "lucide-react";
+import { usePathname, useRouter } from "next/navigation";
+import { Menu, LogOut } from "lucide-react";
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription, SheetTrigger } from "@/components/ui/sheet";
 import { cn } from "@/lib/utils";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { useUser, useAuth } from "@/firebase";
 
 const navItems = [
   { href: "/", label: "Home" },
@@ -31,21 +32,32 @@ const MfsLogo = (props: React.SVGProps<SVGSVGElement>) => (
     </svg>
 )
 
-
 export function Header() {
   const pathname = usePathname();
+  const router = useRouter();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const isMobile = useIsMobile();
   const [isClient, setIsClient] = useState(false);
+  const { user, isUserLoading } = useUser();
+  const auth = useAuth();
 
   useEffect(() => {
     setIsClient(true);
   }, []);
+  
+  const handleLogout = async () => {
+    await auth.signOut();
+    setIsMobileMenuOpen(false);
+    router.push('/');
+  };
 
-  const NavLink = ({ href, label, className }: { href: string; label: string, className?: string }) => (
+  const NavLink = ({ href, label, className, onClick }: { href: string; label: string, className?: string, onClick?: () => void }) => (
     <Link
       href={href}
-      onClick={() => setIsMobileMenuOpen(false)}
+      onClick={() => {
+        setIsMobileMenuOpen(false);
+        onClick?.();
+      }}
       className={cn(
         "text-sm font-medium transition-colors hover:text-primary",
         pathname === href ? "text-primary" : "text-muted-foreground",
@@ -56,31 +68,81 @@ export function Header() {
     </Link>
   );
 
+  const AuthButtons = () => {
+    if (isUserLoading) {
+      return null; // Or a loading spinner
+    }
+    if (user) {
+      return (
+        <>
+          <Button variant="outline" size="sm" asChild>
+            <Link href="/dashboard">Dashboard</Link>
+          </Button>
+          <Button variant="ghost" size="sm" onClick={handleLogout}>
+            Logout
+            <LogOut className="ml-2 h-4 w-4"/>
+          </Button>
+        </>
+      );
+    }
+    return (
+      <>
+        <Button variant="ghost" size="sm" asChild>
+          <Link href="/login">Login</Link>
+        </Button>
+        <Button size="sm" asChild>
+          <Link href="/signup">Sign Up</Link>
+        </Button>
+      </>
+    );
+  };
+  
+  const MobileAuthButtons = () => {
+     if (isUserLoading) {
+      return null;
+    }
+    if (user) {
+      return (
+        <>
+          <NavLink href="/dashboard" label="Dashboard" className="text-lg py-2" />
+           <button
+              onClick={handleLogout}
+              className="text-lg py-2 text-sm font-medium text-muted-foreground transition-colors hover:text-primary flex items-center"
+            >
+              Logout
+              <LogOut className="ml-2 h-4 w-4"/>
+            </button>
+        </>
+      );
+    }
+    return (
+      <>
+         <NavLink href="/login" label="Login" className="text-lg py-2" />
+         <NavLink href="/signup" label="Sign Up" className="text-lg py-2" />
+      </>
+    );
+  }
+
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="container flex h-14 items-center">
-        {!isClient || !isMobile ? (
-          <div className="mr-4 hidden md:flex items-center">
-            <Link href="/" className="mr-6 flex items-center space-x-2">
-              <MfsLogo className="h-6 w-6 text-primary" />
-              <span className="hidden font-bold sm:inline-block font-headline">
-                Mwanakombo Financial Services
-              </span>
-            </Link>
-            <nav className="flex items-center space-x-6 text-sm font-medium">
-              {navItems.map((item) => (
-                <NavLink key={item.href} {...item} />
-              ))}
-            </nav>
-          </div>
-        ) : null}
+        <div className="mr-4 flex items-center">
+          <Link href="/" className="mr-6 flex items-center space-x-2">
+            <MfsLogo className="h-6 w-6 text-primary" />
+            <span className="hidden font-bold sm:inline-block font-headline">
+              Mwanakombo Financial Services
+            </span>
+            <span className="sm:hidden font-bold font-headline text-base">MFS</span>
+          </Link>
+          <nav className="hidden md:flex items-center space-x-6 text-sm font-medium">
+            {navItems.map((item) => (
+              <NavLink key={item.href} {...item} />
+            ))}
+          </nav>
+        </div>
 
         {isClient && isMobile ? (
-          <div className="flex flex-1 items-center justify-between md:hidden">
-            <Link href="/" className="flex items-center space-x-2" onClick={() => setIsMobileMenuOpen(false)}>
-              <MfsLogo className="h-6 w-6 text-primary" />
-              <span className="font-bold font-headline text-base">MFS</span>
-            </Link>
+          <div className="flex flex-1 items-center justify-end md:hidden">
             <Sheet open={isMobileMenuOpen} onOpenChange={setIsMobileMenuOpen}>
               <SheetTrigger asChild>
                 <Button variant="ghost" size="icon">
@@ -95,7 +157,7 @@ export function Header() {
                     Navigation links for Mwanakombo's financial services.
                   </SheetDescription>
                 </SheetHeader>
-                <Link href="/" className="flex items-center space-x-2" onClick={() => setIsMobileMenuOpen(false)}>
+                <Link href="/" className="flex items-center space-x-2" onClick={() => setIsMobileMenuOpe(false)}>
                   <MfsLogo className="h-6 w-6 text-primary" />
                   <span className="font-bold sm:inline-block font-headline">
                     Mwanakombo Financial Services
@@ -105,14 +167,17 @@ export function Header() {
                     {navItems.map((item) => (
                       <NavLink key={item.href} {...item} className="text-lg py-2" />
                     ))}
+                    <hr className="my-2"/>
+                    <MobileAuthButtons />
                 </div>
               </SheetContent>
             </Sheet>
           </div>
-        ) : null}
-         <div className="flex-1 items-center justify-end hidden md:flex">
-          {/* This space could be used for a CTA or other links in the future */}
-        </div>
+        ) : (
+          <div className="flex flex-1 items-center justify-end space-x-2">
+            <AuthButtons />
+          </div>
+        )}
       </div>
     </header>
   );

@@ -13,7 +13,7 @@ export default function ContactPage() {
           I'm here to help. Whether you have a question about my services or want to discuss your financial needs, I'm ready to answer your questions. Please feel free to get in touch with me directly.
         </p>
       </div>
-      <div className="grid gap-12 lg:grid-cols-1 lg:gap-16 items-start">
+      <div className="grid gap-12 lg:grid-cols-2 lg:gap-16 items-start">
         <div className="space-y-6">
           <h2 className="text-2xl font-bold text-center lg:text-left">Direct Contact</h2>
           <div className="mx-auto max-w-sm lg:mx-0 lg:max-w-none space-y-4">
@@ -47,7 +47,6 @@ export default function ContactPage() {
           </div>
         </div>
         
-        {/*
         <div>
           <Card>
             <CardHeader>
@@ -61,7 +60,6 @@ export default function ContactPage() {
             </CardContent>
           </Card>
         </div>
-        */}
       </div>
     </div>
   );
