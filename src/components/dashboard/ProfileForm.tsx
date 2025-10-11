@@ -1,17 +1,20 @@
 'use client';
 
+import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { User } from 'firebase/auth';
+import { User, deleteUser } from 'firebase/auth';
 import { doc, setDoc, serverTimestamp } from 'firebase/firestore';
-import { useFirestore } from '@/firebase';
+import { useFirestore, setDocumentNonBlocking } from '@/firebase';
+import { useRouter } from 'next/navigation';
 
 import { Button } from '@/components/ui/button';
 import {
   Card,
   CardContent,
   CardDescription,
+  CardFooter,
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
@@ -23,9 +26,21 @@ import {
   FormLabel,
   FormMessage,
 } from '@/components/ui/form';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
 import { Loader2 } from 'lucide-react';
+import { Separator } from '../ui/separator';
 
 const profileSchema = z.object({
   firstName: z.string().min(2, 'First name is required.'),
@@ -44,7 +59,9 @@ interface ProfileFormProps {
 
 export function ProfileForm({ user, profile }: ProfileFormProps) {
   const firestore = useFirestore();
+  const router = useRouter();
   const { toast } = useToast();
+  const [isDeleting, setIsDeleting] = useState(false);
 
   const form = useForm<ProfileFormValues>({
     resolver: zodResolver(profileSchema),
@@ -85,6 +102,34 @@ export function ProfileForm({ user, profile }: ProfileFormProps) {
       });
     }
   };
+
+  const handleDeleteAccount = async () => {
+    if (!user) return;
+    setIsDeleting(true);
+    
+    const clientProfileRef = doc(firestore, 'client_profiles', user.uid);
+    setDocumentNonBlocking(clientProfileRef, { deletedAt: new Date() }, { merge: true });
+
+    try {
+      await deleteUser(user);
+      toast({
+        title: "Account Deleted",
+        description: "Your account has been permanently deleted.",
+      });
+      router.push('/');
+    } catch (error: any) {
+      console.error("Account deletion error:", error);
+      setDocumentNonBlocking(clientProfileRef, { deletedAt: null }, { merge: true });
+      toast({
+        variant: "destructive",
+        title: "Deletion Failed",
+        description: "An error occurred while deleting your account. You may need to re-authenticate and try again.",
+      });
+    } finally {
+      setIsDeleting(false);
+    }
+  };
+
 
   return (
     <Card>
@@ -176,6 +221,39 @@ export function ProfileForm({ user, profile }: ProfileFormProps) {
           </form>
         </Form>
       </CardContent>
+      <Separator className="my-4" />
+      <CardFooter className="flex flex-col items-start gap-4">
+          <div>
+            <h3 className="text-lg font-semibold text-destructive">Danger Zone</h3>
+            <p className="text-sm text-muted-foreground">
+                This action is not reversible. Please be certain.
+            </p>
+          </div>
+           <AlertDialog>
+              <AlertDialogTrigger asChild>
+                <Button variant="destructive">Delete Account</Button>
+              </AlertDialogTrigger>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                  <AlertDialogDescription>
+                    This action cannot be undone. This will permanently delete your
+                    account and remove your data from our servers. Files will be scheduled for deletion.
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel>Cancel</AlertDialogCancel>
+                  <AlertDialogAction 
+                    onClick={handleDeleteAccount} 
+                    disabled={isDeleting}
+                    className="bg-destructive hover:bg-destructive/90"
+                    >
+                    {isDeleting ? "Deleting..." : "Continue"}
+                  </AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
+      </CardFooter>
     </Card>
   );
 }
