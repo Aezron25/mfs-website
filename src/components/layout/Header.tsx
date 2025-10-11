@@ -9,6 +9,7 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription, SheetTr
 import { cn } from "@/lib/utils";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useUser, useAuth } from "@/firebase";
+import { useAdmin } from "@/hooks/use-admin";
 
 const navItems = [
   { href: "/", label: "Home" },
@@ -39,6 +40,7 @@ export function Header() {
   const isMobile = useIsMobile();
   const [isClient, setIsClient] = useState(false);
   const { user, isUserLoading } = useUser();
+  const { isAdmin } = useAdmin(user);
   const auth = useAuth();
 
   useEffect(() => {
@@ -75,6 +77,11 @@ export function Header() {
     if (user) {
       return (
         <>
+          {isAdmin && (
+             <Button variant="secondary" size="sm" asChild>
+                <Link href="/admin/dashboard">Admin</Link>
+            </Button>
+          )}
           <Button variant="outline" size="sm" asChild>
             <Link href="/dashboard">Dashboard</Link>
           </Button>
@@ -104,6 +111,7 @@ export function Header() {
     if (user) {
       return (
         <>
+          {isAdmin && <NavLink href="/admin/dashboard" label="Admin" className="text-lg py-2" />}
           <NavLink href="/dashboard" label="Dashboard" className="text-lg py-2" />
            <button
               onClick={handleLogout}
