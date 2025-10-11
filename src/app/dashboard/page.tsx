@@ -26,6 +26,7 @@ import { useToast } from '@/hooks/use-toast';
 import { deleteUser } from 'firebase/auth';
 import { ProfileForm } from '@/components/dashboard/ProfileForm';
 import { MessagesTab } from '@/components/dashboard/MessagesTab';
+import { DocumentsTab } from '@/components/dashboard/DocumentsTab';
 
 export default function DashboardPage() {
   const { user, isUserLoading } = useUser();
@@ -130,7 +131,7 @@ export default function DashboardPage() {
         <TabsList className="grid w-full grid-cols-4 max-w-lg">
           <TabsTrigger value="profile">My Profile</TabsTrigger>
           <TabsTrigger value="messages">Messages</TabsTrigger>
-          <TabsTrigger value="documents" disabled>Documents</TabsTrigger>
+          <TabsTrigger value="documents">Documents</TabsTrigger>
           <TabsTrigger value="billing" disabled>Billing</TabsTrigger>
         </TabsList>
         <TabsContent value="profile">
@@ -138,6 +139,9 @@ export default function DashboardPage() {
         </TabsContent>
          <TabsContent value="messages">
             <MessagesTab user={user} />
+        </TabsContent>
+        <TabsContent value="documents">
+            <DocumentsTab user={user} />
         </TabsContent>
       </Tabs>
     </div>
