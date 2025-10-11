@@ -27,7 +27,8 @@ import { deleteUser } from 'firebase/auth';
 import { ProfileForm } from '@/components/dashboard/ProfileForm';
 import { MessagesTab } from '@/components/dashboard/MessagesTab';
 import { DocumentsTab } from '@/components/dashboard/DocumentsTab';
-import { deleteDocumentNonBlocking, setDocumentNonBlocking } from '@/firebase/non-blocking-updates';
+import { BillingTab } from '@/components/dashboard/BillingTab';
+import { setDocumentNonBlocking } from '@/firebase/non-blocking-updates';
 
 export default function DashboardPage() {
   const { user, isUserLoading } = useUser();
@@ -137,7 +138,7 @@ export default function DashboardPage() {
           <TabsTrigger value="profile">My Profile</TabsTrigger>
           <TabsTrigger value="messages">Messages</TabsTrigger>
           <TabsTrigger value="documents">Documents</TabsTrigger>
-          <TabsTrigger value="billing" disabled>Billing</TabsTrigger>
+          <TabsTrigger value="billing">Billing</TabsTrigger>
         </TabsList>
         <TabsContent value="profile">
             <ProfileForm user={user} profile={clientProfile} />
@@ -147,6 +148,9 @@ export default function DashboardPage() {
         </TabsContent>
         <TabsContent value="documents">
             <DocumentsTab user={user} />
+        </TabsContent>
+        <TabsContent value="billing">
+            <BillingTab />
         </TabsContent>
       </Tabs>
     </div>
