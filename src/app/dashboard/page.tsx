@@ -3,7 +3,7 @@
 import { useUser, useAuth, useFirestore, useDoc, useMemoFirebase } from '@/firebase';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
-import { doc, setDoc, serverTimestamp } from 'firebase/firestore';
+import { doc } from 'firebase/firestore';
 import { Button } from '@/components/ui/button';
 import {
   AlertDialog,
@@ -27,6 +27,7 @@ import { deleteUser } from 'firebase/auth';
 import { ProfileForm } from '@/components/dashboard/ProfileForm';
 import { MessagesTab } from '@/components/dashboard/MessagesTab';
 import { DocumentsTab } from '@/components/dashboard/DocumentsTab';
+import { deleteDocumentNonBlocking, setDocumentNonBlocking } from '@/firebase/non-blocking-updates';
 
 export default function DashboardPage() {
   const { user, isUserLoading } = useUser();
@@ -58,13 +59,15 @@ export default function DashboardPage() {
   };
 
   const handleDeleteAccount = async () => {
-    if (!user) return;
+    if (!user || !clientProfileRef) return;
     setIsDeleting(true);
+    
+    // We should also delete user data from Firestore here
+    // This is a "soft delete" for the profile.
+    // Deleting files from storage should be handled by a Cloud Function for security.
+    setDocumentNonBlocking(clientProfileRef, { deletedAt: new Date() }, { merge: true });
+
     try {
-      // We should also delete user data from Firestore here
-      if (clientProfileRef) {
-        await setDoc(clientProfileRef, { deleted: true }, { merge: true });
-      }
       await deleteUser(user);
       toast({
         title: "Account Deleted",
@@ -73,10 +76,12 @@ export default function DashboardPage() {
       router.push('/');
     } catch (error: any) {
       console.error("Account deletion error:", error);
+       // Revert the soft delete if user deletion fails
+      setDocumentNonBlocking(clientProfileRef, { deletedAt: null }, { merge: true });
       toast({
         variant: "destructive",
         title: "Deletion Failed",
-        description: "An error occurred while deleting your account. You may need to log in again to complete this action.",
+        description: "An error occurred while deleting your account. You may need to re-authenticate and try again.",
       });
     } finally {
       setIsDeleting(false);
@@ -99,7 +104,7 @@ export default function DashboardPage() {
             Client Dashboard
           </h1>
           <p className="text-muted-foreground max-w-2xl">
-            Welcome back, {user.email}. Manage your profile and communications here.
+            Welcome back, {clientProfile?.firstName || user.email}. Manage your profile and documents here.
           </p>
         </div>
          <div className="flex gap-2">
@@ -113,7 +118,7 @@ export default function DashboardPage() {
                   <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
                   <AlertDialogDescription>
                     This action cannot be undone. This will permanently delete your
-                    account and remove your data from our servers.
+                    account and remove your data from our servers. Files will be scheduled for deletion.
                   </AlertDialogDescription>
                 </AlertDialogHeader>
                 <AlertDialogFooter>
