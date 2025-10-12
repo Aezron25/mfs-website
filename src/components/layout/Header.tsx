@@ -1,3 +1,4 @@
+
 "use client";
 
 import Link from "next/link";
@@ -165,7 +166,7 @@ export function Header() {
                     Navigation links for Mwanakombo's financial services.
                   </SheetDescription>
                 </SheetHeader>
-                <Link href="/" className="flex items-center space-x-2" onClick={() => setIsMobileMenuOpe(false)}>
+                <Link href="/" className="flex items-center space-x-2" onClick={() => setIsMobileMenuOpen(false)}>
                   <MfsLogo className="h-6 w-6 text-primary" />
                   <span className="font-bold sm:inline-block font-headline">
                     Mwanakombo Financial Services
