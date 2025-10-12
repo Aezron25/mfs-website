@@ -3,33 +3,51 @@
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAdmin } from '@/hooks/use-admin';
-import { useUser } from '@/firebase';
+import { useUser, useFirestore, useCollection, useMemoFirebase } from '@/firebase';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { collection } from 'firebase/firestore';
+import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import { Button } from '@/components/ui/button';
+import { MoreHorizontal } from 'lucide-react';
+import { Skeleton } from '@/components/ui/skeleton';
 
 export default function AdminDashboardPage() {
   const { user, isUserLoading } = useUser();
   const { isAdmin, isAdminLoading } = useAdmin(user);
   const router = useRouter();
+  const firestore = useFirestore();
+
+  const clientProfilesRef = useMemoFirebase(
+    () => (isAdmin ? collection(firestore, 'client_profiles') : null),
+    [firestore, isAdmin]
+  );
+  
+  const { data: clientProfiles, isLoading: isProfilesLoading } = useCollection(clientProfilesRef);
 
   useEffect(() => {
-    // If user and admin state have loaded...
     if (!isUserLoading && !isAdminLoading) {
-      // And there's no user OR the user is not an admin...
       if (!user || !isAdmin) {
-        // Redirect them away.
         router.push('/');
       }
     }
   }, [user, isAdmin, isUserLoading, isAdminLoading, router]);
 
-  // Show a loading state while we verify the user's admin status
   if (isUserLoading || isAdminLoading) {
     return <div className="container py-12">Verifying credentials...</div>;
   }
+  
+  if (!isAdmin) {
+    return null; // or a redirect component
+  }
 
-  // If the user is an admin, show the dashboard.
-  // Otherwise, this will be null and the useEffect will handle redirection.
-  return isAdmin ? (
+  const getInitials = (firstName?: string, lastName?: string) => {
+    const first = firstName?.[0] || '';
+    const last = lastName?.[0] || '';
+    return `${first}${last}`.toUpperCase();
+  };
+
+  return (
     <div className="container py-12 md:py-16 lg:py-20">
       <div className="space-y-1.5 mb-8">
         <h1 className="text-2xl font-bold tracking-tighter sm:text-3xl font-headline">
@@ -42,15 +60,72 @@ export default function AdminDashboardPage() {
 
       <Card>
         <CardHeader>
-          <CardTitle>Admin Features</CardTitle>
+          <CardTitle>Client Management</CardTitle>
           <CardDescription>
-            This section is only visible to administrators.
+            View and manage all registered clients.
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <p>You have administrative privileges. More features coming soon!</p>
+          <div className="rounded-md border">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead className="w-[80px]">Avatar</TableHead>
+                  <TableHead>Full Name</TableHead>
+                  <TableHead>Email</TableHead>
+                  <TableHead className="text-right">Actions</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {isProfilesLoading && (
+                  <>
+                    <TableRow>
+                      <TableCell><Skeleton className="h-10 w-10 rounded-full" /></TableCell>
+                      <TableCell><Skeleton className="h-4 w-[150px]" /></TableCell>
+                      <TableCell><Skeleton className="h-4 w-[200px]" /></TableCell>
+                      <TableCell className="text-right"><Skeleton className="h-8 w-8 ml-auto" /></TableCell>
+                    </TableRow>
+                     <TableRow>
+                      <TableCell><Skeleton className="h-10 w-10 rounded-full" /></TableCell>
+                      <TableCell><Skeleton className="h-4 w-[120px]" /></TableCell>
+                      <TableCell><Skeleton className="h-4 w-[220px]" /></TableCell>
+                      <TableCell className="text-right"><Skeleton className="h-8 w-8 ml-auto" /></TableCell>
+                    </TableRow>
+                  </>
+                )}
+                {!isProfilesLoading && clientProfiles?.map((profile) => (
+                  <TableRow key={profile.id}>
+                    <TableCell>
+                      <Avatar>
+                        <AvatarFallback>
+                          {getInitials(profile.firstName, profile.lastName)}
+                        </AvatarFallback>
+                      </Avatar>
+                    </TableCell>
+                    <TableCell className="font-medium">
+                      {profile.firstName} {profile.lastName}
+                    </TableCell>
+                    <TableCell>{profile.email}</TableCell>
+                    <TableCell className="text-right">
+                       <Button variant="ghost" size="icon" disabled>
+                          <MoreHorizontal className="h-4 w-4" />
+                          <span className="sr-only">Client options</span>
+                       </Button>
+                    </TableCell>
+                  </TableRow>
+                ))}
+                 {!isProfilesLoading && (!clientProfiles || clientProfiles.length === 0) && (
+                    <TableRow>
+                        <TableCell colSpan={4} className="h-24 text-center">
+                            No clients found.
+                        </TableCell>
+                    </TableRow>
+                 )}
+              </TableBody>
+            </Table>
+          </div>
         </CardContent>
       </Card>
     </div>
-  ) : null;
+  );
 }
