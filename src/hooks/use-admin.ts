@@ -1,8 +1,8 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { doc } from 'firebase/firestore';
-import { useDoc, useFirestore } from '@/firebase';
+import { doc, DocumentReference, DocumentData } from 'firebase/firestore';
+import { useDoc, useFirestore, useMemoFirebase } from '@/firebase';
 import { User } from 'firebase/auth';
 
 interface UseAdminResult {
@@ -12,20 +12,15 @@ interface UseAdminResult {
 
 export function useAdmin(user: User | null): UseAdminResult {
   const firestore = useFirestore();
-  const [adminRef, setAdminRef] = useState<any>(null);
-
-  useEffect(() => {
-    if (user) {
-      setAdminRef(doc(firestore, 'roles_admin', user.uid));
-    } else {
-      setAdminRef(null);
+  
+  const adminRef = useMemoFirebase(() => {
+    if (user && firestore) {
+      return doc(firestore, 'roles_admin', user.uid);
     }
+    return null;
   }, [user, firestore]);
 
-  const { data: adminDoc, isLoading: isDocLoading } = useDoc(adminRef, {
-    // Only fetch if adminRef is not null
-    skip: !adminRef, 
-  });
+  const { data: adminDoc, isLoading: isDocLoading } = useDoc(adminRef);
   
   // If we are not checking for an admin (no user), loading is false.
   const isAdminLoading = user ? isDocLoading : false;
