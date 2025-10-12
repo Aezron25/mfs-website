@@ -24,7 +24,7 @@ export default function AdminDashboardPage() {
 
   // Show a loading state while we verify the user's admin status
   if (isUserLoading || isAdminLoading) {
-    return <div>Verifying credentials...</div>;
+    return <div className="container py-12">Verifying credentials...</div>;
   }
 
   // If the user is an admin, show the dashboard.

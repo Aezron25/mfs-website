@@ -49,7 +49,9 @@ export function Header() {
   }, []);
   
   const handleLogout = async () => {
-    await auth.signOut();
+    if (auth) {
+      await auth.signOut();
+    }
     setIsMobileMenuOpen(false);
     router.push('/');
   };
@@ -77,7 +79,7 @@ export function Header() {
     }
     if (user) {
       return (
-        <>
+        <div className="flex items-center gap-2">
           {isAdmin && (
              <Button variant="secondary" size="sm" asChild>
                 <Link href="/admin/dashboard">Admin</Link>
@@ -90,18 +92,18 @@ export function Header() {
             Logout
             <LogOut className="ml-2 h-4 w-4"/>
           </Button>
-        </>
+        </div>
       );
     }
     return (
-      <>
+      <div className="flex items-center gap-2">
         <Button variant="ghost" size="sm" asChild>
           <Link href="/login">Login</Link>
         </Button>
         <Button size="sm" asChild>
           <Link href="/signup">Sign Up</Link>
         </Button>
-      </>
+      </div>
     );
   };
   
@@ -116,7 +118,7 @@ export function Header() {
           <NavLink href="/dashboard" label="Dashboard" className="text-lg py-2" />
            <button
               onClick={handleLogout}
-              className="text-lg py-2 text-sm font-medium text-muted-foreground transition-colors hover:text-primary flex items-center"
+              className="text-lg py-2 text-sm font-medium text-muted-foreground transition-colors hover:text-primary flex items-center w-full"
             >
               Logout
               <LogOut className="ml-2 h-4 w-4"/>
@@ -150,43 +152,43 @@ export function Header() {
           </nav>
         </div>
 
-        {isClient && isMobile ? (
-          <div className="flex flex-1 items-center justify-end md:hidden">
-            <Sheet open={isMobileMenuOpen} onOpenChange={setIsMobileMenuOpen}>
-              <SheetTrigger asChild>
-                <Button variant="ghost" size="icon">
-                  <Menu className="h-5 w-5" />
-                  <span className="sr-only">Open Menu</span>
-                </Button>
-              </SheetTrigger>
-              <SheetContent side="left" className="pr-0">
-                <SheetHeader>
-                  <SheetTitle className="sr-only">Mobile Menu</SheetTitle>
-                  <SheetDescription className="sr-only">
-                    Navigation links for Mwanakombo's financial services.
-                  </SheetDescription>
-                </SheetHeader>
-                <Link href="/" className="flex items-center space-x-2" onClick={() => setIsMobileMenuOpen(false)}>
-                  <MfsLogo className="h-6 w-6 text-primary" />
-                  <span className="font-bold sm:inline-block font-headline">
-                    Mwanakombo Financial Services
-                  </span>
-                </Link>
-                <div className="grid gap-2 py-6">
-                    {navItems.map((item) => (
-                      <NavLink key={item.href} {...item} className="text-lg py-2" />
-                    ))}
-                    <hr className="my-2"/>
-                    <MobileAuthButtons />
-                </div>
-              </SheetContent>
-            </Sheet>
-          </div>
-        ) : (
-          <div className="flex flex-1 items-center justify-end space-x-2">
-            <AuthButtons />
-          </div>
-        )}
+        <div className="flex flex-1 items-center justify-end">
+          {isClient && isMobile ? (
+              <Sheet open={isMobileMenuOpen} onOpenChange={setIsMobileMenuOpen}>
+                <SheetTrigger asChild>
+                  <Button variant="ghost" size="icon">
+                    <Menu className="h-5 w-5" />
+                    <span className="sr-only">Open Menu</span>
+                  </Button>
+                </SheetTrigger>
+                <SheetContent side="left" className="pr-0">
+                  <SheetHeader>
+                    <SheetTitle className="sr-only">Mobile Menu</SheetTitle>
+                    <SheetDescription className="sr-only">
+                      Navigation links for Mwanakombo's financial services.
+                    </SheetDescription>
+                  </SheetHeader>
+                  <Link href="/" className="flex items-center space-x-2" onClick={() => setIsMobileMenuOpen(false)}>
+                    <MfsLogo className="h-6 w-6 text-primary" />
+                    <span className="font-bold sm:inline-block font-headline">
+                      Mwanakombo Financial Services
+                    </span>
+                  </Link>
+                  <div className="grid gap-2 py-6">
+                      {navItems.map((item) => (
+                        <NavLink key={item.href} {...item} className="text-lg py-2" />
+                      ))}
+                      <hr className="my-2"/>
+                      <MobileAuthButtons />
+                  </div>
+                </SheetContent>
+              </Sheet>
+          ) : (
+            <div className="hidden md:flex flex-1 items-center justify-end space-x-2">
+              <AuthButtons />
+            </div>
+          )}
+        </div>
       </div>
     </header>
   );

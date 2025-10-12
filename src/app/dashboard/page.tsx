@@ -46,7 +46,7 @@ export default function DashboardPage() {
   };
 
   if (isUserLoading || isProfileLoading) {
-    return <div>Loading...</div>;
+    return <div className="container py-12">Loading...</div>;
   }
   
   if (!user) {
@@ -64,9 +64,6 @@ export default function DashboardPage() {
             Welcome back, {clientProfile?.firstName || user.email}. Manage your profile and documents here.
           </p>
         </div>
-         <div className="flex gap-2">
-            <Button variant="outline" onClick={handleLogout}>Log Out</Button>
-          </div>
       </div>
       
       <Tabs defaultValue="profile" className="w-full">
