@@ -1,38 +1,41 @@
 /**
- * @file Firebase Security Rules for Mwanakombo Financial Services.
+ * @fileOverview Firestore Security Rules for Mwanakombo Financial Services.
  *
- * @corePhilosophy This ruleset enforces a strict user-ownership model for client profiles and their messages,
- *                 and uses document existence in a dedicated collection to grant admin privileges.
- *                 It prioritizes security and authorization independence through data denormalization.
+ * Core Philosophy:
+ * This ruleset enforces a strict user-ownership model for client profiles and messages, with role-based access control for administrators.
  *
- * @dataStructure
- *   - /client_profiles/{clientProfileId}: Stores client profile data, accessible only to the authenticated user with a matching UID.
- *   - /client_profiles/{clientProfileId}/messages/{messageId}: Stores messages sent by a client, with the 'clientProfileId' denormalized for authorization.
- *   - /roles_admin/{adminProfileId}: Collection to store admin profiles. Existence of a document grants admin privileges.
+ * Data Structure:
+ * - /client_profiles/{clientProfileId}: Stores client profile data, accessible only to the user with the matching UID.
+ * - /client_profiles/{clientProfileId}/messages/{messageId}: Stores messages sent by a client. Each message includes a denormalized 'clientProfileId' field for authorization.
+ * - /roles_admin/{adminProfileId}: Presence of a document in this collection grants admin privileges.
  *
- * @keySecurityDecisions
- *   - Only the authenticated user (client) can access their own profile.
- *   - Messages include the clientProfileId, eliminating the need for get() calls to the parent client_profiles document.
- *   - Admin roles are managed through document existence in /roles_admin/{uid}, avoiding custom claims.
- *   - No public listing of any collections is permitted without authentication.
+ * Key Security Decisions:
+ * - Client profiles are private and only accessible to the owning user.
+ * - Messages are owned by the client who created them and are stored in a subcollection under their profile.
+ * - Admin privileges are granted by the existence of a document in the `/roles_admin` collection.
+ * - No user listing is allowed for `client_profiles` or `roles_admin`. Only the authenticated user can access their own profile or check for their admin status.
  *
- * @denormalizationForAuthorization
- *   - The `messages` subcollection includes the `clientProfileId`, eliminating the need for `get()` calls to the parent `client_profiles` document.
- *     Security rules can directly verify ownership based on `request.auth.uid` and the `clientProfileId` within the message.
+ * Denormalization for Authorization:
+ * - The `messages` subcollection includes the `clientProfileId`, which eliminates the need for `get()` calls to the parent `client_profiles` document. Security rules can directly verify ownership based on `request.auth.uid` and the `clientProfileId` within the message.
  *
- * @structuralSegregation
- *   - Admin roles are stored in a separate collection (`/roles_admin`) instead of being combined with client profiles.
- *     This clearly separates client profiles, admin roles, and client messages, making authorization intent explicit.
+ * Structural Segregation:
+ * - Client profiles and admin profiles are stored in separate collections to clearly segregate client and admin data.
  */
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
     /**
-     * @description Enforces that only the authenticated user can access their own client profile.
+     * @description Allows clients to manage their own profile.
      * @path /client_profiles/{clientProfileId}
-     * @allow (get, create, update, delete) if request.auth.uid == clientProfileId
-     * @deny (get, create, update, delete) if request.auth.uid != clientProfileId
+     * @allow (create) - User with UID 'user_abc' can create their profile with clientProfileId = 'user_abc'.
+     * @allow (get) - User with UID 'user_abc' can get their own profile.
+     * @allow (update) - User with UID 'user_abc' can update their own profile.
+     * @allow (delete) - User with UID 'user_abc' can delete their own profile.
+     * @deny (create) - User with UID 'user_xyz' cannot create a profile with clientProfileId = 'user_abc'.
+     * @deny (get) - User with UID 'user_xyz' cannot get profile with clientProfileId = 'user_abc'.
+     * @deny (update) - User with UID 'user_xyz' cannot update profile with clientProfileId = 'user_abc'.
+     * @deny (delete) - User with UID 'user_xyz' cannot delete profile with clientProfileId = 'user_abc'.
      * @principle Enforces document ownership for all operations.
      */
     match /client_profiles/{clientProfileId} {
@@ -46,29 +49,33 @@ service cloud.firestore {
         return isSignedIn() && request.auth.uid == userId;
       }
 
-      // Helper function to check if the user is the existing owner of the document
+      // Helper function to check if the user is the owner of the existing document
       function isExistingOwner(userId) {
         return isOwner(userId) && resource != null;
       }
 
-      // Reads
+      // Read permissions
       allow get: if isOwner(clientProfileId);
-      allow list: if isOwner(clientProfileId);
+      allow list: if false;
 
-      // Writes
+      // Write permissions
       allow create: if isOwner(clientProfileId) && request.resource.data.id == clientProfileId;
       allow update: if isExistingOwner(clientProfileId) && request.resource.data.id == resource.data.id;
       allow delete: if isExistingOwner(clientProfileId);
     }
 
     /**
-     * @description Enforces that only the owner of the client profile can manage their messages.
+     * @description Allows clients to manage their own messages.
      * @path /client_profiles/{clientProfileId}/messages/{messageId}
-     * @allow (create) if request.auth.uid == clientProfileId
-     * @deny (create) if request.auth.uid != clientProfileId
-     * @allow (get, list, update, delete) if resource.data.clientProfileId == request.auth.uid
-     * @deny (get, list, update, delete) if resource.data.clientProfileId != request.auth.uid
-     * @principle Enforces document ownership for all message operations.
+     * @allow (create) - User with UID 'user_abc' can create a message under their profile (clientProfileId = 'user_abc').
+     * @allow (get) - User with UID 'user_abc' can get a message under their profile.
+     * @allow (update) - User with UID 'user_abc' can update a message under their profile.
+     * @allow (delete) - User with UID 'user_abc' can delete a message under their profile.
+     * @deny (create) - User with UID 'user_xyz' cannot create a message under profile 'user_abc'.
+     * @deny (get) - User with UID 'user_xyz' cannot get a message under profile 'user_abc'.
+     * @deny (update) - User with UID 'user_xyz' cannot update a message under profile 'user_abc'.
+     * @deny (delete) - User with UID 'user_xyz' cannot delete a message under profile 'user_abc'.
+     * @principle Enforces document ownership for all operations on messages.
      */
     match /client_profiles/{clientProfileId}/messages/{messageId} {
       // Helper function to check if the user is signed in
@@ -77,31 +84,37 @@ service cloud.firestore {
       }
 
       // Helper function to check if the user is the owner of the message
-      function isMessageOwner(clientProfileId) {
+      function isOwner(clientProfileId) {
         return isSignedIn() && request.auth.uid == clientProfileId;
       }
 
-      // Helper function to check if the user is the existing owner of the message
-      function isExistingMessageOwner(clientProfileId) {
-        return isMessageOwner(clientProfileId) && resource != null;
+      // Helper function to check if the user is the owner of the existing document
+      function isExistingOwner(clientProfileId) {
+        return isOwner(clientProfileId) && resource != null;
       }
 
-      // Reads
-      allow get: if isMessageOwner(clientProfileId);
-      allow list: if isMessageOwner(clientProfileId);
+      // Read permissions
+      allow get: if isOwner(clientProfileId);
+      allow list: if isOwner(clientProfileId);
 
-      // Writes
-      allow create: if isMessageOwner(clientProfileId) && request.resource.data.clientProfileId == clientProfileId;
-      allow update: if isExistingMessageOwner(clientProfileId) && request.resource.data.clientProfileId == resource.data.clientProfileId;
-      allow delete: if isExistingMessageOwner(clientProfileId);
+      // Write permissions
+      allow create: if isOwner(clientProfileId) && request.resource.data.clientProfileId == clientProfileId;
+      allow update: if isExistingOwner(clientProfileId) && request.resource.data.clientProfileId == resource.data.clientProfileId;
+      allow delete: if isExistingOwner(clientProfileId);
     }
 
     /**
-     * @description Grants admin privileges based on the existence of a document in this collection.
+     * @description Controls access to admin profiles. Only the admin themselves can read their profile.
      * @path /roles_admin/{adminProfileId}
-     * @allow (get, create, update, delete, list) if isAdmin()
-     * @deny (get, create, update, delete, list) if !isAdmin()
-     * @principle Role-based access control via document existence.
+     * @allow (create) - User with UID 'admin_abc' can create their admin profile.
+     * @allow (get) - User with UID 'admin_abc' can read their admin profile.
+     * @allow (update) - User with UID 'admin_abc' can update their admin profile.
+     * @allow (delete) - User with UID 'admin_abc' can delete their admin profile.
+     * @deny (create) - User with UID 'user_xyz' cannot create an admin profile for 'admin_abc'.
+     * @deny (get) - User with UID 'user_xyz' cannot read the admin profile for 'admin_abc'.
+     * @deny (update) - User with UID 'user_xyz' cannot update the admin profile for 'admin_abc'.
+     * @deny (delete) - User with UID 'user_xyz' cannot delete the admin profile for 'admin_abc'.
+     * @principle Enforces ownership for admin profiles.
      */
     match /roles_admin/{adminProfileId} {
       // Helper function to check if the user is signed in
@@ -109,19 +122,24 @@ service cloud.firestore {
         return request.auth != null;
       }
 
-      // Helper function to check if the user is an admin (document exists)
-      function isAdmin() {
-        return isSignedIn() && exists(/databases/$(database)/documents/roles_admin/$(request.auth.uid));
+      // Helper function to check if the user is the owner of the document
+      function isOwner(adminId) {
+        return isSignedIn() && request.auth.uid == adminId;
       }
 
-      // Reads
-      allow get: if isAdmin();
-      allow list: if isAdmin();
+      // Helper function to check if the user is the owner of the existing document
+      function isExistingOwner(adminId) {
+        return isOwner(adminId) && resource != null;
+      }
 
-      // Writes
-      allow create: if isAdmin();
-      allow update: if isAdmin();
-      allow delete: if isAdmin();
+      // Read permissions
+      allow get: if isOwner(adminProfileId);
+      allow list: if false;
+
+      // Write permissions
+      allow create: if isOwner(adminProfileId) && request.resource.data.id == adminProfileId;
+      allow update: if isExistingOwner(adminProfileId) && request.resource.data.id == resource.data.id;
+      allow delete: if isExistingOwner(adminProfileId);
     }
   }
 }
