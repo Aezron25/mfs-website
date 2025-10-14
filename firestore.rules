@@ -2,30 +2,32 @@ rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
-  
+    
     function isAdmin() {
+      // Allow if a document for the user's UID exists in the admin roles collection.
       return exists(/databases/$(database)/documents/roles_admin/$(request.auth.uid));
     }
 
-    // Rule for the entire client_profiles collection
-    match /client_profiles/{document=**} {
-      allow read, write: if isAdmin();
-    }
-
-    // Rules for individual client profiles
     match /client_profiles/{clientProfileId} {
-      allow get, update, delete: if request.auth.uid == clientProfileId;
-      allow create: if request.auth.uid == clientProfileId;
+      // Admins can read any client profile and list the entire collection.
+      allow list, get: if isAdmin();
+      
+      // A specific user can read, create, update, or delete their own profile.
+      // This rule is combined with the one above. A user can get their own profile,
+      // and an admin can also get it.
+      allow get, create, update, delete: if request.auth.uid == clientProfileId;
 
-      // Rules for messages subcollection
       match /messages/{messageId} {
+        // A user can manage the messages within their own profile subcollection.
         allow read, write: if request.auth.uid == clientProfileId;
       }
     }
     
-    // Admins should be managed from the console for security
-    match /roles_admin/{adminId} {
-      allow read, write: if false;
+    match /roles_admin/{adminProfileId} {
+      // Only existing admins can see who else is an admin.
+      allow read: if isAdmin();
+      // Write access should be restricted, likely only from the console.
+      allow write: if false;
     }
   }
 }
