@@ -2,32 +2,29 @@ rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
-    
-    function isAdmin() {
-      // Allow if a document for the user's UID exists in the admin roles collection.
-      return exists(/databases/$(database)/documents/roles_admin/$(request.auth.uid));
+
+    function isAuth() {
+      return request.auth != null;
     }
 
     match /client_profiles/{clientProfileId} {
-      // Admins can read any client profile and list the entire collection.
-      allow list, get: if isAdmin();
-      
-      // A specific user can read, create, update, or delete their own profile.
-      // This rule is combined with the one above. A user can get their own profile,
-      // and an admin can also get it.
-      allow get, create, update, delete: if request.auth.uid == clientProfileId;
+      // Any authenticated user can list the collection.
+      allow list: if isAuth();
 
-      match /messages/{messageId} {
-        // A user can manage the messages within their own profile subcollection.
-        allow read, write: if request.auth.uid == clientProfileId;
-      }
+      // Only the owner of a profile can get, create, update, or delete it.
+      allow get, update, delete: if request.auth.uid == clientProfileId;
+      allow create: if request.auth.uid == clientProfileId && request.resource.data.id == clientProfileId;
     }
-    
+
+    match /client_profiles/{clientProfileId}/messages/{messageId} {
+      // A user can only access messages within their own profile.
+      allow read, write: if request.auth.uid == clientProfileId;
+    }
+
     match /roles_admin/{adminProfileId} {
-      // Only existing admins can see who else is an admin.
-      allow read: if isAdmin();
-      // Write access should be restricted, likely only from the console.
-      allow write: if false;
+      // Only authenticated users can read the admin roles collection (e.g., to check their own role).
+      // Writes should be handled server-side or via the Firebase Console for security.
+      allow read: if isAuth();
     }
   }
 }
