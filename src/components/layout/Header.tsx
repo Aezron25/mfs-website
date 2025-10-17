@@ -3,7 +3,7 @@
 
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { Menu, LogOut } from "lucide-react";
+import { Menu, LogOut, LayoutDashboard } from "lucide-react";
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription, SheetTrigger } from "@/components/ui/sheet";
@@ -80,14 +80,29 @@ export function Header() {
     if (user) {
       return (
         <div className="flex items-center gap-2">
-          <Button variant="ghost" size="sm" onClick={handleLogout}>
+          <Button asChild variant="ghost" size="sm">
+            <Link href={isAdmin ? "/admin/dashboard" : "/dashboard"}>
+              <LayoutDashboard className="mr-2 h-4 w-4" />
+              Dashboard
+            </Link>
+          </Button>
+          <Button variant="outline" size="sm" onClick={handleLogout}>
             Logout
             <LogOut className="ml-2 h-4 w-4"/>
           </Button>
         </div>
       );
     }
-    return null;
+    return (
+      <div className="flex items-center gap-2">
+        <Button asChild variant="ghost" size="sm">
+          <Link href="/login">Login</Link>
+        </Button>
+        <Button asChild size="sm">
+          <Link href="/signup">Sign Up</Link>
+        </Button>
+      </div>
+    );
   };
   
   const MobileAuthButtons = () => {
@@ -97,7 +112,8 @@ export function Header() {
     if (user) {
       return (
         <>
-           <button
+            <NavLink href={isAdmin ? "/admin/dashboard" : "/dashboard"} label="Dashboard" className="text-lg py-2" />
+            <button
               onClick={handleLogout}
               className="text-lg py-2 text-sm font-medium text-muted-foreground transition-colors hover:text-primary flex items-center w-full"
             >
@@ -107,7 +123,12 @@ export function Header() {
         </>
       );
     }
-    return null;
+    return (
+       <>
+          <NavLink href="/login" label="Login" className="text-lg py-2" />
+          <NavLink href="/signup" label="Sign Up" className="text-lg py-2" />
+       </>
+    );
   }
 
   return (
