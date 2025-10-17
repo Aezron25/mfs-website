@@ -75,19 +75,11 @@ export function Header() {
 
   const AuthButtons = () => {
     if (isUserLoading) {
-      return null; // Or a loading spinner
+      return null;
     }
     if (user) {
       return (
         <div className="flex items-center gap-2">
-          {isAdmin && (
-             <Button variant="secondary" size="sm" asChild>
-                <Link href="/admin/dashboard">Admin</Link>
-            </Button>
-          )}
-          <Button variant="outline" size="sm" asChild>
-            <Link href="/dashboard">Dashboard</Link>
-          </Button>
           <Button variant="ghost" size="sm" onClick={handleLogout}>
             Logout
             <LogOut className="ml-2 h-4 w-4"/>
@@ -97,9 +89,6 @@ export function Header() {
     }
     return (
       <div className="flex items-center gap-2">
-        <Button variant="ghost" size="sm" asChild>
-          <Link href="/login">Login</Link>
-        </Button>
         <Button size="sm" asChild>
           <Link href="/signup">Sign Up</Link>
         </Button>
@@ -114,8 +103,6 @@ export function Header() {
     if (user) {
       return (
         <>
-          {isAdmin && <NavLink href="/admin/dashboard" label="Admin" className="text-lg py-2" />}
-          <NavLink href="/dashboard" label="Dashboard" className="text-lg py-2" />
            <button
               onClick={handleLogout}
               className="text-lg py-2 text-sm font-medium text-muted-foreground transition-colors hover:text-primary flex items-center w-full"
@@ -128,7 +115,6 @@ export function Header() {
     }
     return (
       <>
-         <NavLink href="/login" label="Login" className="text-lg py-2" />
          <NavLink href="/signup" label="Sign Up" className="text-lg py-2" />
       </>
     );
