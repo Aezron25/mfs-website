@@ -87,13 +87,7 @@ export function Header() {
         </div>
       );
     }
-    return (
-      <div className="flex items-center gap-2">
-        <Button size="sm" asChild>
-          <Link href="/signup">Sign Up</Link>
-        </Button>
-      </div>
-    );
+    return null;
   };
   
   const MobileAuthButtons = () => {
@@ -113,11 +107,7 @@ export function Header() {
         </>
       );
     }
-    return (
-      <>
-         <NavLink href="/signup" label="Sign Up" className="text-lg py-2" />
-      </>
-    );
+    return null;
   }
 
   return (
