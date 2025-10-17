@@ -1,3 +1,4 @@
+
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Mail, Phone, MapPin } from "lucide-react";
 
@@ -42,7 +43,9 @@ export default function ContactPage() {
               </div>
               <div>
                 <h3 className="font-semibold">Call Me</h3>
-                <p className="text-muted-foreground">+260 972 088 113</p>
+                <a href="tel:+260972088113" className="text-muted-foreground hover:text-primary">
+                  +260 972 088 113
+                </a>
               </div>
             </div>
           </div>
