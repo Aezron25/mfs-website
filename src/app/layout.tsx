@@ -10,7 +10,22 @@ import { FirebaseClientProvider } from '@/firebase/client-provider';
 export const metadata: Metadata = {
   title: 'Mwanakombo Financial Services | Financial Expert',
   description:
-    'Expert financial guidance from Mwanakombo. Specializing in audit, tax, consultancy, and personal finance.',
+    'Expert financial guidance from Mwanakombo. Specializing in audit, tax, consultancy, and personal finance for SMEs, startups, and individuals in Zambia.',
+  keywords: [
+    'Mwanakombo Financial Services',
+    'Financial Expert Zambia',
+    'Audit Services Lusaka',
+    'Tax Services Zambia',
+    'ZRA Compliance',
+    'Financial Consultancy',
+    'SME Financial Advisor',
+    'Startup Financial Services',
+    'Personal Finance Zambia',
+    'Accounting Services Lusaka',
+    'Moses Mwanakombo',
+    'Financial Discipline',
+    'Business Advisory Zambia',
+  ],
 };
 
 export default function RootLayout({
