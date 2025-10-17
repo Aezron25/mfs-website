@@ -31,7 +31,9 @@ export default function ContactPage() {
               </div>
               <div>
                 <h3 className="font-semibold">Email</h3>
-                <p className="text-muted-foreground">mosesmwanakombo890@gmail.com</p>
+                <a href="mailto:mosesmwanakombo890@gmail.com" className="text-muted-foreground hover:text-primary">
+                  mosesmwanakombo890@gmail.com
+                </a>
               </div>
             </div>
             <div className="flex items-start gap-4">
