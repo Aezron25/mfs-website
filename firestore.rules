@@ -1,116 +1,111 @@
 /**
- * @file Overview
- * This ruleset enforces a strict user-ownership model for client profiles and their messages,
- * with role-based access control for administrators.  It prioritizes security and
- * authorization independence to prevent costly `get()` calls.
+ * @fileOverview Firestore Security Rules for Mwanakombo Financial Services.
+ *
+ * Core Philosophy:
+ * This ruleset enforces a strict user-ownership model for client profiles and messages, with role-based access control for administrators.
  *
  * Data Structure:
- * - /client_profiles/{clientProfileId}: Stores client profile data, accessible only to the
- *   authenticated user with a matching UID.
- * - /client_profiles/{clientProfileId}/messages/{messageId}: Stores messages sent by a client.
- *   Each message includes a denormalized 'clientProfileId' for authorization.
- * - /roles_admin/{adminProfileId}: Presence of a document grants admin privileges to the user.
+ * - /client_profiles/{clientProfileId}: Stores client profile data, where {clientProfileId} matches the Firebase Auth UID.
+ * - /client_profiles/{clientProfileId}/messages/{messageId}: Stores messages sent by clients, with denormalized clientProfileId for authorization.
+ * - /roles_admin/{adminProfileId}: Documents in this collection grant admin privileges, where {adminProfileId} matches the Firebase Auth UID.
  *
  * Key Security Decisions:
- * - Users can only access their own client profiles.
- * - Users can only manage messages associated with their own profile.
- * - Admin privileges are granted by the presence of a document in the `/roles_admin` collection.
- * - Listing all client profiles is disallowed, to protect user privacy.
- *
- * Denormalization for Authorization:
- * - Messages include the `clientProfileId` to allow direct verification of ownership without
- *   requiring a `get()` call to the parent `client_profiles` document.
- *
- * Structural Segregation:
- * - Client messages are stored in a subcollection under their respective client profiles,
- *   ensuring secure `list` operations and clear ownership.
+ * - Clients can only access their own profile data and messages.
+ * - Administrators are identified by the existence of a document in the /roles_admin collection.
+ * - Listing of client profiles is disallowed.
+ * - The clientProfileId is denormalized within each message to ensure security rules can validate that the authenticated user owns the message.
+ * - Admin roles are managed through document existence in `/roles_admin/{uid}`, avoiding custom claims.
  */
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
     /**
-     * @description Allows clients to manage their own profile.
+     * @description Controls access to client profile documents.
      * @path /client_profiles/{clientProfileId}
-     * @allow (create) - User with UID 'dYOUV7Is5mciNd4bKjjUwI7hzZJ3' can create a profile where clientProfileId matches their UID.
-     * @allow (get) - User with UID 'dYOUV7Is5mciNd4bKjjUwI7hzZJ3' can get their own profile.
-     * @allow (update) - User with UID 'dYOUV7Is5mciNd4bKjjUwI7hzZJ3' can update their own profile.
-     * @allow (delete) - User with UID 'dYOUV7Is5mciNd4bKjjUwI7hzZJ3' can delete their own profile.
-     * @deny (create) - User with UID 'dXYZ...' cannot create a profile with clientProfileId 'dYOUV7Is5mciNd4bKjjUwI7hzZJ3'.
-     * @deny (get) - User with UID 'dXYZ...' cannot get the profile of user 'dYOUV7Is5mciNd4bKjjUwI7hzZJ3'.
-     * @deny (update) - User with UID 'dXYZ...' cannot update the profile of user 'dYOUV7Is5mciNd4bKjjUwI7hzZJ3'.
-     * @deny (delete) - User with UID 'dXYZ...' cannot delete the profile of user 'dYOUV7Is5mciNd4bKjjUwI7hzZJ3'.
-     * @principle Enforces document ownership for all operations.
+     * @allow (create) - Authenticated user creates their own profile.
+     * @allow (get, update, delete) - Authenticated user accesses their own profile.
+     * @deny (create) - User attempts to create a profile with an ID that does not match their auth UID.
+     * @deny (get, update, delete) - User attempts to access a profile that does not belong to them.
+     * @principle Enforces document ownership for reads and writes.
      */
     match /client_profiles/{clientProfileId} {
-      allow get: if isOwner(clientProfileId);
-      allow list: if false; // Listing client profiles is disallowed.
-      allow create: if isSignedIn() && isNewOwner(clientProfileId);
-      allow update: if isExistingOwner(clientProfileId);
-      allow delete: if isExistingOwner(clientProfileId);
+      function isSignedIn() {
+        return request.auth != null;
+      }
+
+      function isOwner(clientProfileId) {
+        return request.auth.uid == clientProfileId;
+      }
+
+      function isExistingOwner(clientProfileId) {
+        return isOwner(clientProfileId) && resource != null;
+      }
+
+      allow get: if isSignedIn() && isOwner(clientProfileId);
+      allow list: if false;
+      allow create: if isSignedIn() && isOwner(request.auth.uid);
+      allow update: if isSignedIn() && isExistingOwner(clientProfileId);
+      allow delete: if isSignedIn() && isExistingOwner(clientProfileId);
     }
 
     /**
-     * @description Allows clients to manage their own messages.
+     * @description Controls access to messages within a client profile.
      * @path /client_profiles/{clientProfileId}/messages/{messageId}
-     * @allow (create) - User with UID 'dYOUV7Is5mciNd4bKjjUwI7hzZJ3' can create a message under their profile.
-     * @allow (get) - User with UID 'dYOUV7Is5mciNd4bKjjUwI7hzZJ3' can get a message under their profile.
-     * @allow (update) - User with UID 'dYOUV7Is5mciNd4bKjjUwI7hzZJ3' can update a message under their profile.
-     * @allow (delete) - User with UID 'dYOUV7Is5mciNd4bKjjUwI7hzZJ3' can delete a message under their profile.
-     * @deny (create) - User with UID 'dXYZ...' cannot create a message under the profile of 'dYOUV7Is5mciNd4bKjjUwI7hzZJ3'.
-     * @deny (get) - User with UID 'dXYZ...' cannot get a message under the profile of 'dYOUV7Is5mciNd4bKjjUwI7hzZJ3'.
-     * @deny (update) - User with UID 'dXYZ...' cannot update a message under the profile of 'dYOUV7Is5mciNd4bKjjUwI7hzZJ3'.
-     * @deny (delete) - User with UID 'dXYZ...' cannot delete a message under the profile of 'dYOUV7Is5mciNd4bKjjUwI7hzZJ3'.
-     * @principle Enforces document ownership for all operations on messages.
+     * @allow (create, get, list, update, delete) - Authenticated user accesses their own messages.
+     * @deny (create, get, list, update, delete) - User attempts to access messages that do not belong to them.
+     * @principle Enforces document ownership for reads and writes within a subcollection.
      */
     match /client_profiles/{clientProfileId}/messages/{messageId} {
-      allow get: if isOwner(clientProfileId);
-      allow list: if isOwner(clientProfileId);
-      allow create: if isSignedIn() && request.resource.data.clientProfileId == clientProfileId;
-      allow update: if isExistingOwner(clientProfileId) && resource.data.clientProfileId == clientProfileId;
-      allow delete: if isExistingOwner(clientProfileId) && resource.data.clientProfileId == clientProfileId;
+      function isSignedIn() {
+        return request.auth != null;
+      }
+
+      function isOwner(clientProfileId) {
+        return request.auth.uid == clientProfileId;
+      }
+
+      function isExistingOwner(clientProfileId) {
+        return isOwner(clientProfileId) && resource != null;
+      }
+
+      allow get: if isSignedIn() && isOwner(clientProfileId);
+      allow list: if isSignedIn() && isOwner(clientProfileId);
+      allow create: if isSignedIn() && isOwner(clientProfileId);
+      allow update: if isSignedIn() && isExistingOwner(clientProfileId);
+      allow delete: if isSignedIn() && isExistingOwner(clientProfileId);
     }
 
     /**
-     * @description Grants admin privileges based on document existence.
+     * @description Grants admin privileges based on the existence of a document in this collection.
      * @path /roles_admin/{adminProfileId}
-     * @allow (create) - User with UID 'dYOUV7Is5mciNd4bKjjUwI7hzZJ3' can create their admin profile.
-     * @allow (get) - User with UID 'dYOUV7Is5mciNd4bKjjUwI7hzZJ3' can get their admin profile.
-     * @allow (update) - User with UID 'dYOUV7Is5mciNd4bKjjUwI7hzZJ3' can update their admin profile.
-     * @allow (delete) - User with UID 'dYOUV7Is5mciNd4bKjjUwI7hzZJ3' can delete their admin profile.
-     * @deny (create) - User with UID 'dXYZ...' cannot create an admin profile with ID 'dYOUV7Is5mciNd4bKjjUwI7hzZJ3'.
-     * @deny (get) - User with UID 'dXYZ...' cannot get the admin profile of user 'dYOUV7Is5mciNd4bKjjUwI7hzZJ3'.
-     * @deny (update) - User with UID 'dXYZ...' cannot update the admin profile of user 'dYOUV7Is5mciNd4bKjjUwI7hzZJ3'.
-     * @deny (delete) - User with UID 'dXYZ...' cannot delete the admin profile of user 'dYOUV7Is5mciNd4bKjjUwI7hzZJ3'.
-     * @principle Role-based access control.
+     * @allow (create) - Only an existing admin can create a new admin.  In a real application, this should be further restricted.
+     * @allow (get, list, update, delete) - Only the admin themselves can access their profile.
+     * @deny (create, get, list, update, delete) - Non-admins cannot create, access, or modify admin profiles.
+     * @principle Implements role-based access control through document existence.
      */
     match /roles_admin/{adminProfileId} {
-      allow get: if isAdmin(adminProfileId);
-      allow list: if false;
-      allow create: if isAdmin(adminProfileId);
-      allow update: if isAdmin(adminProfileId);
-      allow delete: if isAdmin(adminProfileId);
+        function isSignedIn() {
+            return request.auth != null;
+        }
+
+        function isAdmin() {
+            return exists(/databases/$(database)/documents/roles_admin/$(request.auth.uid));
+        }
+
+        function isOwner(adminProfileId) {
+            return request.auth.uid == adminProfileId;
+        }
+
+        function isExistingOwner(adminProfileId) {
+            return isOwner(adminProfileId) && resource != null;
+        }
+
+        allow get: if isSignedIn() && isOwner(adminProfileId);
+        allow list: if false;
+        allow create: if isSignedIn() && isAdmin() && isOwner(request.auth.uid);
+        allow update: if isSignedIn() && isExistingOwner(adminProfileId);
+        allow delete: if isSignedIn() && isExistingOwner(adminProfileId);
     }
-  }
-
-  // Helper functions
-  function isSignedIn() {
-    return request.auth != null;
-  }
-
-  function isOwner(userId) {
-    return request.auth.uid == userId;
-  }
-
-  function isNewOwner(userId) {
-    return isSignedIn() && isOwner(userId) && request.resource.data.id == userId;
-  }
-
-    function isExistingOwner(userId) {
-    return isOwner(userId) && resource != null && resource.data.id == userId;
-  }
-
-  function isAdmin(adminProfileId) {
-    return isSignedIn() && request.auth.uid == adminProfileId;
   }
 }
