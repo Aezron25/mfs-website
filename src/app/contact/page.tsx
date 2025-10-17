@@ -1,4 +1,3 @@
-import { ContactForm } from "@/components/contact/ContactForm";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Mail, Phone, MapPin } from "lucide-react";
 
@@ -13,10 +12,10 @@ export default function ContactPage() {
           I'm here to help. Whether you have a question about my services or want to discuss your financial needs, I'm ready to answer your questions. Please feel free to get in touch with me directly.
         </p>
       </div>
-      <div className="grid gap-12 lg:grid-cols-2 lg:gap-16 items-start">
+      <div className="grid gap-12 lg:grid-cols-1 lg:gap-16 items-start">
         <div className="space-y-6">
-          <h2 className="text-2xl font-bold text-center lg:text-left">Direct Contact</h2>
-          <div className="mx-auto max-w-sm lg:mx-0 lg:max-w-none space-y-4">
+          <h2 className="text-2xl font-bold text-center">Direct Contact</h2>
+          <div className="mx-auto max-w-sm lg:max-w-md space-y-4">
             <div className="flex items-start gap-4">
               <div className="bg-muted rounded-md p-3 flex-shrink-0">
                 <MapPin className="h-6 w-6 text-primary" />
@@ -45,20 +44,6 @@ export default function ContactPage() {
               </div>
             </div>
           </div>
-        </div>
-        
-        <div>
-          <Card>
-            <CardHeader>
-              <CardTitle>Send Me a Message</CardTitle>
-              <CardDescription>
-                Fill out the form below and I'll get back to you as soon as possible.
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <ContactForm />
-            </CardContent>
-          </Card>
         </div>
       </div>
     </div>
