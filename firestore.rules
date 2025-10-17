@@ -1,31 +1,89 @@
-
 rules_version = '2';
-
 service cloud.firestore {
   match /databases/{database}/documents {
 
-    // Helper function to check for admin role
-    function isAdmin() {
-      return exists(/databases/$(database)/documents/roles_admin/$(request.auth.uid));
-    }
-
-    // Client profiles can only be read/written by their owner.
-    // Admins can read any profile.
+    /**
+     * @description Protects client profile data, ensuring only the owner can read and write.
+     * @path /client_profiles/{clientProfileId}
+     * @allow (create) User with UID 'user_abc' can create their profile at /client_profiles/user_abc.
+     * @allow (get,update,delete) User with UID 'user_abc' can read/update/delete their profile at /client_profiles/user_abc.
+     * @deny (create) User with UID 'user_xyz' cannot create a profile at /client_profiles/user_abc.
+     * @deny (get,update,delete) User with UID 'user_xyz' cannot read/update/delete the profile at /client_profiles/user_abc.
+     * @principle Enforces document ownership; only the owner (matching UID) can modify their profile.
+     */
     match /client_profiles/{clientProfileId} {
-      allow read: if request.auth != null && (request.auth.uid == clientProfileId || isAdmin());
-      allow write: if request.auth != null && request.auth.uid == clientProfileId;
-
-      // Messages can be created by their owner.
-      // Messages can be read by their owner or an admin.
-      match /messages/{messageId} {
-        allow create: if request.auth != null && request.auth.uid == clientProfileId;
-        allow read: if request.auth != null && (request.auth.uid == clientProfileId || isAdmin());
+      //Utility function:  Checks if the user is signed in
+      function isSignedIn() {
+        return request.auth != null;
       }
+
+      //Utility function:  Checks if the user id in the request matches the clientProfileId
+      function isOwner(clientProfileId) {
+        return request.auth.uid == clientProfileId;
+      }
+
+      //Utility function:  Checks if the user id in the request matches the clientProfileId, and checks that the resource already exists
+      function isExistingOwner(clientProfileId) {
+        return isOwner(clientProfileId) && exists(resource);
+      }
+
+      allow get: if isSignedIn() && isOwner(clientProfileId);
+      allow list: if false;
+      allow create: if isSignedIn() && isOwner(clientProfileId);
+      allow update: if isSignedIn() && isOwner(clientProfileId);
+      allow delete: if isSignedIn() && isOwner(clientProfileId);
     }
 
-    // Admins can be read by any authenticated user (e.g., to show/hide UI elements)
-    match /roles_admin/{userId} {
-      allow get: if request.auth != null;
+    /**
+     * @description Controls access to messages sent by clients, ensuring only the owner can read and write.
+     * @path /client_profiles/{clientProfileId}/messages/{messageId}
+     * @allow (create) User with UID 'user_abc' can create a message under /client_profiles/user_abc/messages/{messageId}
+     * @allow (get,update,delete) User with UID 'user_abc' can read/update/delete a message under /client_profiles/user_abc/messages/{messageId}
+     * @deny (create) User with UID 'user_xyz' cannot create a message under /client_profiles/user_abc/messages/{messageId}.
+     * @deny (get,update,delete) User with UID 'user_xyz' cannot read/update/delete a message under /client_profiles/user_abc/messages/{messageId}.
+     * @principle Enforces document ownership and prevents unauthorized message manipulation.
+     */
+    match /client_profiles/{clientProfileId}/messages/{messageId} {
+      //Utility function:  Checks if the user is signed in
+      function isSignedIn() {
+        return request.auth != null;
+      }
+
+      //Utility function:  Checks if the user id of the request matches the clientProfileId of the parent
+      function isParentOwner(clientProfileId) {
+        return request.auth.uid == clientProfileId;
+      }
+
+      allow get: if isSignedIn() && isParentOwner(clientProfileId);
+      allow list: if isSignedIn() && isParentOwner(clientProfileId);
+      allow create: if isSignedIn() && isParentOwner(clientProfileId);
+      allow update: if isSignedIn() && isParentOwner(clientProfileId);
+      allow delete: if isSignedIn() && isParentOwner(clientProfileId);
+    }
+
+    /**
+     * @description Manages admin profiles, granting admin privileges based on document existence.
+     * @path /roles_admin/{adminProfileId}
+     * @allow (get,list,create,update,delete) Any authenticated user can create, read, update and delete their respective admin profile under /roles_admin/{adminProfileId}.
+     * @deny (create) User with UID 'user_xyz' cannot create an admin profile at /roles_admin/user_abc.
+     * @principle Role-based access control; admin privileges are dynamically granted based on the existence of a profile.
+     */
+    match /roles_admin/{adminProfileId} {
+      //Utility function:  Checks if the user is signed in
+      function isSignedIn() {
+        return request.auth != null;
+      }
+
+      //Utility function:  Checks if the user id in the request matches the adminProfileId
+      function isOwner(adminProfileId) {
+        return request.auth.uid == adminProfileId;
+      }
+
+      allow get: if isSignedIn() && isOwner(adminProfileId);
+      allow list: if false;
+      allow create: if isSignedIn() && isOwner(adminProfileId);
+      allow update: if isSignedIn() && isOwner(adminProfileId);
+      allow delete: if isSignedIn() && isOwner(adminProfileId);
     }
   }
 }
