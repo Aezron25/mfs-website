@@ -1,44 +1,44 @@
 /**
- * @fileoverview Firestore Security Rules for Mwanakombo Financial Services.
+ * @fileOverview Firestore Security Rules for Mwanakombo Financial Services.
  *
  * Core Philosophy:
- * This ruleset enforces a strict user-ownership model for client profiles and messages,
- * combined with role-based access control for administrators.
+ * This ruleset enforces a strict user-ownership model for client profiles and their messages.
+ * Administrative privileges are granted based on the existence of an admin profile document.
  *
  * Data Structure:
- * - /client_profiles/{clientProfileId}: Stores client profile data, accessible only to the owner.
- * - /client_profiles/{clientProfileId}/messages/{messageId}: Stores client messages, accessible only to the owner.
- * - /roles_admin/{adminProfileId}: Documents in this collection grant admin privileges to the corresponding user.
+ * - /client_profiles/{clientProfileId}: Stores client profile data. The {clientProfileId} must match the user's UID.
+ * - /client_profiles/{clientProfileId}/messages/{messageId}: Stores messages sent by clients. Each message includes a denormalized `clientProfileId` field.
+ * - /roles_admin/{adminProfileId}: Admin profiles. The existence of a document grants admin privileges.
  *
  * Key Security Decisions:
- * - Clients can only access their own profile data and messages.
- * - Administrators, as defined by documents in `/roles_admin/{adminProfileId}`, have elevated privileges (not implemented in this prototype).
- * - Data consistency is enforced between the path and the document's internal `id` field for client profiles.
+ * - Clients can only access their own profile data.
+ * - Clients can only create, read, update, or delete their own messages.
+ * - Listing client profiles is denied to prevent unauthorized data access.
+ * - Admin privileges are determined by the existence of a document in the `/roles_admin` collection.
  *
  * Denormalization for Authorization:
- * - The `clientProfileId` is denormalized within each message document to allow direct authorization checks
- *   without needing to perform additional `get()` operations on the parent `client_profiles` document.
+ * The `messages` subcollection includes the `clientProfileId`, eliminating the need for `get()` calls to the parent `client_profiles` document. This allows security rules to directly verify ownership based on `request.auth.uid` and the `clientProfileId` within the message.
  */
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
     /**
-     * @description Controls access to client profile documents.
+     * @description Allows clients to manage their own profile.
      * @path /client_profiles/{clientProfileId}
-     * @allow (create) - Authenticated user with UID matching clientProfileId can create their profile.
-     * @allow (get, list) - Authenticated user with UID matching clientProfileId can read their profile.
-     * @allow (update, delete) - Authenticated user with UID matching clientProfileId can update/delete their profile.
-     * @deny (create) - Authenticated user with UID not matching clientProfileId cannot create a profile.
-     * @deny (get, list) - Authenticated user with UID not matching clientProfileId cannot read other profiles.
-     * @deny (update, delete) - Authenticated user with UID not matching clientProfileId cannot update/delete other profiles.
-     * @principle Enforces document ownership based on the clientProfileId path parameter.
+     * @allow (create) User with UID 'user_abc' can create a profile if clientProfileId == 'user_abc'.
+     * @allow (get, update, delete) User with UID 'user_abc' can read, update, or delete their profile (clientProfileId == 'user_abc').
+     * @deny (create, get, update, delete) User with UID 'user_xyz' cannot access profile 'user_abc'.
+     * @deny (list) No one can list client profiles.
+     * @principle Enforces document ownership for writes and reads. Restricts listing of user profiles.
      */
     match /client_profiles/{clientProfileId} {
+      // Verified Identity
       function isSignedIn() {
         return request.auth != null;
       }
 
+      // Ownership
       function isOwner(userId) {
         return isSignedIn() && request.auth.uid == userId;
       }
@@ -47,29 +47,28 @@ service cloud.firestore {
         return isOwner(userId) && resource != null;
       }
 
-      allow get: if isOwner(clientProfileId);
-      allow list: if false;
       allow create: if isOwner(clientProfileId) && request.resource.data.id == clientProfileId;
+      allow get: if isOwner(clientProfileId);
       allow update: if isExistingOwner(clientProfileId) && request.resource.data.id == resource.data.id;
       allow delete: if isExistingOwner(clientProfileId);
+      allow list: if false;
     }
 
     /**
-     * @description Controls access to messages within a client profile.
+     * @description Allows clients to manage their own messages.
      * @path /client_profiles/{clientProfileId}/messages/{messageId}
-     * @allow (create) - Authenticated user with UID matching clientProfileId can create a message.
-     * @allow (get, list) - Authenticated user with UID matching clientProfileId can read messages in their profile.
-     * @allow (update, delete) - Authenticated user with UID matching clientProfileId can update/delete messages in their profile.
-     * @deny (create) - Authenticated user with UID not matching clientProfileId cannot create a message.
-     * @deny (get, list) - Authenticated user with UID not matching clientProfileId cannot read messages in other profiles.
-     * @deny (update, delete) - Authenticated user with UID not matching clientProfileId cannot update/delete messages in other profiles.
-     * @principle Enforces document ownership for messages based on the clientProfileId path parameter and the denormalized clientProfileId field within the message document.
+     * @allow (create) User with UID 'user_abc' can create a message under their profile if clientProfileId == 'user_abc'.
+     * @allow (get, list, update, delete) User with UID 'user_abc' can read, list, update, or delete messages under their profile (clientProfileId == 'user_abc').
+     * @deny (create, get, list, update, delete) User with UID 'user_xyz' cannot access messages under profile 'user_abc'.
+     * @principle Enforces document ownership for all operations on messages.
      */
     match /client_profiles/{clientProfileId}/messages/{messageId} {
-       function isSignedIn() {
+      // Verified Identity
+      function isSignedIn() {
         return request.auth != null;
       }
 
+      // Ownership
       function isOwner(userId) {
         return isSignedIn() && request.auth.uid == userId;
       }
@@ -78,31 +77,42 @@ service cloud.firestore {
         return isOwner(userId) && resource != null;
       }
 
+      allow create: if isOwner(clientProfileId) && request.resource.data.clientProfileId == clientProfileId;
       allow get: if isOwner(clientProfileId);
       allow list: if isOwner(clientProfileId);
-      allow create: if isOwner(clientProfileId) && request.resource.data.clientProfileId == clientProfileId;
       allow update: if isExistingOwner(clientProfileId) && request.resource.data.clientProfileId == resource.data.clientProfileId;
       allow delete: if isExistingOwner(clientProfileId);
     }
 
     /**
-     * @description Controls access to admin profile documents.
+     * @description Grants admin privileges based on document existence.
      * @path /roles_admin/{adminProfileId}
-     * @allow (create) - Only an existing admin can create another admin profile (Not Implemented).
-     * @allow (get, list) - Any authenticated user can check for admin privileges (Not Implemented).
-     * @allow (update, delete) - Only an existing admin can update/delete another admin profile (Not Implemented).
-     * @deny (create) - Non-admins cannot create admin profiles.
-     * @deny (update, delete) - Non-admins cannot update/delete admin profiles.
-     * @principle Implements role-based access control. The existence of an AdminProfile document grants admin privileges.
+     * @allow (create) User with UID 'admin_abc' can create an admin profile for themselves if adminProfileId == 'admin_abc'.
+     * @allow (get, update, delete) User with UID 'admin_abc' can read, update, or delete their admin profile (adminProfileId == 'admin_abc').
+     * @allow (list) Anyone can list admin profiles.
+     * @deny (create, get, update, delete) User with UID 'user_xyz' cannot create, get, update, or delete admin profile 'admin_abc'.
+     * @principle Grants admin privileges through document existence.
      */
     match /roles_admin/{adminProfileId} {
+      // Verified Identity
       function isSignedIn() {
         return request.auth != null;
       }
 
-      //In this prototype, any authenticated user can check for admin privileges but cannot create/update/delete
-      allow get, list: if isSignedIn();
-      allow create, update, delete: if false; // Only existing admins can modify the admin collection (Not Implemented).
+      // Ownership
+      function isOwner(userId) {
+        return isSignedIn() && request.auth.uid == userId;
+      }
+
+      function isExistingOwner(userId) {
+        return isOwner(userId) && resource != null;
+      }
+
+      allow create: if isOwner(adminProfileId) && request.resource.data.id == adminProfileId;
+      allow get: if isSignedIn();
+      allow list: if isSignedIn();
+      allow update: if isExistingOwner(adminProfileId) && request.resource.data.id == resource.data.id;
+      allow delete: if isExistingOwner(adminProfileId);
     }
   }
 }
