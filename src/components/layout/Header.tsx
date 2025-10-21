@@ -120,7 +120,7 @@ export function Header() {
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="container flex h-14 items-center">
-        <div className="mr-4 flex items-center">
+        <div className="flex items-center">
           <Link href="/" className="mr-6 flex items-center space-x-2">
             <MfsLogo className="h-6 w-6 text-primary" />
             <span className="hidden font-bold sm:inline-block font-headline">
@@ -128,15 +128,10 @@ export function Header() {
             </span>
             <span className="sm:hidden font-bold font-headline text-base">MFS</span>
           </Link>
-          <nav className="hidden md:flex items-center space-x-6 text-sm font-medium">
-            {navItems.map((item) => (
-              <NavLink key={item.href} {...item} />
-            ))}
-          </nav>
         </div>
 
-        <div className="flex flex-1 items-center justify-end">
-          {isClient && isMobile ? (
+        <div className="flex flex-1 items-center justify-end space-x-4">
+           {isClient && isMobile ? (
               <Sheet open={isMobileMenuOpen} onOpenChange={setIsMobileMenuOpen}>
                 <SheetTrigger asChild>
                   <Button variant="ghost" size="icon">
@@ -167,8 +162,13 @@ export function Header() {
                 </SheetContent>
               </Sheet>
           ) : (
-            <div className="hidden md:flex flex-1 items-center justify-end space-x-2">
-              <AuthButtons />
+             <div className="flex items-center gap-6">
+                <nav className="hidden md:flex items-center space-x-6 text-sm font-medium">
+                    {navItems.map((item) => (
+                    <NavLink key={item.href} {...item} />
+                    ))}
+                </nav>
+                <AuthButtons />
             </div>
           )}
         </div>
