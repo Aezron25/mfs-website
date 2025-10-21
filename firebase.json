@@ -9,15 +9,9 @@
       "**/.*",
       "**/node_modules/**"
     ],
-    "appAssociation": "AUTO",
-    "rewrites": [
-      {
-        "source": "**",
-        "apphosting": {
-          "backendId": "mwanakombofinacialservices",
-          "region": "europe-west1"
-        }
-      }
-    ]
+    "frameworksBackend": {
+      "id": "mwanakombofinacialservices",
+      "region": "europe-west1"
+    }
   }
 }
