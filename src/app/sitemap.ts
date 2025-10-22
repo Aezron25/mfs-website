@@ -1,7 +1,7 @@
 import { MetadataRoute } from 'next'
  
 export default function sitemap(): MetadataRoute.Sitemap {
-  const baseUrl = 'https://mwanakombofinancials.com'; // Replace with your actual domain
+  const baseUrl = 'https://mwanakombofinancials.com';
 
   return [
     {
@@ -24,7 +24,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     },
      {
       url: `${baseUrl}/contact`,
-      lastModified: new Date(),
+      lastModified: new 'Date'(),
       changeFrequency: 'monthly',
       priority: 0.5,
     },
