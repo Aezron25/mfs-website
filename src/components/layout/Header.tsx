@@ -2,15 +2,13 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
-import { Menu, LogOut, LayoutDashboard } from "lucide-react";
+import { usePathname } from "next/navigation";
+import { Menu } from "lucide-react";
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription, SheetTrigger } from "@/components/ui/sheet";
 import { cn } from "@/lib/utils";
 import { useIsMobile } from "@/hooks/use-mobile";
-import { useUser, useAuth } from "@/firebase";
-import { useAdmin } from "@/hooks/use-admin";
 
 const navItems = [
   { href: "/", label: "Home" },
@@ -36,26 +34,14 @@ const MfsLogo = (props: React.SVGProps<SVGSVGElement>) => (
 
 export function Header() {
   const pathname = usePathname();
-  const router = useRouter();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const isMobile = useIsMobile();
   const [isClient, setIsClient] = useState(false);
-  const { user, isUserLoading } = useUser();
-  const { isAdmin } = useAdmin(user);
-  const auth = useAuth();
 
   useEffect(() => {
     setIsClient(true);
   }, []);
   
-  const handleLogout = async () => {
-    if (auth) {
-      await auth.signOut();
-    }
-    setIsMobileMenuOpen(false);
-    router.push('/');
-  };
-
   const NavLink = ({ href, label, className, onClick }: { href: string; label: string, className?: string, onClick?: () => void }) => (
     <Link
       href={href}
@@ -72,50 +58,6 @@ export function Header() {
       {label}
     </Link>
   );
-
-  const AuthButtons = () => {
-    if (isUserLoading) {
-      return null;
-    }
-    if (user) {
-      return (
-        <div className="flex items-center gap-2">
-          <Button asChild variant="ghost" size="sm">
-            <Link href={isAdmin ? "/admin/dashboard" : "/dashboard"}>
-              <LayoutDashboard className="mr-2 h-4 w-4" />
-              Dashboard
-            </Link>
-          </Button>
-          <Button variant="outline" size="sm" onClick={handleLogout}>
-            Logout
-            <LogOut className="ml-2 h-4 w-4"/>
-          </Button>
-        </div>
-      );
-    }
-    return null;
-  };
-  
-  const MobileAuthButtons = () => {
-     if (isUserLoading) {
-      return null;
-    }
-    if (user) {
-      return (
-        <>
-            <NavLink href={isAdmin ? "/admin/dashboard" : "/dashboard"} label="Dashboard" className="text-lg py-2" />
-            <button
-              onClick={handleLogout}
-              className="text-lg py-2 text-sm font-medium text-muted-foreground transition-colors hover:text-primary flex items-center w-full"
-            >
-              Logout
-              <LogOut className="ml-2 h-4 w-4"/>
-            </button>
-        </>
-      );
-    }
-    return null;
-  }
 
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
@@ -156,19 +98,16 @@ export function Header() {
                       {navItems.map((item) => (
                         <NavLink key={item.href} {...item} className="text-lg py-2" />
                       ))}
-                      <hr className="my-2"/>
-                      <MobileAuthButtons />
                   </div>
                 </SheetContent>
               </Sheet>
           ) : (
              <div className="flex items-center gap-6">
-                <nav className="hidden md:flex items-center space-x-6 text-sm font-medium">
+                <nav className="flex items-center space-x-6 text-sm font-medium">
                     {navItems.map((item) => (
                     <NavLink key={item.href} {...item} />
                     ))}
                 </nav>
-                <AuthButtons />
             </div>
           )}
         </div>
