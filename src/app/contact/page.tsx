@@ -1,8 +1,76 @@
+'use client';
 
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Mail, Phone, MapPin } from "lucide-react";
+import { zodResolver } from '@hookform/resolvers/zod';
+import { useForm } from 'react-hook-form';
+import { z } from 'zod';
+import { Button } from '@/components/ui/button';
+import {
+  Form,
+  FormControl,
+  FormDescription,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from '@/components/ui/form';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
+import { useToast } from '@/hooks/use-toast';
+import { sendEmail } from '@/app/actions';
+import { Loader2 } from 'lucide-react';
+
+const formSchema = z.object({
+  name: z.string().min(2, {
+    message: 'Name must be at least 2 characters.',
+  }),
+  email: z.string().email({
+    message: 'Please enter a valid email address.',
+  }),
+  subject: z.string().min(5, {
+    message: 'Subject must be at least 5 characters.',
+  }),
+  message: z.string().min(10, {
+    message: 'Message must be at least 10 characters.',
+  }),
+});
+
+export type ContactFormValues = z.infer<typeof formSchema>;
 
 export default function ContactPage() {
+  const { toast } = useToast();
+  const form = useForm<ContactFormValues>({
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      name: '',
+      email: '',
+      subject: '',
+      message: '',
+    },
+  });
+
+  const { isSubmitting } = form.formState;
+
+  async function onSubmit(values: ContactFormValues) {
+    try {
+      const result = await sendEmail(values);
+      if (result.success) {
+        toast({
+          title: 'Message Sent!',
+          description: 'Thank you for reaching out. I will get back to you shortly.',
+        });
+        form.reset();
+      } else {
+        throw new Error(result.error || 'An unknown error occurred.');
+      }
+    } catch (error: any) {
+      toast({
+        variant: 'destructive',
+        title: 'Uh oh! Something went wrong.',
+        description: error.message || 'There was a problem with your request.',
+      });
+    }
+  }
+
   return (
     <div className="container py-12 md:py-24 lg:py-32">
       <div className="space-y-6 text-center mb-12">
@@ -10,46 +78,80 @@ export default function ContactPage() {
           Get in Touch
         </h1>
         <p className="max-w-[600px] text-muted-foreground md:text-xl/relaxed mx-auto">
-          I'm here to help. Whether you have a question about my services or want to discuss your financial needs, I'm ready to answer your questions. Please feel free to get in touch with me directly.
+          Have a question or want to work together? Fill out the form below and I'll get back to you as soon as possible.
         </p>
       </div>
-      <div className="grid gap-12 lg:grid-cols-1 lg:gap-16 items-start">
-        <div className="space-y-6">
-          <h2 className="text-2xl font-bold text-center">Direct Contact</h2>
-          <div className="mx-auto max-w-sm lg:max-w-md space-y-4">
-            <div className="flex items-start gap-4">
-              <div className="bg-muted rounded-md p-3 flex-shrink-0">
-                <MapPin className="h-6 w-6 text-primary" />
-              </div>
-              <div>
-                <h3 className="font-semibold">My Office</h3>
-                <p className="text-muted-foreground">Silverest, Chongwe, Lusaka Zmabia</p>
-              </div>
-            </div>
-            <div className="flex items-start gap-4">
-              <div className="bg-muted rounded-md p-3 flex-shrink-0">
-                <Mail className="h-6 w-6 text-primary" />
-              </div>
-              <div>
-                <h3 className="font-semibold">Email</h3>
-                <a href="mailto:mosesmwanakombo890@gmail.com" className="text-muted-foreground hover:text-primary">
-                  mosesmwanakombo890@gmail.com
-                </a>
-              </div>
-            </div>
-            <div className="flex items-start gap-4">
-              <div className="bg-muted rounded-md p-3 flex-shrink-0">
-                <Phone className="h-6 w-6 text-primary" />
-              </div>
-              <div>
-                <h3 className="font-semibold">Call Me</h3>
-                <a href="tel:+260972088113" className="text-muted-foreground hover:text-primary">
-                  +260 972 088 113
-                </a>
-              </div>
-            </div>
-          </div>
-        </div>
+      <div className="mx-auto max-w-xl">
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+            <FormField
+              control={form.control}
+              name="name"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Name</FormLabel>
+                  <FormControl>
+                    <Input placeholder="Your Name" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="email"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Email</FormLabel>
+                  <FormControl>
+                    <Input placeholder="your.email@example.com" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="subject"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Subject</FormLabel>
+                  <FormControl>
+                    <Input placeholder="What is this about?" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="message"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Message</FormLabel>
+                  <FormControl>
+                    <Textarea
+                      placeholder="Tell me more..."
+                      className="min-h-[150px]"
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <Button type="submit" className="w-full" disabled={isSubmitting}>
+              {isSubmitting ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Sending...
+                </>
+              ) : (
+                'Send Message'
+              )}
+            </Button>
+          </form>
+        </Form>
       </div>
     </div>
   );
