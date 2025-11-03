@@ -81,7 +81,7 @@ export default function ContactPage() {
           Have a question or want to work together? Fill out the form below and I'll get back to you as soon as possible.
         </p>
       </div>
-      <div className="mx-auto max-w-xl">
+      <div className="mx-auto max-w-xl border rounded-lg p-8 shadow-md bg-card">
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
             <FormField
