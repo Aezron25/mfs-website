@@ -52,7 +52,7 @@ export function Footer() {
              </div>
              <div className="flex items-center gap-3">
                 <Mail className="h-5 w-5 text-primary flex-shrink-0"/>
-                <a href="mailto:mosesmwanakombo890@gmail.com" className="hover:text-primary break-all">mosesmwanakombo890@gmail.com</a>
+                <a href="mailto:mosesmwanakombo890@gmail.com" className="hover:text-primary break-all">Send an Email</a>
              </div>
              <div className="flex items-center gap-3">
                 <svg
