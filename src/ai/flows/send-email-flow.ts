@@ -36,7 +36,7 @@ export const sendEmailFlow = ai.defineFlow(
     const { name, email, subject, message } = input;
     
     // The email address to send to. Hardcoded for security.
-    const toEmail = 'choolohezron@gmail.com';
+    const toEmail = 'mosesmwanakombo890@gmail.com';
 
     try {
       await resend.emails.send({
