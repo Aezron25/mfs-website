@@ -51,10 +51,6 @@ export function Footer() {
                 <a href="tel:+260972088113" className="hover:text-primary break-all">+260 972 088 113</a>
              </div>
              <div className="flex items-center gap-3">
-                <Mail className="h-5 w-5 text-primary flex-shrink-0"/>
-                <a href="mailto:mosesmwanakombo890@gmail.com" className="hover:text-primary break-all">Send an Email</a>
-             </div>
-             <div className="flex items-center gap-3">
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
                   viewBox="0 0 448 512"
