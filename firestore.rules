@@ -1,0 +1,54 @@
+
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isAdmin() {
+      return request.auth.token.role == 'admin';
+    }
+
+    function isStaff() {
+      return request.auth.token.role == 'staff';
+    }
+
+    // Users
+    match /users/{userId} {
+      allow read, write: if isSignedIn() && request.auth.uid == userId;
+    }
+
+    // Clients
+    match /clients/{clientId} {
+      allow read, write: if isAdmin() || isStaff();
+      allow read: if isSignedIn() && request.auth.uid == clientId;
+    }
+
+    // Service Requests
+    match /serviceRequests/{requestId} {
+      allow create: if isSignedIn();
+      allow read: if isAdmin() || isStaff()
+        || request.auth.uid == resource.data.clientId;
+      allow update: if isAdmin() || isStaff();
+    }
+
+    // Appointments
+    match /appointments/{appointmentId} {
+      allow read, write: if isAdmin() || isStaff()
+        || request.auth.uid == resource.data.clientId;
+    }
+
+    // Documents metadata
+    match /documents/{docId} {
+      allow read, write: if isAdmin() || isStaff()
+        || request.auth.uid == resource.data.ownerId;
+    }
+
+    // Messages
+    match /messages/{messageId} {
+        allow read, write: if isSignedIn() && (request.auth.uid == resource.data.senderId || request.auth.uid == resource.data.receiverId || isAdmin());
+    }
+  }
+}
