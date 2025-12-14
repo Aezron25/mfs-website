@@ -14,6 +14,9 @@ import {
 } from 'firebase/firestore';
 
 import { getFirebaseConfig } from './config';
+import { useUser } from './auth/use-user';
+import { useCollection } from './firestore/use-collection';
+import { useDoc } from './firestore/use-doc';
 
 let app: FirebaseApp;
 let auth: Auth;
@@ -54,3 +57,6 @@ export function initializeFirebase() {
 }
 
 export * from './provider';
+export { useUser, useCollection, useDoc };
+
+    

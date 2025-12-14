@@ -3,12 +3,18 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Menu } from "lucide-react";
+import { Menu, LogOut } from "lucide-react";
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription, SheetTrigger } from "@/components/ui/sheet";
 import { cn } from "@/lib/utils";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { useUser } from "@/firebase/auth/use-user";
+import { getAuth, signOut } from "firebase/auth";
+import { useRouter } from "next/navigation";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+
 
 const navItems = [
   { href: "/", label: "Home" },
@@ -18,11 +24,11 @@ const navItems = [
 ];
 
 const MfsLogo = (props: React.SVGProps<SVGSVGElement>) => (
-    <svg 
-    width="24" 
-    height="24" 
-    viewBox="0 0 24 24" 
-    fill="none" 
+    <svg
+    width="24"
+    height="24"
+    viewBox="0 0 24 24"
+    fill="none"
     xmlns="http://www.w3.org/2000/svg"
     {...props}
     >
@@ -37,11 +43,20 @@ export function Header() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const isMobile = useIsMobile();
   const [isClient, setIsClient] = useState(false);
+  const { user, isLoading } = useUser();
+  const router = useRouter();
+
+  const handleLogout = async () => {
+    const auth = getAuth();
+    await signOut(auth);
+    router.push('/');
+  };
+
 
   useEffect(() => {
     setIsClient(true);
   }, []);
-  
+
   const NavLink = ({ href, label, className, onClick }: { href: string; label: string, className?: string, onClick?: () => void }) => (
     <Link
       href={href}
@@ -59,6 +74,14 @@ export function Header() {
     </Link>
   );
 
+  const getInitials = (name: string | null | undefined) => {
+    if (!name) return "";
+    return name
+      .split(" ")
+      .map((n) => n[0])
+      .join("");
+  };
+
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="container flex h-14 items-center">
@@ -72,7 +95,7 @@ export function Header() {
           </Link>
         </div>
 
-        <div className="flex flex-1 items-center justify-end space-x-4">
+        <div className="flex flex-1 items-center justify-end space-x-2">
            {isClient && isMobile ? (
               <Sheet open={isMobileMenuOpen} onOpenChange={setIsMobileMenuOpen}>
                 <SheetTrigger asChild>
@@ -98,6 +121,26 @@ export function Header() {
                       {navItems.map((item) => (
                         <NavLink key={item.href} {...item} className="text-lg py-2" />
                       ))}
+                      {user && (
+                         <NavLink href="/dashboard" label="Dashboard" className="text-lg py-2" />
+                      )}
+                  </div>
+                  <div className="border-t pt-4">
+                     {user ? (
+                        <Button onClick={handleLogout} className="w-full justify-start">
+                          <LogOut className="mr-2 h-4 w-4" />
+                          Log Out
+                        </Button>
+                      ) : (
+                        <div className="flex flex-col gap-2">
+                           <Button asChild className="w-full" onClick={() => setIsMobileMenuOpen(false)}>
+                              <Link href="/login">Login</Link>
+                           </Button>
+                           <Button asChild variant="outline" className="w-full" onClick={() => setIsMobileMenuOpen(false)}>
+                              <Link href="/signup">Sign Up</Link>
+                           </Button>
+                        </div>
+                      )}
                   </div>
                 </SheetContent>
               </Sheet>
@@ -107,7 +150,50 @@ export function Header() {
                     {navItems.map((item) => (
                     <NavLink key={item.href} {...item} />
                     ))}
+                    {user && <NavLink href="/dashboard" label="Dashboard" />}
                 </nav>
+                 <div className="flex items-center gap-4">
+                  {!isLoading && (
+                    <>
+                      {user ? (
+                         <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button variant="ghost" className="relative h-8 w-8 rounded-full">
+                              <Avatar className="h-8 w-8">
+                                <AvatarImage src={user.photoURL ?? ''} alt={user.displayName ?? 'User'} />
+                                <AvatarFallback>{getInitials(user.displayName)}</AvatarFallback>
+                              </Avatar>
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent className="w-56" align="end" forceMount>
+                            <DropdownMenuLabel className="font-normal">
+                              <div className="flex flex-col space-y-1">
+                                <p className="text-sm font-medium leading-none">{user.displayName}</p>
+                                <p className="text-xs leading-none text-muted-foreground">
+                                  {user.email}
+                                </p>
+                              </div>
+                            </DropdownMenuLabel>
+                            <DropdownMenuSeparator />
+                            <DropdownMenuItem onClick={handleLogout}>
+                              <LogOut className="mr-2 h-4 w-4" />
+                              <span>Log out</span>
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      ) : (
+                        <div className="flex items-center gap-2">
+                          <Button asChild variant="ghost" size="sm">
+                            <Link href="/login">Login</Link>
+                          </Button>
+                          <Button asChild size="sm">
+                            <Link href="/signup">Sign Up</Link>
+                          </Button>
+                        </div>
+                      )}
+                    </>
+                  )}
+                </div>
             </div>
           )}
         </div>
@@ -115,3 +201,5 @@ export function Header() {
     </header>
   );
 }
+
+    
