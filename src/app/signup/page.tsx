@@ -19,7 +19,7 @@ import { Loader2 } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { getAuth, createUserWithEmailAndPassword, updateProfile } from 'firebase/auth';
-import { doc, setDoc } from 'firebase/firestore';
+import { doc, setDoc, getDocs, collection, query, limit } from 'firebase/firestore';
 import { useFirestore } from '@/firebase';
 
 const formSchema = z
@@ -52,8 +52,23 @@ export default function SignupPage() {
   const { isSubmitting } = form.formState;
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
+    if (!firestore) {
+        toast({
+            variant: "destructive",
+            title: "Error",
+            description: "Firestore is not available. Please try again later.",
+        });
+        return;
+    }
     try {
       const auth = getAuth();
+
+      // Check if there are any users already
+      const usersCollection = collection(firestore, 'users');
+      const q = query(usersCollection, limit(1));
+      const querySnapshot = await getDocs(q);
+      const isFirstUser = querySnapshot.empty;
+
       const userCredential = await createUserWithEmailAndPassword(auth, values.email, values.password);
       const user = userCredential.user;
 
@@ -61,23 +76,29 @@ export default function SignupPage() {
       await updateProfile(user, { displayName: values.name });
 
       // Create user document in Firestore
-      if (firestore) {
-        const userRef = doc(firestore, 'users', user.uid);
-        await setDoc(userRef, {
-          uid: user.uid,
-          name: values.name,
-          email: values.email,
-          role: 'client', // Default role
-          createdAt: new Date().toISOString(),
-          active: true,
-        });
-      }
-
+      const userRef = doc(firestore, 'users', user.uid);
+      const userRole = isFirstUser ? 'admin' : 'client';
+      
+      await setDoc(userRef, {
+        uid: user.uid,
+        name: values.name,
+        email: values.email,
+        role: userRole,
+        createdAt: new Date().toISOString(),
+        active: true,
+      });
+      
       toast({
         title: 'Account Created!',
-        description: 'You have been successfully signed up.',
+        description: `You have been successfully signed up as a ${userRole}.`,
       });
-      router.push('/dashboard');
+
+      if (userRole === 'admin') {
+        router.push('/admin');
+      } else {
+        router.push('/dashboard');
+      }
+
     } catch (error: any) {
       console.error(error);
       let description = 'There was a problem with your request.';
@@ -184,5 +205,3 @@ export default function SignupPage() {
     </div>
   );
 }
-
-    

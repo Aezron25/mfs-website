@@ -3,7 +3,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Menu, LogOut } from "lucide-react";
+import { Menu, LogOut, LayoutDashboard } from "lucide-react";
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription, SheetTrigger } from "@/components/ui/sheet";
@@ -54,7 +54,7 @@ export function Header() {
   // This is a placeholder for role checking.
   // In a real app, you would get this from custom claims on the user object.
   // @ts-ignore
-  const userRole = user?.role || 'client'; // Default to client for display purposes
+  const userRole = user?.role || (user ? 'client' : null);
 
   const handleLogout = async () => {
     const auth = getAuth();
@@ -99,9 +99,8 @@ export function Header() {
 
   const getNavItems = () => {
       if (!user) return navItems;
-      // @ts-ignore
-      if (user.role === 'admin' || user.role === 'staff') {
-        return [{ href: "/admin", label: "Admin Dashboard" }];
+      if (userRole === 'admin' || userRole === 'staff') {
+        return [{ href: "/admin", label: "Admin Dashboard", icon: LayoutDashboard }];
       }
       return clientNavItems;
   }
