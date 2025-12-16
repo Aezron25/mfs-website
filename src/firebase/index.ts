@@ -1,11 +1,10 @@
-
 'use client';
 import { getApp, getApps, initializeApp, type FirebaseApp } from 'firebase/app';
 import {
   getAuth,
   type Auth,
   connectAuthEmulator,
-  browserLocalPersistence,
+  browserSessionPersistence,
   setPersistence,
 } from 'firebase/auth';
 import {
@@ -53,8 +52,8 @@ export function initializeFirebase() {
     auth = getAuth(app);
     firestore = getFirestore(app);
 
-    // Persist authentication state across sessions.
-    setPersistence(auth, browserLocalPersistence);
+    // Persist authentication state for the current session.
+    setPersistence(auth, browserSessionPersistence);
 
     if (process.env.NEXT_PUBLIC_EMULATOR_HOST) {
       const host = process.env.NEXT_PUBLIC_EMULATOR_HOST;
@@ -75,5 +74,3 @@ export function initializeFirebase() {
 
 export * from './provider';
 export { useUser, useCollection, useDoc };
-
-    
