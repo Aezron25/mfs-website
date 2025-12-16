@@ -52,8 +52,9 @@ export function Header() {
   const router = useRouter();
 
   // This is a placeholder for role checking.
+  // In a real app, you would get this from custom claims on the user object.
   // @ts-ignore
-  const userRole = user?.role || 'client'; // Default to client for display purposes before claim is loaded
+  const userRole = user?.role || 'client'; // Default to client for display purposes
 
   const handleLogout = async () => {
     const auth = getAuth();
@@ -65,6 +66,11 @@ export function Header() {
   useEffect(() => {
     setIsClient(true);
   }, []);
+  
+  // Do not show header on admin routes for non-mobile
+  if (pathname.startsWith('/admin') && !isMobile) {
+      return null;
+  }
 
   const NavLink = ({ href, label, className, onClick }: { href: string; label: string, className?: string, onClick?: () => void }) => (
     <Link
@@ -91,7 +97,16 @@ export function Header() {
       .join("");
   };
 
-  const currentNavItems = user && userRole === 'client' ? clientNavItems : navItems;
+  const getNavItems = () => {
+      if (!user) return navItems;
+      // @ts-ignore
+      if (user.role === 'admin' || user.role === 'staff') {
+        return [{ href: "/admin", label: "Admin Dashboard" }];
+      }
+      return clientNavItems;
+  }
+
+  const currentNavItems = getNavItems();
 
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
@@ -145,7 +160,8 @@ export function Header() {
                               <Link href="/login">Login</Link>
                            </Button>
                            <Button asChild variant="outline" className="w-full" onClick={() => setIsMobileMenuOpen(false)}>
-                              <Link href="/signup">Sign Up</Link>                           </Button>
+                              <Link href="/signup">Sign Up</Link>                           
+                           </Button>
                         </div>
                       )}
                   </div>
