@@ -23,6 +23,11 @@ const navItems = [
   { href: "/contact", label: "Contact" },
 ];
 
+const clientNavItems = [
+    { href: "/dashboard", label: "Dashboard" },
+    { href: "/service-requests", label: "Service Requests" },
+];
+
 const MfsLogo = (props: React.SVGProps<SVGSVGElement>) => (
     <svg
     width="24"
@@ -45,6 +50,10 @@ export function Header() {
   const [isClient, setIsClient] = useState(false);
   const { user, isLoading } = useUser();
   const router = useRouter();
+
+  // This is a placeholder for role checking.
+  // @ts-ignore
+  const userRole = user?.role || 'client'; // Default to client for display purposes before claim is loaded
 
   const handleLogout = async () => {
     const auth = getAuth();
@@ -82,6 +91,8 @@ export function Header() {
       .join("");
   };
 
+  const currentNavItems = user && userRole === 'client' ? clientNavItems : navItems;
+
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="container flex h-14 items-center">
@@ -118,12 +129,9 @@ export function Header() {
                     </span>
                   </Link>
                   <div className="grid gap-2 py-6">
-                      {navItems.map((item) => (
+                      {currentNavItems.map((item) => (
                         <NavLink key={item.href} {...item} className="text-lg py-2" />
                       ))}
-                      {user && (
-                         <NavLink href="/dashboard" label="Dashboard" className="text-lg py-2" />
-                      )}
                   </div>
                   <div className="border-t pt-4">
                      {user ? (
@@ -137,8 +145,7 @@ export function Header() {
                               <Link href="/login">Login</Link>
                            </Button>
                            <Button asChild variant="outline" className="w-full" onClick={() => setIsMobileMenuOpen(false)}>
-                              <Link href="/signup">Sign Up</Link>
-                           </Button>
+                              <Link href="/signup">Sign Up</Link>                           </Button>
                         </div>
                       )}
                   </div>
@@ -147,10 +154,9 @@ export function Header() {
           ) : (
              <div className="flex items-center gap-6">
                 <nav className="flex items-center space-x-6 text-sm font-medium">
-                    {navItems.map((item) => (
+                    {currentNavItems.map((item) => (
                     <NavLink key={item.href} {...item} />
                     ))}
-                    {user && <NavLink href="/dashboard" label="Dashboard" />}
                 </nav>
                  <div className="flex items-center gap-4">
                   {!isLoading && (
@@ -201,5 +207,3 @@ export function Header() {
     </header>
   );
 }
-
-    
