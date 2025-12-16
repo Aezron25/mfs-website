@@ -40,7 +40,7 @@ export const sendEmailFlow = ai.defineFlow(
 
     try {
       await resend.emails.send({
-        from: 'Contact Form <onboarding@resend.dev>', // Must be a verified domain on Resend
+        from: 'Mwanakombo Financial Services <noreply@yourdomain.com>', // IMPORTANT: Replace with your verified domain on Resend
         to: toEmail,
         subject: `New Message from ${name}: ${subject}`,
         reply_to: email,
