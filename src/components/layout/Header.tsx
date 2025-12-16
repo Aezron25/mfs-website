@@ -100,7 +100,7 @@ export function Header() {
   const getNavItems = () => {
       if (!user) return navItems;
       if (userRole === 'admin' || userRole === 'staff') {
-        return [{ href: "/admin", label: "Admin Dashboard", icon: LayoutDashboard }];
+        return [{ href: "/admin", label: "Admin Dashboard" }];
       }
       return clientNavItems;
   }
