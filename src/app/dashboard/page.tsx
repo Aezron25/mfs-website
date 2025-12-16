@@ -169,7 +169,6 @@ export default function DashboardPage() {
       collection(firestore, 'appointments'),
       where('clientId', '==', user.uid),
       where('date', '>=', today),
-      where('status', '==', 'confirmed'),
       orderBy('date', 'asc'),
       limit(2)
     );
