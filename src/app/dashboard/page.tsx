@@ -157,7 +157,6 @@ export default function DashboardPage() {
     return query(
       collection(firestore, 'serviceRequests'),
       where('clientId', '==', user.uid),
-      orderBy('createdAt', 'desc'),
       limit(3)
     );
   }, [firestore, user?.uid]);

@@ -174,8 +174,7 @@ function RequestHistory() {
         if (!user || !firestore) return null;
         return query(
             collection(firestore, 'serviceRequests'),
-            where('clientId', '==', user.uid),
-            orderBy('createdAt', 'desc')
+            where('clientId', '==', user.uid)
         );
     }, [user, firestore]);
 
