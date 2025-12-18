@@ -1,3 +1,4 @@
+
 import Link from "next/link";
 import { Phone, Mail, MapPin, Linkedin } from "lucide-react";
 
@@ -103,3 +104,5 @@ export function Footer() {
     </footer>
   );
 }
+
+    
