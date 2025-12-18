@@ -28,6 +28,10 @@ const clientNavItems = [
     { href: "/service-requests", label: "Service Requests" },
 ];
 
+const adminNavItems = [
+    { href: "/admin", label: "Admin Dashboard", icon: LayoutDashboard }
+]
+
 const MfsLogo = (props: React.SVGProps<SVGSVGElement>) => (
     <svg
     width="24"
@@ -102,6 +106,11 @@ export function Header() {
       if (userRole === 'admin' || userRole === 'staff') {
         return [{ href: "/admin", label: "Admin Dashboard" }];
       }
+      // If user is a client and on the landing page, show public navs.
+      if (userRole === 'client' && pathname === '/') {
+        return navItems;
+      }
+      // Otherwise, show client-specific navs.
       return clientNavItems;
   }
 
@@ -144,6 +153,11 @@ export function Header() {
                   </Link>
                   <div className="grid gap-2 py-6">
                       {currentNavItems.map((item) => (
+                        <NavLink key={item.href} {...item} className="text-lg py-2" />
+                      ))}
+                      {/* Always show public links in mobile menu for logged-in clients */}
+                      {userRole === 'client' && <div className="border-t my-4"></div>}
+                      {userRole === 'client' && navItems.map((item) => (
                         <NavLink key={item.href} {...item} className="text-lg py-2" />
                       ))}
                   </div>
@@ -196,6 +210,10 @@ export function Header() {
                               </div>
                             </DropdownMenuLabel>
                             <DropdownMenuSeparator />
+                             <DropdownMenuItem onClick={() => router.push(userRole === 'client' ? '/dashboard' : '/admin')}>
+                              <LayoutDashboard className="mr-2 h-4 w-4" />
+                              <span>Dashboard</span>
+                            </DropdownMenuItem>
                             <DropdownMenuItem onClick={handleLogout}>
                               <LogOut className="mr-2 h-4 w-4" />
                               <span>Log out</span>

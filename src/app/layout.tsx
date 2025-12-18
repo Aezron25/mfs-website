@@ -6,6 +6,7 @@ import { Header } from '@/components/layout/Header';
 import { Footer } from '@/components/layout/Footer';
 import { Toaster } from '@/components/ui/toaster';
 import { FirebaseProvider } from '@/firebase/client-provider';
+import { DashboardFAB } from '@/components/layout/DashboardFAB';
 
 
 export const metadata: Metadata = {
@@ -53,6 +54,7 @@ export default function RootLayout({
             <main className="flex-1">{children}</main>
             <Footer />
           </div>
+          <DashboardFAB />
           <Toaster />
         </FirebaseProvider>
       </body>
