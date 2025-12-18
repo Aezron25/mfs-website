@@ -14,41 +14,50 @@ service cloud.firestore {
     function isStaff() {
       return request.auth.token.role == 'staff';
     }
+    
+    function isOwner(userId) {
+      return request.auth.uid == userId;
+    }
 
     // Users
     match /users/{userId} {
-      allow read, write: if isSignedIn() && request.auth.uid == userId;
+      // Allow user creation by anyone who is signing up
+      allow create: if isOwner(userId) && request.resource.data.uid == userId;
+      // Allow users to read and update their own profile
+      allow read, update: if isOwner(userId);
+      // Admins can read any user profile
+      allow get: if isAdmin();
     }
 
     // Clients
     match /clients/{clientId} {
       allow read, write: if isAdmin() || isStaff();
-      allow read: if isSignedIn() && request.auth.uid == clientId;
+      allow read: if isSignedIn() && isOwner(clientId);
     }
 
     // Service Requests
     match /serviceRequests/{requestId} {
       allow create: if isSignedIn();
       allow read: if isAdmin() || isStaff()
-        || request.auth.uid == resource.data.clientId;
+        || isOwner(resource.data.clientId);
       allow update: if isAdmin() || isStaff();
     }
 
     // Appointments
     match /appointments/{appointmentId} {
       allow read, write: if isAdmin() || isStaff()
-        || request.auth.uid == resource.data.clientId;
+        || isOwner(resource.data.clientId);
     }
 
     // Documents metadata
     match /documents/{docId} {
       allow read, write: if isAdmin() || isStaff()
-        || request.auth.uid == resource.data.ownerId;
+        || isOwner(resource.data.ownerId);
     }
 
     // Messages
     match /messages/{messageId} {
-        allow read, write: if isSignedIn() && (request.auth.uid == resource.data.senderId || request.auth.uid == resource.data.receiverId || isAdmin());
+        allow read, write: if isSignedIn() && (isOwner(resource.data.senderId) || isOwner(resource.data.receiverId) || isAdmin());
     }
   }
 }

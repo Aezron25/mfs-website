@@ -19,8 +19,11 @@ import { Loader2 } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { getAuth, createUserWithEmailAndPassword, updateProfile } from 'firebase/auth';
-import { doc, setDoc, getDocs, collection, query, limit } from 'firebase/firestore';
+import { doc, setDoc } from 'firebase/firestore';
 import { useFirestore } from '@/firebase';
+import { errorEmitter } from '@/firebase/error-emitter';
+import type { FirestorePermissionError } from '@/firebase/errors';
+
 
 const formSchema = z
   .object({
@@ -62,12 +65,9 @@ export default function SignupPage() {
     }
     try {
       const auth = getAuth();
-
-      // Check if there are any users already
-      const usersCollection = collection(firestore, 'users');
-      const q = query(usersCollection, limit(1));
-      const querySnapshot = await getDocs(q);
-      const isFirstUser = querySnapshot.empty;
+      
+      const adminEmail = process.env.NEXT_PUBLIC_ADMIN_EMAIL;
+      const userRole = (adminEmail && values.email === adminEmail) ? 'admin' : 'client';
 
       const userCredential = await createUserWithEmailAndPassword(auth, values.email, values.password);
       const user = userCredential.user;
@@ -77,16 +77,24 @@ export default function SignupPage() {
 
       // Create user document in Firestore
       const userRef = doc(firestore, 'users', user.uid);
-      const userRole = isFirstUser ? 'admin' : 'client';
-      
-      await setDoc(userRef, {
+      const userData = {
         uid: user.uid,
         name: values.name,
         email: values.email,
         role: userRole,
         createdAt: new Date().toISOString(),
         active: true,
-      });
+      };
+      
+      await setDoc(userRef, userData)
+        .catch((error: any) => {
+            errorEmitter.emit('permission-error', {
+                path: userRef.path,
+                operation: 'create',
+                requestResourceData: userData
+            } as FirestorePermissionError);
+            throw error;
+        });
       
       toast({
         title: 'Account Created!',
@@ -100,7 +108,10 @@ export default function SignupPage() {
       }
 
     } catch (error: any) {
-      console.error(error);
+      console.error('Signup Error:', error);
+      // Don't show a toast if it's a permission error, as the listener will handle it
+      if (error.code?.includes('permission-denied')) return;
+
       let description = 'There was a problem with your request.';
       if (error.code === 'auth/email-already-in-use') {
         description = 'This email is already in use. Please log in instead.';
