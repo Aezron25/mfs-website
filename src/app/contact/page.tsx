@@ -17,6 +17,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
 import { Loader2 } from 'lucide-react';
 import { useState } from 'react';
+import { sendEmail } from '../actions';
 
 const formSchema = z.object({
   name: z.string().min(2, {
@@ -50,15 +51,22 @@ export default function ContactPage() {
 
   async function onSubmit(values: ContactFormValues) {
     setIsSubmitting(true);
-    // Mock sending email
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    console.log(values);
-    toast({
+    const result = await sendEmail(values);
+    setIsSubmitting(false);
+
+    if (result.success) {
+      toast({
         title: 'Message Sent!',
         description: 'Thank you for reaching out. I will get back to you shortly.',
-    });
-    form.reset();
-    setIsSubmitting(false);
+      });
+      form.reset();
+    } else {
+      toast({
+        variant: 'destructive',
+        title: 'Uh oh! Something went wrong.',
+        description: result.error || 'Could not send the message.',
+      });
+    }
   }
 
   return (
