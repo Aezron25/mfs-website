@@ -2,7 +2,7 @@
 'use client';
 
 import { useUser } from '@/firebase/auth/use-user';
-import { useRouter } from 'next/navigation';
+import { useRouter, usePathname } from 'next/navigation';
 import { useEffect } from 'react';
 import { Skeleton } from '@/components/ui/skeleton';
 import {
@@ -26,10 +26,7 @@ import {
   FileText,
   Settings,
   LogOut,
-  PanelLeft,
 } from 'lucide-react';
-import { usePathname } from 'next/navigation';
-import { Button } from '@/components/ui/button';
 import { getAuth, signOut } from 'firebase/auth';
 
 const adminNavItems = [
@@ -62,6 +59,30 @@ const MfsLogo = (props: React.SVGProps<SVGSVGElement>) => (
   </svg>
 );
 
+function AdminSkeleton() {
+    return (
+      <div className="flex h-screen w-full bg-background">
+        <div className="hidden md:flex flex-col gap-4 border-r p-2">
+            <div className="flex h-14 items-center gap-2 p-2">
+                <Skeleton className="h-8 w-8 rounded-md" />
+                <Skeleton className="h-6 w-32" />
+            </div>
+            <div className="flex flex-col gap-2 p-2">
+                <Skeleton className="h-8 w-full" />
+                <Skeleton className="h-8 w-full" />
+                <Skeleton className="h-8 w-full" />
+                <Skeleton className="h-8 w-full" />
+                <Skeleton className="h-8 w-full" />
+            </div>
+        </div>
+        <div className="flex-1 p-8">
+            <Skeleton className="h-10 w-48 mb-8" />
+            <Skeleton className="h-[calc(100%-5rem)] w-full" />
+        </div>
+      </div>
+    );
+}
+
 export default function AdminLayout({
   children,
 }: {
@@ -71,53 +92,37 @@ export default function AdminLayout({
   const router = useRouter();
   const pathname = usePathname();
 
+  // This is a placeholder for role checking. In a real app, this should come from verified ID token claims.
+  // @ts-ignore
+  const userRole = user?.role; 
+
   useEffect(() => {
-    if (!isLoading && !user) {
-      router.push('/login');
+    if (isLoading) {
+      return; // Wait until user status is resolved
     }
-    // Placeholder for role check. In a real app, this should check for 'admin' or 'staff' role.
-    // For now, we'll just check if the user is logged in.
-    // @ts-ignore
-    if (!isLoading && user && user.role === 'client') {
-      // router.push('/dashboard'); // Uncomment and adapt when roles are fully implemented
+    if (!user) {
+      router.replace('/login'); // Not logged in, redirect to login
+    } else if (userRole && userRole === 'client') {
+      router.replace('/dashboard'); // Logged in as a client, redirect to client dashboard
     }
-  }, [user, isLoading, router]);
+  }, [user, isLoading, router, userRole]);
 
   const handleLogout = async () => {
-    const auth = getAuth();
-    await signOut(auth);
-    router.push('/');
+    try {
+        const auth = getAuth();
+        await signOut(auth);
+        router.replace('/');
+    } catch(e) {
+        console.error("Logout failed", e);
+    }
   };
 
-  if (isLoading || !user) {
-    return (
-      <div className="flex h-screen">
-        <div className="w-64 border-r p-4 space-y-4">
-            <Skeleton className="h-10 w-full" />
-            <Skeleton className="h-8 w-full" />
-            <Skeleton className="h-8 w-full" />
-            <Skeleton className="h-8 w-full" />
-        </div>
-        <div className="flex-1 p-8">
-            <Skeleton className="h-full w-full" />
-        </div>
-      </div>
-    );
+  // While loading or if the user is not yet determined to be an admin/staff, show a skeleton.
+  if (isLoading || !user || userRole === 'client' || !userRole) {
+    return <AdminSkeleton />;
   }
-  
-    // A simple role check. In a real app, you'd use custom claims.
-  // @ts-ignore
-  if (user.role && user.role === 'client') {
-     return (
-         <div className="container py-12 text-center">
-            <h1 className="text-2xl font-bold">Access Denied</h1>
-            <p className="text-muted-foreground">You do not have permission to view this page.</p>
-            <Button asChild variant="link">
-                <Link href="/dashboard">Go to your Dashboard</Link>
-            </Button>
-         </div>
-     )
-  }
+
+  const currentNavItem = adminNavItems.find(item => pathname === item.href || pathname.startsWith(item.href + '/')) || { label: 'Admin' };
 
   return (
     <SidebarProvider>
@@ -175,7 +180,7 @@ export default function AdminLayout({
         <header className="flex items-center justify-between p-4 border-b h-14">
             <div className="flex items-center gap-2">
                 <SidebarTrigger className="md:hidden"/>
-                <h1 className="text-xl font-semibold tracking-tight">{adminNavItems.find(item => item.href === pathname)?.label || 'Admin'}</h1>
+                <h1 className="text-xl font-semibold tracking-tight">{currentNavItem.label}</h1>
             </div>
         </header>
         <div className="p-4 sm:p-6 lg:p-8">{children}</div>
