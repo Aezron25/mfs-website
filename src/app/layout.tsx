@@ -5,8 +5,6 @@ import { cn } from '@/lib/utils';
 import { Header } from '@/components/layout/Header';
 import { Footer } from '@/components/layout/Footer';
 import { Toaster } from '@/components/ui/toaster';
-import { FirebaseProvider } from '@/firebase/client-provider';
-import { DashboardFAB } from '@/components/layout/DashboardFAB';
 
 
 export const metadata: Metadata = {
@@ -48,15 +46,12 @@ export default function RootLayout({
           'min-h-screen bg-background font-body antialiased'
         )}
       >
-        <FirebaseProvider>
-          <div className="relative flex min-h-dvh flex-col">
-            <Header />
-            <main className="flex-1">{children}</main>
-            <Footer />
-          </div>
-          <DashboardFAB />
-          <Toaster />
-        </FirebaseProvider>
+        <div className="relative flex min-h-dvh flex-col">
+          <Header />
+          <main className="flex-1">{children}</main>
+          <Footer />
+        </div>
+        <Toaster />
       </body>
     </html>
   );

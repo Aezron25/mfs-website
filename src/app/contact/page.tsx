@@ -7,7 +7,6 @@ import { Button } from '@/components/ui/button';
 import {
   Form,
   FormControl,
-  FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -16,8 +15,8 @@ import {
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
-import { sendEmail } from '@/app/actions';
 import { Loader2 } from 'lucide-react';
+import { useState } from 'react';
 
 const formSchema = z.object({
   name: z.string().min(2, {
@@ -38,6 +37,7 @@ export type ContactFormValues = z.infer<typeof formSchema>;
 
 export default function ContactPage() {
   const { toast } = useToast();
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const form = useForm<ContactFormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -48,27 +48,17 @@ export default function ContactPage() {
     },
   });
 
-  const { isSubmitting } = form.formState;
-
   async function onSubmit(values: ContactFormValues) {
-    try {
-      const result = await sendEmail(values);
-      if (result.success) {
-        toast({
-          title: 'Message Sent!',
-          description: 'Thank you for reaching out. I will get back to you shortly.',
-        });
-        form.reset();
-      } else {
-        throw new Error(result.error || 'An unknown error occurred.');
-      }
-    } catch (error: any) {
-      toast({
-        variant: 'destructive',
-        title: 'Uh oh! Something went wrong.',
-        description: error.message || 'There was a problem with your request.',
-      });
-    }
+    setIsSubmitting(true);
+    // Mock sending email
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    console.log(values);
+    toast({
+        title: 'Message Sent!',
+        description: 'Thank you for reaching out. I will get back to you shortly.',
+    });
+    form.reset();
+    setIsSubmitting(false);
   }
 
   return (
