@@ -2,8 +2,8 @@
 'use client';
 
 import { useUser } from '@/firebase/auth/use-user';
-import { useRouter } from 'next/navigation';
-import { useEffect } from 'react';
+import { useRouter, usePathname } from 'next/navigation';
+import { useEffect, type ReactNode } from 'react';
 import { Skeleton } from '@/components/ui/skeleton';
 import {
   SidebarProvider,
@@ -26,9 +26,7 @@ import {
   FileText,
   Settings,
   LogOut,
-  PanelLeft,
 } from 'lucide-react';
-import { usePathname } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { getAuth, signOut } from 'firebase/auth';
 
@@ -62,24 +60,61 @@ const MfsLogo = (props: React.SVGProps<SVGSVGElement>) => (
   </svg>
 );
 
-export default function AdminLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+function AdminLoadingSkeleton() {
+    return (
+      <div className="flex h-screen bg-background">
+        <div className="hidden md:flex flex-col w-64 border-r p-4 space-y-4">
+            <div className="flex items-center gap-2">
+              <Skeleton className="h-6 w-6 rounded" />
+              <Skeleton className="h-6 w-24" />
+            </div>
+            <div className="space-y-2 mt-4">
+              <Skeleton className="h-8 w-full" />
+              <Skeleton className="h-8 w-full" />
+              <Skeleton className="h-8 w-full" />
+              <Skeleton className="h-8 w-full" />
+              <Skeleton className="h-8 w-full" />
+            </div>
+        </div>
+        <div className="flex-1 flex flex-col">
+            <header className="flex items-center p-4 border-b h-14">
+               <Skeleton className="h-8 w-8 md:hidden" />
+               <Skeleton className="h-8 w-32 ml-2" />
+            </header>
+            <main className="flex-1 p-8">
+                <Skeleton className="h-full w-full" />
+            </main>
+        </div>
+      </div>
+    );
+}
+
+function AccessDenied() {
+    return (
+        <div className="flex items-center justify-center h-screen bg-background">
+            <div className="text-center p-8">
+               <h1 className="text-2xl font-bold text-foreground">Access Denied</h1>
+               <p className="text-muted-foreground mt-2">You do not have permission to view this page.</p>
+               <Button asChild variant="link" className="mt-4">
+                   <Link href="/dashboard">Go to your Dashboard</Link>
+               </Button>
+            </div>
+        </div>
+    )
+}
+
+export default function AdminLayout({ children }: { children: ReactNode }) {
   const { user, isLoading } = useUser();
   const router = useRouter();
   const pathname = usePathname();
+  
+  // @ts-ignore - In a real app, use custom claims. For now, we add this to the user object.
+  const userRole = user?.role;
 
   useEffect(() => {
+    // If finished loading and there's no user, redirect to login.
     if (!isLoading && !user) {
-      router.push('/login');
-    }
-    // Placeholder for role check. In a real app, this should check for 'admin' or 'staff' role.
-    // For now, we'll just check if the user is logged in.
-    // @ts-ignore
-    if (!isLoading && user && user.role === 'client') {
-      // router.push('/dashboard'); // Uncomment and adapt when roles are fully implemented
+      router.replace('/login');
     }
   }, [user, isLoading, router]);
 
@@ -89,34 +124,22 @@ export default function AdminLayout({
     router.push('/');
   };
 
-  if (isLoading || !user) {
-    return (
-      <div className="flex h-screen">
-        <div className="w-64 border-r p-4 space-y-4">
-            <Skeleton className="h-10 w-full" />
-            <Skeleton className="h-8 w-full" />
-            <Skeleton className="h-8 w-full" />
-            <Skeleton className="h-8 w-full" />
-        </div>
-        <div className="flex-1 p-8">
-            <Skeleton className="h-full w-full" />
-        </div>
-      </div>
-    );
+  // While loading, show a full-page skeleton to prevent flashes of content.
+  if (isLoading) {
+    return <AdminLoadingSkeleton />;
   }
-  
-    // A simple role check. In a real app, you'd use custom claims.
-  // @ts-ignore
-  if (user.role && user.role === 'client') {
-     return (
-         <div className="container py-12 text-center">
-            <h1 className="text-2xl font-bold">Access Denied</h1>
-            <p className="text-muted-foreground">You do not have permission to view this page.</p>
-            <Button asChild variant="link">
-                <Link href="/dashboard">Go to your Dashboard</Link>
-            </Button>
-         </div>
-     )
+
+  // If user is loaded but is a 'client', deny access.
+  if (user && userRole === 'client') {
+     return <AccessDenied />;
+  }
+
+  // If user is loaded and has a valid admin/staff role, render the layout.
+  // We also check for `!user` again to handle the brief moment after logout before redirect.
+  if (!user || (userRole !== 'admin' && userRole !== 'staff')) {
+      // This state can happen briefly (e.g., after logout). 
+      // Showing the skeleton prevents showing a broken UI before redirect.
+      return <AdminLoadingSkeleton />;
   }
 
   return (
