@@ -5,6 +5,7 @@ import { cn } from '@/lib/utils';
 import { Header } from '@/components/layout/Header';
 import { Footer } from '@/components/layout/Footer';
 import { Toaster } from '@/components/ui/toaster';
+import { PageTransition } from '@/components/layout/PageTransition';
 
 
 export const metadata: Metadata = {
@@ -48,7 +49,11 @@ export default function RootLayout({
       >
         <div className="relative flex min-h-dvh flex-col">
           <Header />
-          <main className="flex-1">{children}</main>
+          <main className="flex-1">
+            <PageTransition>
+              {children}
+            </PageTransition>
+          </main>
           <Footer />
         </div>
         <Toaster />
