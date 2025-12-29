@@ -35,8 +35,13 @@ export const sendEmailFlow = ai.defineFlow(
 
     const { name, email, subject, message } = input;
     
-    // The email address to send to. Hardcoded for security.
-    const toEmail = 'mosesmwanakombo890@gmail.com';
+    // The email address to send to, loaded from environment variables.
+    const toEmail = process.env.NEXT_PUBLIC_CONTACT_EMAIL;
+
+    if (!toEmail) {
+      console.error('Recipient email address is not configured. Set NEXT_PUBLIC_CONTACT_EMAIL in your environment variables.');
+      throw new Error('Server configuration error: Recipient email is missing.');
+    }
 
     try {
       await resend.emails.send({
