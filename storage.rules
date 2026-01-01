@@ -1,11 +1,19 @@
 
 rules_version = '2';
+
 service firebase.storage {
   match /b/{bucket}/o {
 
-    match /clientDocs/{userId}/{fileName} {
-      allow read, write: if request.auth != null
-        && request.auth.uid == userId;
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
+    match /documents/{userId}/{allPaths=**} {
+      allow read, write: if isOwner(userId);
     }
   }
 }

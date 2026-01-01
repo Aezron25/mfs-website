@@ -1,4 +1,10 @@
 
+/**
+ * Firestore Security Rules for Mwanakombo Financial Services
+ *
+ * Core Philosophy:
+ * This ruleset enforces a strict, participant-based security model. Data access is not granted based on broad roles like 'client' or 'expert' alone, but is instead determined by whether a user's UID is explicitly listed as a participant (e.g., as a 'clientId' or 'expertId') on the specific document they are trying to access. User data is strictly private and isolated.
+ */
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
@@ -7,57 +13,53 @@ service cloud.firestore {
       return request.auth != null;
     }
 
-    function isAdmin() {
-      return request.auth.token.role == 'admin';
-    }
-
-    function isStaff() {
-      return request.auth.token.role == 'staff';
-    }
-    
     function isOwner(userId) {
-      return request.auth.uid == userId;
+      return isSignedIn() && request.auth.uid == userId;
     }
 
-    // Users
+    function isExistingDoc() {
+      return resource != null;
+    }
+
+    function isParticipant(docData) {
+      return isSignedIn() && (request.auth.uid == docData.clientId || request.auth.uid == docData.expertId);
+    }
+
+    function isConversationParticipant(conversationId) {
+      let conversation = get(/databases/$(database)/documents/conversations/$(conversationId)).data;
+      return isParticipant(conversation);
+    }
+
     match /users/{userId} {
-      // Allow user creation by anyone who is signing up
-      allow create: if isOwner(userId) && request.resource.data.uid == userId;
-      // Allow users to read and update their own profile
-      allow read, update: if isOwner(userId);
-      // Admins can read any user profile
-      allow get: if isAdmin();
+      allow get: if isOwner(userId);
+      allow list: if false;
+      allow create: if isOwner(userId) && request.resource.data.role == 'client';
+      allow update: if isOwner(userId) && isExistingDoc() && request.resource.data.role == resource.data.role;
+      allow delete: if isOwner(userId) && isExistingDoc();
     }
 
-    // Clients
-    match /clients/{clientId} {
-      allow read, write: if isAdmin() || isStaff();
-      allow read: if isSignedIn() && isOwner(clientId);
-    }
-
-    // Service Requests
-    match /serviceRequests/{requestId} {
-      allow create: if isSignedIn();
-      allow read: if isAdmin() || isStaff()
-        || isOwner(resource.data.clientId);
-      allow update: if isAdmin() || isStaff();
-    }
-
-    // Appointments
     match /appointments/{appointmentId} {
-      allow read, write: if isAdmin() || isStaff()
-        || isOwner(resource.data.clientId);
+      allow get: if isParticipant(resource.data);
+      allow list: if false;
+      allow create: if isOwner(request.resource.data.clientId);
+      allow update: if isParticipant(resource.data) && isExistingDoc() && request.resource.data.clientId == resource.data.clientId;
+      allow delete: if isParticipant(resource.data) && isExistingDoc();
     }
 
-    // Documents metadata
-    match /documents/{docId} {
-      allow read, write: if isAdmin() || isStaff()
-        || isOwner(resource.data.ownerId);
+    match /conversations/{conversationId} {
+      allow get: if isParticipant(resource.data);
+      allow list: if false;
+      allow create: if isOwner(request.resource.data.clientId);
+      allow update: if isParticipant(resource.data) && isExistingDoc() && request.resource.data.clientId == resource.data.clientId;
+      allow delete: if isParticipant(resource.data) && isExistingDoc();
     }
 
-    // Messages
     match /messages/{messageId} {
-        allow read, write: if isSignedIn() && (isOwner(resource.data.senderId) || isOwner(resource.data.receiverId) || isAdmin());
+      allow get: if isConversationParticipant(resource.data.conversationId);
+      allow list: if false;
+      allow create: if isConversationParticipant(request.resource.data.conversationId) && isOwner(request.resource.data.senderId);
+      allow update: if isOwner(resource.data.senderId) && isExistingDoc() && request.resource.data.senderId == resource.data.senderId;
+      allow delete: if isOwner(resource.data.senderId) && isExistingDoc();
     }
   }
 }

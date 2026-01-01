@@ -2,14 +2,16 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
-import { Menu } from "lucide-react";
+import { usePathname, useRouter } from "next/navigation";
+import { Menu, LogOut } from "lucide-react";
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription, SheetTrigger } from "@/components/ui/sheet";
 import { cn } from "@/lib/utils";
 import { useIsMobile } from "@/hooks/use-mobile";
-
+import { useUser } from "@/firebase/auth/use-user";
+import { getAuth, signOut } from "firebase/auth";
+import { useToast } from "@/hooks/use-toast";
 
 const navItems = [
   { href: "/", label: "Home" },
@@ -35,13 +37,36 @@ const MfsLogo = (props: React.SVGProps<SVGSVGElement>) => (
 
 export function Header() {
   const pathname = usePathname();
+  const router = useRouter();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const isMobile = useIsMobile();
   const [isClient, setIsClient] = useState(false);
-  
+  const { user, isLoading } = useUser();
+  const { toast } = useToast();
+
   useEffect(() => {
     setIsClient(true);
   }, []);
+
+  const handleLogout = async () => {
+    const auth = getAuth();
+    try {
+      await signOut(auth);
+      toast({
+        title: "Logged Out",
+        description: "You have been successfully logged out.",
+      });
+      router.push('/');
+    } catch (error) {
+      console.error("Logout Error:", error);
+      toast({
+        variant: "destructive",
+        title: "Logout Failed",
+        description: "There was a problem logging you out. Please try again.",
+      });
+    }
+  };
+
 
   const NavLink = ({ href, label, className, onClick }: { href: string; label: string, className?: string, onClick?: () => void }) => (
     <Link
@@ -99,6 +124,19 @@ export function Header() {
                       {navItems.map((item) => (
                         <NavLink key={item.href} {...item} className="text-lg py-2" />
                       ))}
+                      <div className="border-t pt-4 mt-4 space-y-2">
+                        {user ? (
+                           <>
+                             <NavLink href="/dashboard" label="Dashboard" className="text-lg py-2" />
+                             <Button onClick={handleLogout} variant="ghost" className="w-full justify-start text-lg py-2 text-muted-foreground">Logout</Button>
+                           </>
+                        ) : (
+                          <>
+                            <NavLink href="/login" label="Login" className="text-lg py-2"/>
+                            <NavLink href="/signup" label="Sign Up" className="text-lg py-2"/>
+                          </>
+                        )}
+                      </div>
                   </div>
                 </SheetContent>
               </Sheet>
@@ -109,6 +147,27 @@ export function Header() {
                       <NavLink key={item.href} {...item} />
                     ))}
                 </nav>
+                 <div className="flex items-center gap-2">
+                    {isLoading ? null : user ? (
+                      <>
+                        <Button asChild variant="ghost" size="sm">
+                          <Link href="/dashboard">Dashboard</Link>
+                        </Button>
+                        <Button onClick={handleLogout} variant="outline" size="icon" aria-label="Logout">
+                          <LogOut className="h-4 w-4" />
+                        </Button>
+                      </>
+                    ) : (
+                      <>
+                        <Button asChild variant="ghost" size="sm">
+                           <Link href="/login">Login</Link>
+                        </Button>
+                        <Button asChild size="sm">
+                           <Link href="/signup">Sign Up</Link>
+                        </Button>
+                      </>
+                    )}
+                </div>
             </div>
           )}
         </div>

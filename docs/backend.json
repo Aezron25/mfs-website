@@ -1,0 +1,79 @@
+
+{
+  "entities": {
+    "user": {
+      "title": "User",
+      "description": "Represents a user in the system, who can be a client or an expert.",
+      "type": "object",
+      "properties": {
+        "name": { "type": "string", "description": "The user's full name." },
+        "email": { "type": "string", "format": "email", "description": "The user's email address." },
+        "role": { "type": "string", "enum": ["client", "expert"], "description": "The user's role." },
+        "createdAt": { "type": "string", "format": "date-time", "description": "The timestamp when the user was created." }
+      },
+      "required": ["name", "email", "role", "createdAt"]
+    },
+    "appointment": {
+      "title": "Appointment",
+      "description": "Represents a scheduled appointment between a client and an expert.",
+      "type": "object",
+      "properties": {
+        "clientId": { "type": "string", "description": "The ID of the client." },
+        "expertId": { "type": "string", "description": "The ID of the expert." },
+        "date": { "type": "string", "format": "date", "description": "The date of the appointment." },
+        "time": { "type": "string", "format": "time", "description": "The time of the appointment." },
+        "status": { "type": "string", "enum": ["pending", "confirmed", "cancelled"], "description": "The status of the appointment." },
+        "notes": { "type": "string", "description": "Optional notes for the appointment." },
+        "createdAt": { "type": "string", "format": "date-time", "description": "The timestamp when the appointment was created." }
+      },
+      "required": ["clientId", "expertId", "date", "time", "status", "createdAt"]
+    },
+    "conversation": {
+      "title": "Conversation",
+      "description": "Represents a chat conversation between a client and an expert.",
+      "type": "object",
+      "properties": {
+        "clientId": { "type": "string", "description": "The ID of the client." },
+        "expertId": { "type": "string", "description": "The ID of the expert." },
+        "lastMessage": { "type": "string", "description": "The last message sent in the conversation." },
+        "updatedAt": { "type": "string", "format": "date-time", "description": "The timestamp when the conversation was last updated." }
+      },
+      "required": ["clientId", "expertId", "lastMessage", "updatedAt"]
+    },
+    "message": {
+      "title": "Message",
+      "description": "Represents a single message in a conversation.",
+      "type": "object",
+      "properties": {
+        "conversationId": { "type": "string", "description": "The ID of the conversation this message belongs to." },
+        "senderId": { "type": "string", "description": "The ID of the user who sent the message." },
+        "text": { "type": "string", "description": "The text content of the message." },
+        "fileUrl": { "type": "string", "format": "uri", "description": "The URL of an uploaded file." },
+        "fileName": { "type": "string", "description": "The name of the uploaded file." },
+        "createdAt": { "type": "string", "format": "date-time", "description": "The timestamp when the message was sent." }
+      },
+      "required": ["conversationId", "senderId", "createdAt"]
+    }
+  },
+  "auth": {
+    "providers": ["email", "google"]
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": { "$ref": "#/entities/user" },
+      "description": "Stores public profiles for all users."
+    },
+    "/appointments/{appointmentId}": {
+      "schema": { "$ref": "#/entities/appointment" },
+      "description": "Stores all appointments between clients and experts."
+    },
+    "/conversations/{conversationId}": {
+      "schema": { "$ref": "#/entities/conversation" },
+      "description": "Stores metadata for each chat conversation."
+    },
+    "/messages/{messageId}": {
+      "schema": { "$ref": "#/entities/message" },
+      "description": "Stores all messages for all conversations."
+    }
+  }
+}

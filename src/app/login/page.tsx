@@ -1,3 +1,4 @@
+
 'use client';
 
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -13,135 +14,154 @@ import {
   FormMessage,
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
 import { Loader2 } from 'lucide-react';
-import { useState } from 'react';
+import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import { getAuth, signInWithEmailAndPassword, GoogleAuthProvider, signInWithPopup } from 'firebase/auth';
+
+const GoogleIcon = (props: React.SVGProps<SVGSVGElement>) => (
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 488 512" {...props}><path d="M488 261.8C488 403.3 381.5 512 244 512 109.8 512 0 402.2 0 261.8 0 122.4 109.8 12.6 244 12.6c70.3 0 129.8 27.8 174.4 72.4l-64 64c-21-20.5-49.3-33.6-83.2-33.6-62 0-112.2 51.2-112.2 113.6s50.2 113.6 112.2 113.6c71.2 0 94-43.5 99.3-66.2H244v-83.8h236c2.3 12.7 3.6 26.4 3.6 40.8z"/></svg>
+)
 
 const formSchema = z.object({
-  name: z.string().min(2, {
-    message: 'Name must be at least 2 characters.',
-  }),
-  email: z.string().email({
-    message: 'Please enter a valid email address.',
-  }),
-  subject: z.string().min(5, {
-    message: 'Subject must be at least 5 characters.',
-  }),
-  message: z.string().min(10, {
-    message: 'Message must be at least 10 characters.',
-  }),
+  email: z.string().email({ message: 'Please enter a valid email address.' }),
+  password: z.string().min(1, { message: 'Password is required.' }),
 });
 
-export type ContactFormValues = z.infer<typeof formSchema>;
-
-export default function ContactPage() {
+export default function LoginPage() {
   const { toast } = useToast();
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const form = useForm<ContactFormValues>({
+  const router = useRouter();
+
+  const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      name: '',
       email: '',
-      subject: '',
-      message: '',
+      password: '',
     },
   });
 
-  async function onSubmit(values: ContactFormValues) {
-    setIsSubmitting(true);
-    // Mock sending email
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    console.log(values);
-    toast({
-        title: 'Message Sent!',
-        description: 'Thank you for reaching out. I will get back to you shortly.',
-    });
-    form.reset();
-    setIsSubmitting(false);
+  const { isSubmitting } = form.formState;
+
+  async function onSubmit(values: z.infer<typeof formSchema>) {
+    const auth = getAuth();
+    try {
+      await signInWithEmailAndPassword(auth, values.email, values.password);
+      toast({
+        title: 'Login Successful!',
+        description: 'Welcome back.',
+      });
+      router.push('/dashboard');
+    } catch (error: any) {
+      console.error('Login Error:', error);
+      let description = 'There was a problem with your login request.';
+      if (error.code === 'auth/user-not-found' || error.code === 'auth/wrong-password' || error.code === 'auth/invalid-credential') {
+        description = 'Invalid email or password. Please try again.';
+      }
+      toast({
+        variant: 'destructive',
+        title: 'Uh oh! Something went wrong.',
+        description,
+      });
+    }
+  }
+
+  async function handleGoogleSignIn() {
+    const auth = getAuth();
+    const provider = new GoogleAuthProvider();
+    try {
+      await signInWithPopup(auth, provider);
+      toast({
+        title: 'Login Successful!',
+        description: 'Welcome!',
+      });
+      router.push('/dashboard');
+    } catch (error: any) {
+      console.error('Google Sign-In Error:', error);
+      toast({
+        variant: 'destructive',
+        title: 'Google Sign-In Failed',
+        description: 'Could not sign in with Google. Please try again.',
+      });
+    }
   }
 
   return (
-    <div className="container py-12 md:py-24 lg:py-32">
-      <div className="space-y-6 text-center mb-12">
-        <h1 className="text-3xl font-bold tracking-tighter sm:text-5xl font-headline">
-          Get in Touch
-        </h1>
-        <p className="max-w-[600px] text-muted-foreground md:text-xl/relaxed mx-auto">
-          Have a question or want to work together? Fill out the form below and I'll get back to you as soon as possible.
-        </p>
-      </div>
-      <div className="mx-auto max-w-xl border rounded-lg p-8 shadow-md bg-card">
-        <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-            <FormField
-              control={form.control}
-              name="name"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Name</FormLabel>
-                  <FormControl>
-                    <Input placeholder="Your Name" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="email"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Email</FormLabel>
-                  <FormControl>
-                    <Input placeholder="your.email@example.com" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="subject"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Subject</FormLabel>
-                  <FormControl>
-                    <Input placeholder="What is this about?" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="message"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Message</FormLabel>
-                  <FormControl>
-                    <Textarea
-                      placeholder="Tell me more..."
-                      className="min-h-[150px]"
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <Button type="submit" className="w-full" disabled={isSubmitting}>
-              {isSubmitting ? (
-                <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Sending...
-                </>
-              ) : (
-                'Send Message'
-              )}
+    <div className="container flex min-h-[calc(100vh-10rem)] items-center justify-center py-12">
+      <div className="mx-auto w-full max-w-sm">
+        <div className="space-y-2 text-center mb-8">
+            <h1 className="text-3xl font-bold tracking-tighter sm:text-4xl font-headline">
+                Welcome Back
+            </h1>
+            <p className="text-muted-foreground">
+                Log in to access your dashboard.
+            </p>
+        </div>
+        <div className="border rounded-lg p-8 shadow-md bg-card">
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+              <FormField
+                control={form.control}
+                name="email"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Email</FormLabel>
+                    <FormControl>
+                      <Input type="email" placeholder="your.email@example.com" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="password"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Password</FormLabel>
+                    <FormControl>
+                      <Input type="password" placeholder="••••••••" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <Button type="submit" className="w-full" disabled={isSubmitting}>
+                {isSubmitting ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Logging In...
+                  </>
+                ) : (
+                  'Log In'
+                )}
+              </Button>
+            </form>
+          </Form>
+           <div className="relative my-6">
+              <div className="absolute inset-0 flex items-center">
+                <span className="w-full border-t" />
+              </div>
+              <div className="relative flex justify-center text-xs uppercase">
+                <span className="bg-card px-2 text-muted-foreground">
+                  Or continue with
+                </span>
+              </div>
+            </div>
+            <Button variant="outline" className="w-full" onClick={handleGoogleSignIn}>
+              <GoogleIcon className="mr-2 h-4 w-4" />
+              Google
             </Button>
-          </form>
-        </Form>
+        </div>
+         <p className="px-8 text-center text-sm text-muted-foreground mt-6">
+          Don't have an account?{' '}
+          <Link
+            href="/signup"
+            className="underline underline-offset-4 hover:text-primary"
+          >
+            Sign Up
+          </Link>
+        </p>
       </div>
     </div>
   );
