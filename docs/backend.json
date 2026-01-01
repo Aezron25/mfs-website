@@ -53,6 +53,20 @@
         "createdAt": { "type": "string", "format": "date-time", "description": "The timestamp when the message was sent." }
       },
       "required": ["conversationId", "senderId", "createdAt"]
+    },
+    "serviceRequest": {
+      "title": "Service Request",
+      "description": "Represents a service request made by a client.",
+      "type": "object",
+      "properties": {
+        "clientId": { "type": "string", "description": "The ID of the client who made the request." },
+        "expertId": { "type": "string", "description": "The ID of the expert assigned to the request." },
+        "serviceType": { "type": "string", "description": "The type of service requested." },
+        "status": { "type": "string", "enum": ["pending", "in-progress", "completed", "cancelled"], "description": "The status of the service request." },
+        "description": { "type": "string", "description": "A detailed description of the service needed." },
+        "createdAt": { "type": "string", "format": "date-time", "description": "The timestamp when the request was created." }
+      },
+      "required": ["clientId", "serviceType", "status", "description", "createdAt"]
     }
   },
   "auth": {
@@ -74,6 +88,10 @@
     "/messages/{messageId}": {
       "schema": { "$ref": "#/entities/message" },
       "description": "Stores all messages for all conversations."
+    },
+    "/serviceRequests/{serviceRequestId}": {
+        "schema": { "$ref": "#/entities/serviceRequest" },
+        "description": "Stores all service requests from clients."
     }
   }
 }

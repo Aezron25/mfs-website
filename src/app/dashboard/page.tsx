@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useUser } from '@/firebase/auth/use-user';
@@ -14,7 +15,7 @@ import {
 import { Skeleton } from '@/components/ui/skeleton';
 import { useFirestore, useCollection, useMemoFirebase } from '@/firebase';
 import { collection, query, where, limit, orderBy } from 'firebase/firestore';
-import type { Appointment } from '@/lib/types';
+import type { Appointment, ServiceRequest } from '@/lib/types';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import { PlusCircle, Upload, CalendarPlus } from 'lucide-react';
@@ -27,16 +28,12 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-
-// In a real app, this would be a more complex type.
-type serviceRequest = { id: string; serviceType: string; status: 'pending' | 'completed' };
 
 function ServiceRequestsWidget({
   requests,
   loading,
 }: {
-  requests: serviceRequest[];
+  requests: ServiceRequest[];
   loading: boolean;
 }) {
   return (
@@ -97,7 +94,6 @@ function AppointmentsWidget({
   appointments: Appointment[];
   loading: boolean;
 }) {
-    // A placeholder for a service type, in a real app this would be more detailed
     const getServiceTypeForAppointment = (appointment: Appointment) => {
         return appointment.notes?.split(' ')[0] || 'Consultation';
     }
@@ -153,7 +149,6 @@ export default function DashboardPage() {
   const router = useRouter();
   const firestore = useFirestore();
 
-  // Redirect if not logged in
   useEffect(() => {
     if (!userLoading && !user) {
       router.push('/login');
@@ -163,7 +158,7 @@ export default function DashboardPage() {
   const serviceRequestsQuery = useMemoFirebase(() => {
     if (!firestore || !user?.uid) return null;
     return query(
-      collection(firestore, 'serviceRequests'), // This collection doesn't exist, will be empty.
+      collection(firestore, 'serviceRequests'),
       where('clientId', '==', user.uid),
       orderBy('createdAt', 'desc'),
       limit(3)
@@ -182,7 +177,7 @@ export default function DashboardPage() {
     );
   }, [firestore, user?.uid]);
   
-  const { data: serviceRequests, loading: requestsLoading } = useCollection<serviceRequest>(serviceRequestsQuery);
+  const { data: serviceRequests, loading: requestsLoading } = useCollection<ServiceRequest>(serviceRequestsQuery);
   const { data: appointments, loading: appointmentsLoading } = useCollection<Appointment>(appointmentsQuery);
 
   if (userLoading) {
@@ -208,7 +203,7 @@ export default function DashboardPage() {
   }
 
   if (!user) {
-    return null; // or a redirect component
+    return null; 
   }
 
   return (

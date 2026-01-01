@@ -37,3 +37,13 @@ export type Message = {
   fileName?: string;
   createdAt: Timestamp;
 };
+
+export type ServiceRequest = {
+    id: string;
+    clientId: string;
+    expertId?: string;
+    serviceType: string;
+    status: 'pending' | 'in-progress' | 'completed' | 'cancelled';
+    description: string;
+    createdAt: Timestamp;
+};

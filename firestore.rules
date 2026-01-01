@@ -39,13 +39,11 @@ service cloud.firestore {
     }
 
     match /appointments/{appointmentId} {
-      allow list: if false; // Explicitly deny listing the entire collection
-      allow create: if isSignedIn() && request.resource.data.clientId == request.auth.uid;
-      allow read, update: if isSignedIn() && (
-        resource.data.clientId == request.auth.uid || 
-        resource.data.expertId == request.auth.uid
-      );
-      allow delete: if false; // Prevent clients from deleting appointments
+      allow create: if request.auth != null && request.auth.uid == request.resource.data.clientId;
+      allow read: if request.auth != null && (request.auth.uid == resource.data.clientId || request.auth.uid == resource.data.expertId);
+      allow update: if request.auth != null && (request.auth.uid == resource.data.clientId || request.auth.uid == resource.data.expertId);
+      allow delete: if false;
+      allow list: if false; 
     }
 
     match /conversations/{conversationId} {
@@ -62,6 +60,14 @@ service cloud.firestore {
       allow create: if isConversationParticipant(request.resource.data.conversationId) && isOwner(request.resource.data.senderId);
       allow update: if isOwner(resource.data.senderId) && isExistingDoc();
       allow delete: if isOwner(resource.data.senderId) && isExistingDoc();
+    }
+
+    match /serviceRequests/{requestId} {
+      allow create: if request.auth != null && request.auth.uid == request.resource.data.clientId;
+      allow read: if request.auth != null && (request.auth.uid == resource.data.clientId || request.auth.uid == resource.data.expertId);
+      allow update: if request.auth != null && (request.auth.uid == resource.data.clientId || request.auth.uid == resource.data.expertId);
+      allow delete: if false;
+      allow list: if false;
     }
   }
 }
