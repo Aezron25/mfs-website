@@ -1,15 +1,14 @@
-
 "use client";
 
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { Menu, LogOut } from "lucide-react";
+import { Menu, LogOut, ShieldCheck } from "lucide-react";
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription, SheetTrigger } from "@/components/ui/sheet";
 import { cn } from "@/lib/utils";
 import { useIsMobile } from "@/hooks/use-mobile";
-import { useUser } from "@/firebase/auth/use-user";
+import { useUser, type AppUser } from "@/firebase/auth/use-user";
 import { getAuth, signOut } from "firebase/auth";
 import { useToast } from "@/hooks/use-toast";
 
@@ -43,6 +42,10 @@ export function Header() {
   const [isClient, setIsClient] = useState(false);
   const { user, isLoading } = useUser();
   const { toast } = useToast();
+
+  // @ts-ignore
+  const userRole = user?.role;
+  const isExpert = userRole === 'expert';
 
   useEffect(() => {
     setIsClient(true);
@@ -127,6 +130,7 @@ export function Header() {
                       <div className="border-t pt-4 mt-4 space-y-2">
                         {user ? (
                            <>
+                             {isExpert && <NavLink href="/admin" label="Admin" className="text-lg py-2" />}
                              <NavLink href="/dashboard" label="Dashboard" className="text-lg py-2" />
                              <Button onClick={handleLogout} variant="ghost" className="w-full justify-start text-lg py-2 text-muted-foreground">Logout</Button>
                            </>
@@ -150,6 +154,11 @@ export function Header() {
                  <div className="flex items-center gap-2">
                     {isLoading ? null : user ? (
                       <>
+                        {isExpert && (
+                          <Button asChild variant="outline" size="sm">
+                             <Link href="/admin"><ShieldCheck className="mr-2 h-4 w-4"/>Admin</Link>
+                          </Button>
+                        )}
                         <Button asChild variant="ghost" size="sm">
                           <Link href="/dashboard">Dashboard</Link>
                         </Button>
