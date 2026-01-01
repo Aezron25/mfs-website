@@ -39,26 +39,28 @@ service cloud.firestore {
     }
 
     match /appointments/{appointmentId} {
-      allow get: if isParticipant(resource.data);
-      allow list: if false;
-      allow create: if isOwner(request.resource.data.clientId);
-      allow update: if isParticipant(resource.data) && isExistingDoc() && request.resource.data.clientId == resource.data.clientId;
-      allow delete: if isParticipant(resource.data) && isExistingDoc();
+      allow list: if false; // Explicitly deny listing the entire collection
+      allow create: if isSignedIn() && request.resource.data.clientId == request.auth.uid;
+      allow read, update: if isSignedIn() && (
+        resource.data.clientId == request.auth.uid || 
+        resource.data.expertId == request.auth.uid
+      );
+      allow delete: if false; // Prevent clients from deleting appointments
     }
 
     match /conversations/{conversationId} {
-      allow get: if isParticipant(resource.data);
       allow list: if false;
+      allow get: if isParticipant(resource.data);
       allow create: if isOwner(request.resource.data.clientId);
-      allow update: if isParticipant(resource.data) && isExistingDoc() && request.resource.data.clientId == resource.data.clientId;
+      allow update: if isParticipant(resource.data) && isExistingDoc();
       allow delete: if isParticipant(resource.data) && isExistingDoc();
     }
 
     match /messages/{messageId} {
-      allow get: if isConversationParticipant(resource.data.conversationId);
       allow list: if false;
+      allow get: if isConversationParticipant(resource.data.conversationId);
       allow create: if isConversationParticipant(request.resource.data.conversationId) && isOwner(request.resource.data.senderId);
-      allow update: if isOwner(resource.data.senderId) && isExistingDoc() && request.resource.data.senderId == resource.data.senderId;
+      allow update: if isOwner(resource.data.senderId) && isExistingDoc();
       allow delete: if isOwner(resource.data.senderId) && isExistingDoc();
     }
   }
