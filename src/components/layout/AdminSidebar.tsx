@@ -13,7 +13,7 @@ import {
   SidebarFooter,
 } from '@/components/ui/sidebar';
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import {
   Users,
   Briefcase,
@@ -21,10 +21,13 @@ import {
   FileText,
   Settings,
   LayoutDashboard,
+  LogOut,
 } from 'lucide-react';
 import { type AppUser } from '@/firebase/auth/use-user';
 import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
 import { Button } from '../ui/button';
+import { getAuth, signOut } from 'firebase/auth';
+import { useToast } from '@/hooks/use-toast';
 
 const menuItems = [
   {
@@ -84,6 +87,27 @@ export function AdminSidebar({
   user: AppUser;
 }) {
   const pathname = usePathname();
+  const router = useRouter();
+  const { toast } = useToast();
+
+  const handleLogout = async () => {
+    const auth = getAuth();
+    try {
+      await signOut(auth);
+      toast({
+        title: "Logged Out",
+        description: "You have been successfully logged out.",
+      });
+      router.push('/');
+    } catch (error) {
+      console.error("Logout Error:", error);
+      toast({
+        variant: "destructive",
+        title: "Logout Failed",
+        description: "There was a problem logging you out. Please try again.",
+      });
+    }
+  };
 
   return (
     <SidebarProvider>
@@ -110,9 +134,14 @@ export function AdminSidebar({
           </SidebarMenu>
         </SidebarContent>
         <SidebarFooter>
-            <Button asChild variant="outline" className="w-full">
-                <Link href="/">Back to Site</Link>
-            </Button>
+            <div className="w-full flex items-center gap-2">
+                <Button asChild variant="outline" className="flex-1">
+                    <Link href="/">Back to Site</Link>
+                </Button>
+                <Button onClick={handleLogout} variant="outline" size="icon" aria-label="Logout">
+                  <LogOut className="h-4 w-4" />
+                </Button>
+            </div>
         </SidebarFooter>
       </Sidebar>
       <SidebarInset>

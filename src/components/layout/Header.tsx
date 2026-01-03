@@ -1,16 +1,15 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
-import { Menu, LogOut, ShieldCheck } from "lucide-react";
+import { usePathname } from "next/navigation";
+import { Menu, ShieldCheck } from "lucide-react";
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription, SheetTrigger } from "@/components/ui/sheet";
 import { cn } from "@/lib/utils";
 import { useIsMobile } from "@/hooks/use-mobile";
-import { useUser, type AppUser } from "@/firebase/auth/use-user";
-import { getAuth, signOut } from "firebase/auth";
-import { useToast } from "@/hooks/use-toast";
+import { useUser } from "@/firebase/auth/use-user";
+
 
 const navItems = [
   { href: "/", label: "Home" },
@@ -36,12 +35,10 @@ const MfsLogo = (props: React.SVGProps<SVGSVGElement>) => (
 
 export function Header() {
   const pathname = usePathname();
-  const router = useRouter();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const isMobile = useIsMobile();
   const [isClient, setIsClient] = useState(false);
   const { user, isLoading } = useUser();
-  const { toast } = useToast();
 
   // @ts-ignore
   const userRole = user?.role;
@@ -50,26 +47,6 @@ export function Header() {
   useEffect(() => {
     setIsClient(true);
   }, []);
-
-  const handleLogout = async () => {
-    const auth = getAuth();
-    try {
-      await signOut(auth);
-      toast({
-        title: "Logged Out",
-        description: "You have been successfully logged out.",
-      });
-      router.push('/');
-    } catch (error) {
-      console.error("Logout Error:", error);
-      toast({
-        variant: "destructive",
-        title: "Logout Failed",
-        description: "There was a problem logging you out. Please try again.",
-      });
-    }
-  };
-
 
   const NavLink = ({ href, label, className, onClick }: { href: string; label: string, className?: string, onClick?: () => void }) => (
     <Link
@@ -132,7 +109,6 @@ export function Header() {
                            <>
                              {isExpert && <NavLink href="/admin" label="Admin" className="text-lg py-2" />}
                              <NavLink href="/dashboard" label="Dashboard" className="text-lg py-2" />
-                             <Button onClick={handleLogout} variant="ghost" className="w-full justify-start text-lg py-2 text-muted-foreground">Logout</Button>
                            </>
                         ) : (
                           <>
@@ -161,9 +137,6 @@ export function Header() {
                         )}
                         <Button asChild variant="ghost" size="sm">
                           <Link href="/dashboard">Dashboard</Link>
-                        </Button>
-                        <Button onClick={handleLogout} variant="outline" size="icon" aria-label="Logout">
-                          <LogOut className="h-4 w-4" />
                         </Button>
                       </>
                     ) : (
