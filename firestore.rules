@@ -3,7 +3,7 @@
  * Firestore Security Rules for Mwanakombo Financial Services
  *
  * Core Philosophy:
- * This ruleset enforces a strict, participant-based security model. Data access is not granted based on broad roles like 'client' or 'expert' alone, but is instead determined by whether a user's UID is explicitly listed as a participant (e.g., as a 'clientId' or 'expertId') on the specific document they are trying to access. User data is strictly private and isolated.
+ * This ruleset enforces a strict, participant-based security model. Data access is not granted based on broad roles like 'client' or 'expert' alone, but is instead determined by whether a user's UID is explicitly listed as a participant (e.g., as a 'clientId' or 'expertId') on the specific document they are trying to access. User data is strictly private and isolated, with the exception of admins who can list all users.
  */
 rules_version = '2';
 service cloud.firestore {
@@ -18,7 +18,8 @@ service cloud.firestore {
     }
     
     function isAdmin() {
-      return isSignedIn() && request.auth.token.role == 'roles_admin';
+      // An admin is a signed-in user whose document in the 'users' collection has the 'roles_admin' role.
+      return isSignedIn() && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'roles_admin';
     }
 
     function isExistingDoc() {
@@ -35,7 +36,7 @@ service cloud.firestore {
     }
 
     match /users/{userId} {
-      allow get: if isOwner(userId);
+      allow get: if isOwner(userId) || isAdmin();
       allow list: if isAdmin();
       allow create: if isOwner(userId) && request.resource.data.role == 'user';
       allow update: if isOwner(userId) && isExistingDoc() && request.resource.data.role == resource.data.role;
