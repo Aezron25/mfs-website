@@ -5,7 +5,7 @@ export type UserProfile = {
   id: string;
   name: string;
   email: string;
-  role: 'client' | 'expert';
+  role: 'user' | 'roles_admin';
   createdAt: Timestamp;
 };
 

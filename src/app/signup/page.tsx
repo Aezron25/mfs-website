@@ -74,7 +74,7 @@ export default function SignupPage() {
       const userData = {
         name: values.name,
         email: values.email,
-        role: 'client', // Default role
+        role: 'user', // Default role
         createdAt: Timestamp.now(),
       };
       

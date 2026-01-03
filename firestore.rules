@@ -33,7 +33,7 @@ service cloud.firestore {
     match /users/{userId} {
       allow get: if isOwner(userId);
       allow list: if false;
-      allow create: if isOwner(userId) && request.resource.data.role == 'client';
+      allow create: if isOwner(userId) && request.resource.data.role == 'user';
       allow update: if isOwner(userId) && isExistingDoc() && request.resource.data.role == resource.data.role;
       allow delete: if isOwner(userId) && isExistingDoc();
     }

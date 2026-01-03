@@ -42,7 +42,7 @@ export function Header() {
 
   // @ts-ignore
   const userRole = user?.role;
-  const isExpert = userRole === 'expert';
+  const isAdmin = userRole === 'roles_admin';
 
   useEffect(() => {
     setIsClient(true);
@@ -107,7 +107,7 @@ export function Header() {
                       <div className="border-t pt-4 mt-4 space-y-2">
                         {user ? (
                            <>
-                             {isExpert && <NavLink href="/admin" label="Admin" className="text-lg py-2" />}
+                             {isAdmin && <NavLink href="/admin" label="Admin" className="text-lg py-2" />}
                              <NavLink href="/dashboard" label="Dashboard" className="text-lg py-2" />
                            </>
                         ) : (
@@ -130,7 +130,7 @@ export function Header() {
                  <div className="flex items-center gap-2">
                     {isLoading ? null : user ? (
                       <>
-                        {isExpert && (
+                        {isAdmin && (
                           <Button asChild variant="outline" size="sm">
                              <Link href="/admin"><ShieldCheck className="mr-2 h-4 w-4"/>Admin</Link>
                           </Button>
