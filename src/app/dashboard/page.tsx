@@ -18,7 +18,7 @@ import { collection, query, where, limit, orderBy } from 'firebase/firestore';
 import type { Appointment, ServiceRequest } from '@/lib/types';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
-import { PlusCircle, Upload, CalendarPlus } from 'lucide-react';
+import { PlusCircle, Upload, CalendarPlus, LogOut } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import {
   Table,
@@ -28,6 +28,8 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
+import { getAuth, signOut } from 'firebase/auth';
+import { useToast } from '@/hooks/use-toast';
 
 function ServiceRequestsWidget({
   requests,
@@ -146,6 +148,27 @@ function AppointmentsWidget({
 
 function AuthenticatedDashboard({ user }: { user: NonNullable<ReturnType<typeof useUser>['user']>}) {
   const firestore = useFirestore();
+  const router = useRouter();
+  const { toast } = useToast();
+
+  const handleLogout = async () => {
+    const auth = getAuth();
+    try {
+      await signOut(auth);
+      toast({
+        title: 'Logged Out',
+        description: 'You have been successfully logged out.',
+      });
+      router.push('/');
+    } catch (error) {
+      console.error('Logout Error:', error);
+      toast({
+        variant: 'destructive',
+        title: 'Logout Failed',
+        description: 'There was a problem logging you out. Please try again.',
+      });
+    }
+  };
 
   const serviceRequestsQuery = useMemoFirebase(() => {
     if (!firestore) return null;
@@ -207,6 +230,13 @@ function AuthenticatedDashboard({ user }: { user: NonNullable<ReturnType<typeof 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
         <ServiceRequestsWidget requests={serviceRequests} loading={requestsLoading} />
         <AppointmentsWidget appointments={appointments} loading={appointmentsLoading} />
+      </div>
+
+      <div className="mt-12 text-center">
+        <Button variant="outline" onClick={handleLogout}>
+          <LogOut className="mr-2 h-4 w-4" />
+          Log Out
+        </Button>
       </div>
     </div>
   )
