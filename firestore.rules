@@ -16,6 +16,10 @@ service cloud.firestore {
     function isOwner(userId) {
       return isSignedIn() && request.auth.uid == userId;
     }
+    
+    function isAdmin() {
+      return isSignedIn() && request.auth.token.role == 'roles_admin';
+    }
 
     function isExistingDoc() {
       return resource != null;
@@ -32,7 +36,7 @@ service cloud.firestore {
 
     match /users/{userId} {
       allow get: if isOwner(userId);
-      allow list: if false;
+      allow list: if isAdmin();
       allow create: if isOwner(userId) && request.resource.data.role == 'user';
       allow update: if isOwner(userId) && isExistingDoc() && request.resource.data.role == resource.data.role;
       allow delete: if isOwner(userId) && isExistingDoc();
