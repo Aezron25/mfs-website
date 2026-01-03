@@ -1,3 +1,4 @@
+
 "use client";
 
 import Link from "next/link";
@@ -108,7 +109,9 @@ export function Header() {
                         {user ? (
                            <>
                              {isAdmin && <NavLink href="/admin" label="Admin" className="text-lg py-2" />}
-                             <NavLink href="/dashboard" label="Dashboard" className="text-lg py-2" />
+                             {!isAdmin && pathname !== '/dashboard' && (
+                               <NavLink href="/dashboard" label="Dashboard" className="text-lg py-2" />
+                             )}
                            </>
                         ) : (
                           <>
@@ -135,7 +138,7 @@ export function Header() {
                              <Link href="/admin"><ShieldCheck className="mr-2 h-4 w-4"/>Admin</Link>
                           </Button>
                         )}
-                        {!isAdmin && (
+                        {!isAdmin && pathname !== '/dashboard' && (
                             <Button asChild variant="ghost" size="sm">
                                 <Link href="/dashboard">Dashboard</Link>
                             </Button>
