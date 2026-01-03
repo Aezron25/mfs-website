@@ -135,9 +135,11 @@ export function Header() {
                              <Link href="/admin"><ShieldCheck className="mr-2 h-4 w-4"/>Admin</Link>
                           </Button>
                         )}
-                        <Button asChild variant="ghost" size="sm">
-                          <Link href="/dashboard">Dashboard</Link>
-                        </Button>
+                        {!isAdmin && (
+                            <Button asChild variant="ghost" size="sm">
+                                <Link href="/dashboard">Dashboard</Link>
+                            </Button>
+                        )}
                       </>
                     ) : (
                       <>
