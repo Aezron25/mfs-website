@@ -171,17 +171,17 @@ function AuthenticatedDashboard({ user }: { user: NonNullable<ReturnType<typeof 
   };
 
   const serviceRequestsQuery = useMemoFirebase(() => {
-    if (!firestore) return null;
+    if (!firestore || !user?.uid) return null;
     return query(
       collection(firestore, 'serviceRequests'),
       where('clientId', '==', user.uid),
       orderBy('createdAt', 'desc'),
       limit(3)
     );
-  }, [firestore, user.uid]);
+  }, [firestore, user?.uid]);
 
   const appointmentsQuery = useMemoFirebase(() => {
-    if (!firestore) return null;
+    if (!firestore || !user?.uid) return null;
     const today = new Date().toISOString().split('T')[0];
     return query(
       collection(firestore, 'appointments'),
@@ -190,7 +190,7 @@ function AuthenticatedDashboard({ user }: { user: NonNullable<ReturnType<typeof 
       orderBy('date', 'asc'),
       limit(2)
     );
-  }, [firestore, user.uid]);
+  }, [firestore, user?.uid]);
   
   const { data: serviceRequests, loading: requestsLoading } = useCollection<ServiceRequest>(serviceRequestsQuery);
   const { data: appointments, loading: appointmentsLoading } = useCollection<Appointment>(appointmentsQuery);
@@ -228,8 +228,8 @@ function AuthenticatedDashboard({ user }: { user: NonNullable<ReturnType<typeof 
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
-        <ServiceRequestsWidget requests={serviceRequests} loading={requestsLoading} />
-        <AppointmentsWidget appointments={appointments} loading={appointmentsLoading} />
+        <ServiceRequestsWidget requests={serviceRequests || []} loading={requestsLoading} />
+        <AppointmentsWidget appointments={appointments || []} loading={appointmentsLoading} />
       </div>
 
       <div className="mt-12 text-center">

@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import {
   onSnapshot,
   Query,
@@ -29,37 +29,50 @@ export function useCollection<T extends DocumentData>(
     error: null,
   });
 
+  const unsubscribeRef = useRef<(() => void) | null>(null);
+
   useEffect(() => {
+    // No query means no listener
     if (!q) {
       setState({ data: [], loading: false, error: null });
       return;
     }
 
-    setState((prevState) => ({ ...prevState, loading: true, error: null }));
+    setState({ data: [], loading: true, error: null });
 
-    const unsubscribe = onSnapshot(
-      q,
-      (snapshot: QuerySnapshot<T>) => {
-        const data: WithId<T>[] = snapshot.docs.map(
-          (doc) => ({ id: doc.id, ...doc.data() } as WithId<T>)
-        );
-        setState({ data, loading: false, error: null });
-      },
-      (error: FirestoreError) => {
-        console.error('Error fetching collection:', error);
-        
-        const permissionError = new FirestorePermissionError({
-            path: (q as any)._query.path.segments.join('/'),
-            operation: 'list',
-        });
-        errorEmitter.emit('permission-error', permissionError);
+    try {
+      unsubscribeRef.current = onSnapshot(
+        q,
+        (snapshot: QuerySnapshot<T>) => {
+          const data: WithId<T>[] = snapshot.docs.map(
+            (doc) => ({ id: doc.id, ...doc.data() } as WithId<T>)
+          );
+          setState({ data, loading: false, error: null });
+        },
+        (error: FirestoreError) => {
+          console.error('Error fetching collection:', error);
+           if (error.code === 'permission-denied') {
+             const permissionError = new FirestorePermissionError({
+                path: (q as any)._query.path.segments.join('/'),
+                operation: 'list',
+             });
+             errorEmitter.emit('permission-error', permissionError);
+           }
+          setState({ data: [], loading: false, error });
+        }
+      );
+    } catch (err: any) {
+       setState({ data: [], loading: false, error: err });
+    }
 
-        setState({ data: [], loading: false, error });
+    // Cleanup function
+    return () => {
+      if (unsubscribeRef.current) {
+        unsubscribeRef.current();
+        unsubscribeRef.current = null;
       }
-    );
-
-    return () => unsubscribe();
-  }, [q]);
+    };
+  }, [q]); // Dependency array with the query
 
   return state;
 }
