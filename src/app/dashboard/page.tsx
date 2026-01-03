@@ -144,29 +144,21 @@ function AppointmentsWidget({
   );
 }
 
-export default function DashboardPage() {
-  const { user, isLoading: userLoading } = useUser();
-  const router = useRouter();
+function AuthenticatedDashboard({ user }: { user: NonNullable<ReturnType<typeof useUser>['user']>}) {
   const firestore = useFirestore();
 
-  useEffect(() => {
-    if (!userLoading && !user) {
-      router.push('/login');
-    }
-  }, [user, userLoading, router]);
-
   const serviceRequestsQuery = useMemoFirebase(() => {
-    if (!firestore || !user?.uid) return null;
+    if (!firestore) return null;
     return query(
       collection(firestore, 'serviceRequests'),
       where('clientId', '==', user.uid),
       orderBy('createdAt', 'desc'),
       limit(3)
     );
-  }, [firestore, user?.uid]);
+  }, [firestore, user.uid]);
 
   const appointmentsQuery = useMemoFirebase(() => {
-    if (!firestore || !user?.uid) return null;
+    if (!firestore) return null;
     const today = new Date().toISOString().split('T')[0];
     return query(
       collection(firestore, 'appointments'),
@@ -175,39 +167,13 @@ export default function DashboardPage() {
       orderBy('date', 'asc'),
       limit(2)
     );
-  }, [firestore, user?.uid]);
+  }, [firestore, user.uid]);
   
   const { data: serviceRequests, loading: requestsLoading } = useCollection<ServiceRequest>(serviceRequestsQuery);
   const { data: appointments, loading: appointmentsLoading } = useCollection<Appointment>(appointmentsQuery);
 
-  if (userLoading) {
-    return (
-      <div className="container py-12">
-        <div className="grid gap-8">
-            <div className="space-y-2">
-                <Skeleton className="h-10 w-1/3" />
-                <Skeleton className="h-6 w-1/2" />
-            </div>
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-                <Skeleton className="h-24 w-full" />
-                <Skeleton className="h-24 w-full" />
-                <Skeleton className="h-24 w-full" />
-            </div>
-            <div className="grid md:grid-cols-2 gap-8">
-                <Skeleton className="h-96 w-full" />
-                <Skeleton className="h-96 w-full" />
-            </div>
-        </div>
-      </div>
-    );
-  }
-
-  if (!user) {
-    return null; 
-  }
-
   return (
-    <div className="container py-12">
+     <div className="container py-12">
       <div className="space-y-2 mb-10">
         <h1 className="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl font-headline">
           Client Dashboard
@@ -243,5 +209,45 @@ export default function DashboardPage() {
         <AppointmentsWidget appointments={appointments} loading={appointmentsLoading} />
       </div>
     </div>
-  );
+  )
+}
+
+
+export default function DashboardPage() {
+  const { user, isLoading: userLoading } = useUser();
+  const router = useRouter();
+  
+  useEffect(() => {
+    if (!userLoading && !user) {
+      router.push('/login');
+    }
+  }, [user, userLoading, router]);
+
+  if (userLoading) {
+    return (
+      <div className="container py-12">
+        <div className="grid gap-8">
+            <div className="space-y-2">
+                <Skeleton className="h-10 w-1/3" />
+                <Skeleton className="h-6 w-1/2" />
+            </div>
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <Skeleton className="h-24 w-full" />
+                <Skeleton className="h-24 w-full" />
+                <Skeleton className="h-24 w-full" />
+            </div>
+            <div className="grid md:grid-cols-2 gap-8">
+                <Skeleton className="h-96 w-full" />
+                <Skeleton className="h-96 w-full" />
+            </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (!user) {
+    return null; 
+  }
+
+  return <AuthenticatedDashboard user={user} />;
 }
