@@ -32,6 +32,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { MoreHorizontal } from 'lucide-react';
 import Link from 'next/link';
+import { UpdateStatusDialog } from '@/components/admin/UpdateStatusDialog';
 
 // A type that combines ServiceRequest with the client's name
 type ServiceRequestWithClient = ServiceRequest & { clientName: string };
@@ -39,6 +40,8 @@ type ServiceRequestWithClient = ServiceRequest & { clientName: string };
 export default function AdminServiceRequestsPage() {
   const firestore = useFirestore();
   const [searchTerm, setSearchTerm] = useState('');
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [selectedRequest, setSelectedRequest] = useState<ServiceRequest | null>(null);
 
   const serviceRequestsQuery = useMemoFirebase(() => {
     if (!firestore) return null;
@@ -53,7 +56,7 @@ export default function AdminServiceRequestsPage() {
     return collection(firestore, 'users');
   }, [firestore]);
 
-  const { data: requests, loading: requestsLoading } =
+  const { data: requests, loading: requestsLoading, error } =
     useCollection<ServiceRequest>(serviceRequestsQuery);
   const { data: users, loading: usersLoading } =
     useCollection<UserProfile>(usersQuery);
@@ -80,6 +83,11 @@ export default function AdminServiceRequestsPage() {
   }, [combinedData, searchTerm]);
 
   const loading = requestsLoading || usersLoading;
+
+  const handleUpdateStatusClick = (request: ServiceRequest) => {
+    setSelectedRequest(request);
+    setIsDialogOpen(true);
+  };
 
   return (
     <div className="space-y-8">
@@ -160,7 +168,9 @@ export default function AdminServiceRequestsPage() {
                           <DropdownMenuItem asChild>
                             <Link href={`/admin/service-requests/${request.id}`}>View Details</Link>
                           </DropdownMenuItem>
-                          <DropdownMenuItem>Update Status</DropdownMenuItem>
+                          <DropdownMenuItem onClick={() => handleUpdateStatusClick(request)}>
+                            Update Status
+                          </DropdownMenuItem>
                         </DropdownMenuContent>
                       </DropdownMenu>
                     </TableCell>
@@ -169,7 +179,7 @@ export default function AdminServiceRequestsPage() {
               ) : (
                 <TableRow>
                   <TableCell colSpan={5} className="text-center h-24">
-                    No service requests found.
+                     {error ? 'An error occurred while fetching requests.' : 'No service requests found.'}
                   </TableCell>
                 </TableRow>
               )}
@@ -177,6 +187,11 @@ export default function AdminServiceRequestsPage() {
           </Table>
         </CardContent>
       </Card>
+      <UpdateStatusDialog
+        isOpen={isDialogOpen}
+        onOpenChange={setIsDialogOpen}
+        request={selectedRequest}
+       />
     </div>
   );
 }
