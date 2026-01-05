@@ -72,7 +72,7 @@ service cloud.firestore {
       allow read: if request.auth != null && (request.auth.uid == resource.data.clientId || request.auth.uid == resource.data.expertId);
       allow update: if request.auth != null && (request.auth.uid == resource.data.clientId || request.auth.uid == resource.data.expertId);
       allow delete: if false;
-      allow list: if false;
+      allow list: if isSignedIn() && request.query.where.clientId == request.auth.uid;
     }
   }
 }

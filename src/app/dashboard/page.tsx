@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useUser } from '@/firebase/auth/use-user';
@@ -356,7 +355,7 @@ export default function DashboardPage() {
     }
   }, [user, userLoading, router]);
 
-  if (userLoading) {
+  if (userLoading || !user) {
     return (
       <div className="container py-12">
         <div className="grid gap-8">
@@ -376,10 +375,6 @@ export default function DashboardPage() {
         </div>
       </div>
     );
-  }
-
-  if (!user) {
-    return null;
   }
 
   return <AuthenticatedDashboard user={user} />;
