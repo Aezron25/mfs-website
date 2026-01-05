@@ -106,17 +106,22 @@ export function Header() {
                         <NavLink key={item.href} {...item} className="text-lg py-2" />
                       ))}
                       <div className="border-t pt-4 mt-4 space-y-2">
-                        {user ? (
+                        {!isLoading && user ? (
                            <>
-                             {isAdmin && <NavLink href="/admin" label="Admin" className="text-lg py-2" />}
-                             {!isAdmin && pathname !== '/dashboard' && (
+                             {isAdmin ? (
+                                <NavLink href="/admin" label="Admin" className="text-lg py-2" />
+                             ) : (
                                <NavLink href="/dashboard" label="Dashboard" className="text-lg py-2" />
                              )}
                            </>
                         ) : (
                           <>
-                            <NavLink href="/login" label="Login" className="text-lg py-2"/>
-                            <NavLink href="/signup" label="Sign Up" className="text-lg py-2"/>
+                           {!isLoading && (
+                             <>
+                                <NavLink href="/login" label="Login" className="text-lg py-2"/>
+                                <NavLink href="/signup" label="Sign Up" className="text-lg py-2"/>
+                             </>
+                           )}
                           </>
                         )}
                       </div>
@@ -133,13 +138,12 @@ export function Header() {
                  <div className="flex items-center gap-2">
                     {isLoading ? null : user ? (
                       <>
-                        {isAdmin && (
+                        {isAdmin ? (
                           <Button asChild variant="outline" size="sm">
                              <Link href="/admin"><ShieldCheck className="mr-2 h-4 w-4"/>Admin</Link>
                           </Button>
-                        )}
-                        {!isAdmin && pathname !== '/dashboard' && (
-                            <Button asChild variant="ghost" size="sm">
+                        ) : (
+                           <Button asChild variant="ghost" size="sm">
                                 <Link href="/dashboard">Dashboard</Link>
                             </Button>
                         )}
