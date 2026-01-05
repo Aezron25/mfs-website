@@ -31,6 +31,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { MoreHorizontal } from 'lucide-react';
+import Link from 'next/link';
 
 // A type that combines ServiceRequest with the client's name
 type ServiceRequestWithClient = ServiceRequest & { clientName: string };
@@ -156,7 +157,9 @@ export default function AdminServiceRequestsPage() {
                           </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
-                          <DropdownMenuItem>View Details</DropdownMenuItem>
+                          <DropdownMenuItem asChild>
+                            <Link href={`/admin/service-requests/${request.id}`}>View Details</Link>
+                          </DropdownMenuItem>
                           <DropdownMenuItem>Update Status</DropdownMenuItem>
                         </DropdownMenuContent>
                       </DropdownMenu>
