@@ -69,10 +69,10 @@ service cloud.firestore {
 
     match /serviceRequests/{requestId} {
       allow create: if request.auth != null && request.auth.uid == request.resource.data.clientId;
-      allow read: if request.auth != null && (request.auth.uid == resource.data.clientId || request.auth.uid == resource.data.expertId);
-      allow update: if request.auth != null && (request.auth.uid == resource.data.clientId || request.auth.uid == resource.data.expertId);
+      allow read: if request.auth != null && (request.auth.uid == resource.data.clientId || request.auth.uid == resource.data.expertId) || isAdmin();
+      allow update: if request.auth != null && (request.auth.uid == resource.data.clientId || request.auth.uid == resource.data.expertId) || isAdmin();
       allow delete: if false;
-      allow list: if isSignedIn() && request.query.where.clientId == request.auth.uid;
+      allow list: if (isSignedIn() && request.query.where.clientId == request.auth.uid) || isAdmin();
     }
   }
 }
