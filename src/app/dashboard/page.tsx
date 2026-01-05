@@ -154,7 +154,7 @@ function AppointmentsWidget({
       </CardContent>
       <CardFooter>
         <Button asChild variant="outline" className="w-full">
-          <Link href="#">Book Appointment</Link>
+          <Link href="/book-appointment">Book Appointment</Link>
         </Button>
       </CardFooter>
     </Card>
@@ -320,7 +320,7 @@ function AuthenticatedDashboard({
           variant="outline"
           className="p-6 flex justify-start items-center gap-4"
         >
-          <Link href="#">
+          <Link href="/book-appointment">
             <CalendarPlus className="h-6 w-6 text-primary" />
             <span className="text-base font-semibold">Book Appointment</span>
           </Link>
