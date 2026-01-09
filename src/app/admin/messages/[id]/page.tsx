@@ -1,9 +1,10 @@
+
 'use client';
 
 import { useParams, useRouter } from 'next/navigation';
 import { useFirestore, useCollection, useDoc, useMemoFirebase } from '@/firebase';
 import { collection, doc, query, orderBy, addDoc, serverTimestamp, updateDoc } from 'firebase/firestore';
-import type { Conversation, Message, UserProfile } from '@/lib/types';
+import type { Conversation, Message } from '@/lib/types';
 import { useUser } from '@/firebase/auth/use-user';
 import { useState, useEffect, useRef } from 'react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -46,12 +47,8 @@ export default function AdminChatPage() {
         return query(collection(conversationRef, 'messages'), orderBy('createdAt'));
     }, [conversationRef]);
 
-    const { data: conversation, loading: conversationLoading } = useCollection<Conversation>(
-        useMemoFirebase(() => conversationRef ? query(collection(firestore!, 'conversations'), where('__name__', '==', id)) : null, [conversationRef, firestore, id])
-    );
+    const { data: convData, loading: conversationLoading } = useDoc<Conversation>(conversationRef);
     const { data: messages, loading: messagesLoading } = useCollection<Message>(messagesQuery);
-    
-    const convData = conversation?.[0];
 
     useEffect(() => {
         messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
