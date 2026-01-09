@@ -1,11 +1,28 @@
+
 'use client';
 
 import { useFirestore, useCollection, useMemoFirebase } from '@/firebase';
-import { collection, query, orderBy, getDocs, where, addDoc, serverTimestamp } from 'firebase/firestore';
+import {
+  collection,
+  query,
+  orderBy,
+  getDocs,
+  where,
+  addDoc,
+  serverTimestamp,
+  doc,
+  getDoc,
+} from 'firebase/firestore';
 import type { Conversation, UserProfile } from '@/lib/types';
 import { useUser } from '@/firebase/auth/use-user';
 import { useState, useMemo, useEffect } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useRouter } from 'next/navigation';
@@ -18,13 +35,23 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '@/components/ui/dialog';
-import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@/components/ui/command';
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from '@/components/ui/command';
 import { formatDistanceToNow } from 'date-fns';
+import { useToast } from '@/hooks/use-toast';
+import type { AppUser } from '@/firebase/auth/use-user';
 
-function NewConversationDialog({ adminId }: { adminId: string }) {
+function NewConversationDialog({ adminUser }: { adminUser: AppUser }) {
   const firestore = useFirestore();
   const [open, setOpen] = useState(false);
   const router = useRouter();
+  const { toast } = useToast();
 
   const usersQuery = useMemoFirebase(() => {
     if (!firestore) return null;
@@ -34,16 +61,18 @@ function NewConversationDialog({ adminId }: { adminId: string }) {
   const { data: clients, loading } = useCollection<UserProfile>(usersQuery);
 
   const handleSelectClient = async (client: UserProfile) => {
-    if (!firestore || !adminId) return;
+    if (!firestore || !adminUser) return;
+
+    setOpen(false);
 
     // Check if a conversation already exists
     const existingConvoQuery = query(
       collection(firestore, 'conversations'),
-      where('participants', 'array-contains', adminId),
+      where('participants', 'array-contains', adminUser.uid)
     );
     const querySnapshot = await getDocs(existingConvoQuery);
     let existingConvId: string | null = null;
-    querySnapshot.forEach(doc => {
+    querySnapshot.forEach((doc) => {
       const conv = doc.data() as Conversation;
       if (conv.participants.includes(client.id)) {
         existingConvId = doc.id;
@@ -55,20 +84,31 @@ function NewConversationDialog({ adminId }: { adminId: string }) {
       return;
     }
 
-    // Create new conversation
-    const newConvRef = await addDoc(collection(firestore, 'conversations'), {
-      participants: [adminId, client.id],
-      participantNames: {
-        [adminId]: 'Admin',
-        [client.id]: client.name
-      },
-      participantImages: {},
-      lastMessage: 'Conversation started',
-      lastMessageAt: serverTimestamp(),
-      createdAt: serverTimestamp(),
-    });
-    setOpen(false);
-    router.push(`/admin/messages/${newConvRef.id}`);
+    try {
+      // Create new conversation
+      const newConvRef = await addDoc(collection(firestore, 'conversations'), {
+        participants: [adminUser.uid, client.id],
+        participantNames: {
+          [adminUser.uid]: adminUser.displayName || 'Admin',
+          [client.id]: client.name,
+        },
+        participantImages: {
+          [adminUser.uid]: adminUser.photoURL || '',
+          [client.id]: '', // Assuming client has no photoURL for now
+        },
+        lastMessage: 'Conversation started',
+        lastMessageAt: serverTimestamp(),
+        createdAt: serverTimestamp(),
+      });
+      router.push(`/admin/messages/${newConvRef.id}`);
+    } catch (error) {
+        console.error("Error creating conversation:", error);
+        toast({
+            variant: "destructive",
+            title: "Error",
+            description: "Could not create a new conversation."
+        })
+    }
   };
 
   return (
@@ -86,18 +126,20 @@ function NewConversationDialog({ adminId }: { adminId: string }) {
         <Command>
           <CommandInput placeholder="Search for a client..." />
           <CommandList>
-            <CommandEmpty>{loading ? 'Loading clients...' : 'No clients found.'}</CommandEmpty>
+            <CommandEmpty>
+              {loading ? 'Loading clients...' : 'No clients found.'}
+            </CommandEmpty>
             <CommandGroup>
               {clients?.map((client) => (
                 <CommandItem
                   key={client.id}
                   value={client.name}
                   onSelect={() => handleSelectClient(client)}
-                  className="flex items-center gap-3"
+                  className="flex items-center gap-3 cursor-pointer"
                 >
-                    <Avatar className="h-8 w-8">
-                        <AvatarFallback>{client.name.charAt(0)}</AvatarFallback>
-                    </Avatar>
+                  <Avatar className="h-8 w-8">
+                    <AvatarFallback>{client.name.charAt(0)}</AvatarFallback>
+                  </Avatar>
                   <span>{client.name}</span>
                 </CommandItem>
               ))}
@@ -117,20 +159,24 @@ export default function AdminMessagesPage() {
   const conversationsQuery = useMemoFirebase(() => {
     if (!firestore || !user) return null;
     // Admins get to see all conversations
-    return query(collection(firestore, 'conversations'), orderBy('lastMessageAt', 'desc'));
+    return query(
+      collection(firestore, 'conversations'),
+      orderBy('lastMessageAt', 'desc')
+    );
   }, [firestore, user]);
 
-  const { data: conversations, loading: conversationsLoading } = useCollection<Conversation>(conversationsQuery);
-  
+  const { data: conversations, loading: conversationsLoading } =
+    useCollection<Conversation>(conversationsQuery);
+
   const loading = userLoading || conversationsLoading;
 
   const getOtherParticipant = (conv: Conversation) => {
     if (!user) return { name: 'Unknown', image: '' };
-    const otherId = conv.participants.find(p => p !== user.uid);
+    const otherId = conv.participants.find((p) => p !== user.uid);
     if (!otherId) return { name: 'Conversation', image: '' };
     return {
-        name: conv.participantNames[otherId] || 'Unknown User',
-        image: conv.participantImages?.[otherId] || '',
+      name: conv.participantNames[otherId] || 'Unknown User',
+      image: conv.participantImages?.[otherId] || '',
     };
   };
 
@@ -138,14 +184,14 @@ export default function AdminMessagesPage() {
     <div className="space-y-8">
       <div className="flex justify-between items-center">
         <div>
-            <h1 className="text-2xl md:text-3xl font-bold tracking-tight">
+          <h1 className="text-2xl md:text-3xl font-bold tracking-tight">
             Messages
-            </h1>
-            <p className="text-muted-foreground">
+          </h1>
+          <p className="text-muted-foreground">
             Manage all client conversations.
-            </p>
+          </p>
         </div>
-        {user && <NewConversationDialog adminId={user.uid} />}
+        {user && <NewConversationDialog adminUser={user} />}
       </div>
       <Card>
         <CardHeader>
@@ -176,20 +222,33 @@ export default function AdminMessagesPage() {
                     className="flex items-center gap-4 p-3 rounded-lg hover:bg-muted cursor-pointer transition-colors"
                   >
                     <Avatar className="h-12 w-12">
-                      <AvatarImage src={otherParticipant.image} alt={otherParticipant.name} />
-                      <AvatarFallback>{otherParticipant.name.charAt(0)}</AvatarFallback>
+                      <AvatarImage
+                        src={otherParticipant.image}
+                        alt={otherParticipant.name}
+                      />
+                      <AvatarFallback>
+                        {otherParticipant.name.charAt(0)}
+                      </AvatarFallback>
                     </Avatar>
                     <div className="flex-1 truncate">
                       <div className="flex justify-between items-center">
-                        <h3 className="font-semibold truncate">{otherParticipant.name}</h3>
+                        <h3 className="font-semibold truncate">
+                          {otherParticipant.name}
+                        </h3>
                         <p className="text-xs text-muted-foreground">
-                            {conv.lastMessageAt ? formatDistanceToNow(conv.lastMessageAt.toDate(), { addSuffix: true }) : ''}
+                          {conv.lastMessageAt
+                            ? formatDistanceToNow(conv.lastMessageAt.toDate(), {
+                                addSuffix: true,
+                              })
+                            : ''}
                         </p>
                       </div>
-                      <p className="text-sm text-muted-foreground truncate">{conv.lastMessage}</p>
+                      <p className="text-sm text-muted-foreground truncate">
+                        {conv.lastMessage}
+                      </p>
                     </div>
                   </div>
-                )
+                );
               })
             ) : (
               <div className="text-center text-muted-foreground py-12">
