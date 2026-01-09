@@ -114,7 +114,7 @@ export function Header() {
                                <NavLink href="/dashboard" label="Dashboard" className="text-lg py-2" />
                              )}
                            </>
-                        ) : !isLoading ? (
+                        ) : !isLoading && !user ? (
                           <>
                             <NavLink href="/login" label="Login" className="text-lg py-2"/>
                             <NavLink href="/signup" label="Sign Up" className="text-lg py-2"/>
@@ -144,7 +144,7 @@ export function Header() {
                             </Button>
                         )}
                       </>
-                    ) : !isLoading ? (
+                    ) : !isLoading && !user ? (
                       <>
                         <Button asChild variant="ghost" size="sm">
                            <Link href="/login">Login</Link>
