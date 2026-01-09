@@ -58,24 +58,21 @@ export default function ClientMessagesPage() {
         return;
     }
 
-    // 1. Check if a conversation already exists
-    const existingConvoQuery = query(
-      collection(firestore, 'conversations'),
-      where('participants', '==', [user.uid, ADMIN_UID].sort())
-    );
-    
     try {
-        const querySnapshot = await getDocs(existingConvoQuery);
-        if (!querySnapshot.empty) {
+        // 1. Check if a conversation already exists
+        const q = query(collection(firestore, 'conversations'), where('participants', 'array-contains', user.uid));
+        const querySnapshot = await getDocs(q);
+        const existingConv = querySnapshot.docs.find(doc => doc.data().participants.includes(ADMIN_UID));
+
+        if (existingConv) {
             // Conversation exists, navigate to it
-            const existingConv = querySnapshot.docs[0];
             router.push(`/dashboard/messages/${existingConv.id}`);
             return;
         }
 
         // 2. If not, create a new one
         const newConvRef = await addDoc(collection(firestore, 'conversations'), {
-            participants: [user.uid, ADMIN_UID].sort(),
+            participants: [user.uid, ADMIN_UID],
             participantNames: {
                 [user.uid]: user.displayName || 'Client',
                 [ADMIN_UID]: 'Mwanakombo F.S.', 
