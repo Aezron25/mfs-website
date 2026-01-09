@@ -115,9 +115,10 @@ export default function AdminMessagesPage() {
   const router = useRouter();
 
   const conversationsQuery = useMemoFirebase(() => {
-    if (!firestore) return null;
+    if (!firestore || !user) return null;
+    // Admins get to see all conversations
     return query(collection(firestore, 'conversations'), orderBy('lastMessageAt', 'desc'));
-  }, [firestore]);
+  }, [firestore, user]);
 
   const { data: conversations, loading: conversationsLoading } = useCollection<Conversation>(conversationsQuery);
   
