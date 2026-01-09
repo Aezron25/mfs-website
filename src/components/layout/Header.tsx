@@ -10,6 +10,7 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription, SheetTr
 import { cn } from "@/lib/utils";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useUser } from "@/firebase/auth/use-user";
+import { useIsClient } from "@/hooks/use-is-client";
 
 
 const navItems = [
@@ -38,16 +39,12 @@ export function Header() {
   const pathname = usePathname();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const isMobile = useIsMobile();
-  const [isClient, setIsClient] = useState(false);
+  const isClient = useIsClient();
   const { user, isLoading } = useUser();
 
   // @ts-ignore
   const userRole = user?.role;
   const isAdmin = userRole === 'roles_admin';
-
-  useEffect(() => {
-    setIsClient(true);
-  }, []);
 
   const NavLink = ({ href, label, className, onClick }: { href: string; label: string, className?: string, onClick?: () => void }) => (
     <Link
@@ -106,7 +103,12 @@ export function Header() {
                         <NavLink key={item.href} {...item} className="text-lg py-2" />
                       ))}
                       <div className="border-t pt-4 mt-4 space-y-2">
-                        {!isLoading && user ? (
+                         {isLoading ? null : !user ? (
+                          <>
+                            <NavLink href="/login" label="Login" className="text-lg py-2"/>
+                            <NavLink href="/signup" label="Sign Up" className="text-lg py-2"/>
+                          </>
+                        ) : (
                            <>
                              {isAdmin ? (
                                 <NavLink href="/admin" label="Admin" className="text-lg py-2" />
@@ -114,12 +116,7 @@ export function Header() {
                                <NavLink href="/dashboard" label="Dashboard" className="text-lg py-2" />
                              )}
                            </>
-                        ) : !isLoading && !user ? (
-                          <>
-                            <NavLink href="/login" label="Login" className="text-lg py-2"/>
-                            <NavLink href="/signup" label="Sign Up" className="text-lg py-2"/>
-                          </>
-                        ) : null}
+                        )}
                       </div>
                   </div>
                 </SheetContent>
@@ -134,7 +131,16 @@ export function Header() {
                  <div className="flex items-center gap-2">
                     {isLoading ? (
                       <div className="h-9 w-20 animate-pulse rounded-md bg-muted" />
-                    ) : user ? (
+                    ) : !user ? (
+                      <>
+                        <Button asChild variant="ghost" size="sm">
+                           <Link href="/login">Login</Link>
+                        </Button>
+                        <Button asChild size="sm">
+                           <Link href="/signup">Sign Up</Link>
+                        </Button>
+                      </>
+                    ) : (
                       <>
                         {isAdmin ? (
                           <Button asChild variant="outline" size="sm">
@@ -145,15 +151,6 @@ export function Header() {
                                 <Link href="/dashboard">Dashboard</Link>
                             </Button>
                         )}
-                      </>
-                    ) : (
-                      <>
-                        <Button asChild variant="ghost" size="sm">
-                           <Link href="/login">Login</Link>
-                        </Button>
-                        <Button asChild size="sm">
-                           <Link href="/signup">Sign Up</Link>
-                        </Button>
                       </>
                     )}
                 </div>
