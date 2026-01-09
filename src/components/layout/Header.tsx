@@ -132,7 +132,9 @@ export function Header() {
                     ))}
                 </nav>
                  <div className="flex items-center gap-2">
-                    {!isLoading && user ? (
+                    {isLoading ? (
+                      <div className="h-9 w-20 animate-pulse rounded-md bg-muted" />
+                    ) : user ? (
                       <>
                         {isAdmin ? (
                           <Button asChild variant="outline" size="sm">
@@ -144,7 +146,7 @@ export function Header() {
                             </Button>
                         )}
                       </>
-                    ) : !isLoading && !user ? (
+                    ) : (
                       <>
                         <Button asChild variant="ghost" size="sm">
                            <Link href="/login">Login</Link>
@@ -153,7 +155,7 @@ export function Header() {
                            <Link href="/signup">Sign Up</Link>
                         </Button>
                       </>
-                    ) : null}
+                    )}
                 </div>
             </div>
           )}
