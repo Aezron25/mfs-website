@@ -11,7 +11,7 @@ import {
 import { Users, Briefcase, Calendar, FileText } from 'lucide-react';
 import { useFirestore, useCollection, useMemoFirebase } from '@/firebase';
 import { collection, query, where } from 'firebase/firestore';
-import type { UserProfile } from '@/lib/types';
+import type { UserProfile, ServiceRequest } from '@/lib/types';
 import { Skeleton } from '@/components/ui/skeleton';
 
 export default function AdminDashboardPage() {
@@ -22,18 +22,39 @@ export default function AdminDashboardPage() {
     return query(collection(firestore, 'users'), where('role', '==', 'user'));
   }, [firestore]);
 
-  const { data: clients, loading: clientsLoading } = useCollection<UserProfile>(clientsQuery);
+  const pendingRequestsQuery = useMemoFirebase(() => {
+    if (!firestore) return null;
+    return query(
+      collection(firestore, 'serviceRequests'),
+      where('status', '==', 'pending')
+    );
+  }, [firestore]);
+
+  const { data: clients, loading: clientsLoading } =
+    useCollection<UserProfile>(clientsQuery);
+  const { data: pendingRequests, loading: requestsLoading } =
+    useCollection<ServiceRequest>(pendingRequestsQuery);
 
   const kpiData = [
     {
       title: 'Total Clients',
-      value: clientsLoading ? <Skeleton className="h-8 w-12" /> : clients?.length.toString() || '0',
+      value:
+        clientsLoading ? (
+          <Skeleton className="h-8 w-12" />
+        ) : (
+          clients?.length.toString() || '0'
+        ),
       icon: <Users className="h-6 w-6 text-muted-foreground" />,
       description: 'Number of registered clients',
     },
     {
       title: 'Pending Requests',
-      value: '0',
+      value:
+        requestsLoading ? (
+          <Skeleton className="h-8 w-12" />
+        ) : (
+          pendingRequests?.length.toString() || '0'
+        ),
       icon: <Briefcase className="h-6 w-6 text-muted-foreground" />,
       description: 'New service requests to be reviewed',
     },
@@ -50,7 +71,6 @@ export default function AdminDashboardPage() {
       description: 'Files uploaded by clients this month',
     },
   ];
-
 
   return (
     <div className="space-y-8">
@@ -81,28 +101,32 @@ export default function AdminDashboardPage() {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-         <Card>
-            <CardHeader>
-                <CardTitle>Recent Activity</CardTitle>
-                <CardDescription>A log of recent client and system events.</CardDescription>
-            </CardHeader>
-            <CardContent>
-                <div className="text-center text-muted-foreground py-12">
-                    <p>Recent activity will be shown here.</p>
-                </div>
-            </CardContent>
-         </Card>
-         <Card>
-            <CardHeader>
-                <CardTitle>Overdue Requests</CardTitle>
-                <CardDescription>Service requests that require immediate attention.</CardDescription>
-            </CardHeader>
-            <CardContent>
-                <div className="text-center text-muted-foreground py-12">
-                    <p>Alerts for overdue tasks will appear here.</p>
-                </div>
-            </CardContent>
-         </Card>
+        <Card>
+          <CardHeader>
+            <CardTitle>Recent Activity</CardTitle>
+            <CardDescription>
+              A log of recent client and system events.
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="text-center text-muted-foreground py-12">
+              <p>Recent activity will be shown here.</p>
+            </div>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader>
+            <CardTitle>Overdue Requests</CardTitle>
+            <CardDescription>
+              Service requests that require immediate attention.
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="text-center text-muted-foreground py-12">
+              <p>Alerts for overdue tasks will appear here.</p>
+            </div>
+          </CardContent>
+        </Card>
       </div>
     </div>
   );
