@@ -114,16 +114,12 @@ export function Header() {
                                <NavLink href="/dashboard" label="Dashboard" className="text-lg py-2" />
                              )}
                            </>
-                        ) : (
+                        ) : !isLoading ? (
                           <>
-                           {!isLoading && (
-                             <>
-                                <NavLink href="/login" label="Login" className="text-lg py-2"/>
-                                <NavLink href="/signup" label="Sign Up" className="text-lg py-2"/>
-                             </>
-                           )}
+                            <NavLink href="/login" label="Login" className="text-lg py-2"/>
+                            <NavLink href="/signup" label="Sign Up" className="text-lg py-2"/>
                           </>
-                        )}
+                        ) : null}
                       </div>
                   </div>
                 </SheetContent>
@@ -136,7 +132,7 @@ export function Header() {
                     ))}
                 </nav>
                  <div className="flex items-center gap-2">
-                    {isLoading ? null : user ? (
+                    {!isLoading && user ? (
                       <>
                         {isAdmin ? (
                           <Button asChild variant="outline" size="sm">
@@ -148,7 +144,7 @@ export function Header() {
                             </Button>
                         )}
                       </>
-                    ) : (
+                    ) : !isLoading ? (
                       <>
                         <Button asChild variant="ghost" size="sm">
                            <Link href="/login">Login</Link>
@@ -157,7 +153,7 @@ export function Header() {
                            <Link href="/signup">Sign Up</Link>
                         </Button>
                       </>
-                    )}
+                    ) : null}
                 </div>
             </div>
           )}
