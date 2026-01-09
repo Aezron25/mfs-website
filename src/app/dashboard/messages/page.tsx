@@ -59,33 +59,42 @@ export default function ClientMessagesPage() {
     }
 
     try {
-        // 1. Check if a conversation already exists
-        const q = query(collection(firestore, 'conversations'), where('participants', 'array-contains', user.uid));
-        const querySnapshot = await getDocs(q);
-        const existingConv = querySnapshot.docs.find(doc => doc.data().participants.includes(ADMIN_UID));
+      const q = query(
+        collection(firestore, 'conversations'),
+        where('participants', 'array-contains', user.uid)
+      );
 
-        if (existingConv) {
-            // Conversation exists, navigate to it
-            router.push(`/dashboard/messages/${existingConv.id}`);
-            return;
+      const querySnapshot = await getDocs(q);
+      let existingConvId: string | null = null;
+      
+      querySnapshot.forEach((doc) => {
+        const conv = doc.data();
+        if (conv.participants.includes(ADMIN_UID)) {
+          existingConvId = doc.id;
         }
+      });
 
-        // 2. If not, create a new one
-        const newConvRef = await addDoc(collection(firestore, 'conversations'), {
-            participants: [user.uid, ADMIN_UID],
-            participantNames: {
-                [user.uid]: user.displayName || 'Client',
-                [ADMIN_UID]: 'Mwanakombo F.S.', 
-            },
-            participantImages: {
-                [user.uid]: user.photoURL || '',
-                [ADMIN_UID]: '', // Admin photo URL if available
-            },
-            lastMessage: 'Conversation started.',
-            lastMessageAt: serverTimestamp(),
-            createdAt: serverTimestamp(),
-        });
-        router.push(`/dashboard/messages/${newConvRef.id}`);
+      if (existingConvId) {
+        router.push(`/dashboard/messages/${existingConvId}`);
+        return;
+      }
+
+      // 2. If not, create a new one
+      const newConvRef = await addDoc(collection(firestore, 'conversations'), {
+          participants: [user.uid, ADMIN_UID],
+          participantNames: {
+              [user.uid]: user.displayName || 'Client',
+              [ADMIN_UID]: 'Mwanakombo F.S.', 
+          },
+          participantImages: {
+              [user.uid]: user.photoURL || '',
+              [ADMIN_UID]: '', // Admin photo URL if available
+          },
+          lastMessage: 'Conversation started.',
+          lastMessageAt: serverTimestamp(),
+          createdAt: serverTimestamp(),
+      });
+      router.push(`/dashboard/messages/${newConvRef.id}`);
 
     } catch (error) {
         console.error("Error starting conversation:", error);
@@ -185,8 +194,7 @@ export default function ClientMessagesPage() {
                 })
               ) : (
                 <div className="text-center text-muted-foreground py-12">
-                  <p>You have no conversations yet.</p>
-                  <p className="text-sm">Click "New Conversation" to start.</p>
+                  <p>All conversations should be displayed here.</p>
                 </div>
               )}
             </div>
