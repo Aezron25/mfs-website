@@ -18,7 +18,7 @@ import {
 } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
-import { useFirestore, useCollection, useMemoFirebase } from '@/firebase';
+import { useFirestore, useCollection, useMemoFirebase, useUser } from '@/firebase';
 import { collection, query, orderBy } from 'firebase/firestore';
 import type { ServiceRequest, UserProfile } from '@/lib/types';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -39,22 +39,23 @@ type ServiceRequestWithClient = ServiceRequest & { clientName: string };
 
 export default function AdminServiceRequestsPage() {
   const firestore = useFirestore();
+  const { user, isLoading: isUserLoading } = useUser();
   const [searchTerm, setSearchTerm] = useState('');
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [selectedRequest, setSelectedRequest] = useState<ServiceRequest | null>(null);
 
   const serviceRequestsQuery = useMemoFirebase(() => {
-    if (!firestore) return null;
+    if (isUserLoading || !user || !firestore) return null;
     return query(
       collection(firestore, 'serviceRequests'),
       orderBy('createdAt', 'desc')
     );
-  }, [firestore]);
+  }, [firestore, user, isUserLoading]);
 
   const usersQuery = useMemoFirebase(() => {
-    if (!firestore) return null;
+    if (isUserLoading || !user || !firestore) return null;
     return collection(firestore, 'users');
-  }, [firestore]);
+  }, [firestore, user, isUserLoading]);
 
   const { data: requests, loading: requestsLoading, error } =
     useCollection<ServiceRequest>(serviceRequestsQuery);
@@ -82,7 +83,7 @@ export default function AdminServiceRequestsPage() {
     );
   }, [combinedData, searchTerm]);
 
-  const loading = requestsLoading || usersLoading;
+  const loading = requestsLoading || usersLoading || isUserLoading;
 
   const handleUpdateStatusClick = (request: ServiceRequest) => {
     setSelectedRequest(request);
