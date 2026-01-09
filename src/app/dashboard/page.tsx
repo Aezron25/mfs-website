@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useUser } from '@/firebase/auth/use-user';
@@ -390,3 +391,5 @@ export default function DashboardPage() {
 
   return <AuthenticatedDashboard user={user} />;
 }
+
+    

@@ -1,3 +1,4 @@
+
 import type { Timestamp } from 'firebase/firestore';
 
 export type UserProfile = {
@@ -53,3 +54,5 @@ export type DocumentMetadata = {
   size: number;
   uploadDate: Date;
 };
+
+    

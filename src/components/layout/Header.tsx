@@ -3,7 +3,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Menu, ShieldCheck } from "lucide-react";
+import { Menu, ShieldCheck, MessageSquare } from "lucide-react";
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription, SheetTrigger } from "@/components/ui/sheet";
@@ -113,7 +113,10 @@ export function Header() {
                              {isAdmin ? (
                                 <NavLink href="/admin" label="Admin" className="text-lg py-2" />
                              ) : (
-                               <NavLink href="/dashboard" label="Dashboard" className="text-lg py-2" />
+                               <>
+                                <NavLink href="/dashboard" label="Dashboard" className="text-lg py-2" />
+                                <NavLink href="/dashboard/messages" label="Messages" className="text-lg py-2" />
+                               </>
                              )}
                            </>
                         )}
@@ -161,3 +164,5 @@ export function Header() {
     </header>
   );
 }
+
+    
