@@ -18,9 +18,9 @@ function ChatBubble({ message, isOwn }: { message: Message; isOwn: boolean }) {
     const timestamp = message.createdAt?.toDate().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
     return (
         <div className={cn("flex items-end gap-2", isOwn ? "justify-end" : "justify-start")}>
-            <div className={cn("max-w-md rounded-lg p-3", isOwn ? "bg-primary text-primary-foreground" : "bg-muted")}>
+            <div className={cn("max-w-md rounded-lg p-3", isOwn ? "bg-accent text-accent-foreground" : "bg-card")}>
                 <p className="text-sm">{message.text}</p>
-                 <p className={cn("text-xs mt-1", isOwn ? "text-primary-foreground/70" : "text-muted-foreground")}>{timestamp}</p>
+                 <p className={cn("text-xs mt-1", isOwn ? "text-accent-foreground/70" : "text-muted-foreground")}>{timestamp}</p>
             </div>
         </div>
     );
