@@ -57,12 +57,12 @@ export default function ClientChatPage() {
 
     const handleSendMessage = async (e: React.FormEvent) => {
         e.preventDefault();
-        if (!newMessage.trim() || !user || !messagesQuery) return;
+        if (!newMessage.trim() || !user || !messagesQuery || !firestore) return;
         
         const text = newMessage;
         setNewMessage('');
 
-        await addDoc(collection(firestore!, 'conversations', id, 'messages'), {
+        await addDoc(collection(firestore, 'conversations', id, 'messages'), {
             senderId: user.uid,
             text,
             createdAt: serverTimestamp(),
@@ -78,20 +78,20 @@ export default function ClientChatPage() {
     };
     
     const otherParticipantId = convData?.participants.find(p => p !== user?.uid);
-    const otherParticipantName = otherParticipantId ? convData?.participantNames[otherParticipantId] || "Financial Expert" : 'Financial Expert';
+    const otherParticipantName = otherParticipantId ? convData?.participantNames?.[otherParticipantId] || "Financial Expert" : 'Financial Expert';
     const otherParticipantImage = otherParticipantId ? convData?.participantImages?.[otherParticipantId] : '';
 
     const loading = userLoading || conversationLoading;
 
-    if (!loading && convData && !convData.participants.includes(user?.uid || '')) {
+    if (!loading && user && convData && !convData.participants.includes(user.uid)) {
          router.push('/dashboard');
-         return <div className="text-center py-12">Unauthorized</div>
+         return <div className="text-center py-12">Unauthorized access.</div>
     }
 
     return (
-        <div className="container py-12 md:py-24 lg:py-32">
-            <Card className="max-w-3xl mx-auto flex flex-col h-[70vh]">
-                <header className="flex items-center gap-4 border-b bg-muted/40 p-4">
+        <div className="container py-12">
+            <Card className="max-w-3xl mx-auto flex flex-col h-[75vh] md:h-[80vh]">
+                <header className="flex items-center gap-4 border-b bg-muted/40 p-4 shrink-0">
                     <Button variant="ghost" size="icon" onClick={() => router.push('/dashboard/messages')}>
                         <ArrowLeft className="h-5 w-5" />
                     </Button>
@@ -128,7 +128,7 @@ export default function ClientChatPage() {
                     )}
                     <div ref={messagesEndRef} />
                 </CardContent>
-                <footer className="border-t p-4">
+                <footer className="border-t p-4 shrink-0">
                      <form onSubmit={handleSendMessage} className="flex items-center gap-2">
                         <Input
                             value={newMessage}
