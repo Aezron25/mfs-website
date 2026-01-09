@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useUser } from '@/firebase/auth/use-user';
@@ -310,7 +309,7 @@ function AuthenticatedDashboard({
           variant="outline"
           className="p-6 flex justify-start items-center gap-4"
         >
-          <Link href="#">
+          <Link href="/upload-document">
             <Upload className="h-6 w-6 text-primary" />
             <span className="text-base font-semibold">Upload Document</span>
           </Link>

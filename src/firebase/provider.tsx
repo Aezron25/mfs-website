@@ -5,13 +5,13 @@ import {
   createContext,
   useContext,
   type ReactNode,
-  useMemo,
   useEffect,
   useState,
 } from 'react';
 import type { FirebaseApp } from 'firebase/app';
 import type { Auth } from 'firebase/auth';
 import type { Firestore } from 'firebase/firestore';
+import type { FirebaseStorage } from 'firebase/storage';
 import type {
   DocumentReference,
   Query,
@@ -23,6 +23,7 @@ interface FirebaseContextValue {
   app: FirebaseApp | null;
   auth: Auth | null;
   firestore: Firestore | null;
+  storage: FirebaseStorage | null;
 }
 
 // Create the context
@@ -30,6 +31,7 @@ const FirebaseContext = createContext<FirebaseContextValue>({
   app: null,
   auth: null,
   firestore: null,
+  storage: null,
 });
 
 // Create the provider component
@@ -38,14 +40,16 @@ export function FirebaseProvider({
   app,
   auth,
   firestore,
+  storage,
 }: {
   children: ReactNode;
   app: FirebaseApp;
   auth: Auth;
   firestore: Firestore;
+  storage: FirebaseStorage;
 }) {
   return (
-    <FirebaseContext.Provider value={{ app, auth, firestore }}>
+    <FirebaseContext.Provider value={{ app, auth, firestore, storage }}>
       {children}
     </FirebaseContext.Provider>
   );
@@ -82,6 +86,16 @@ export function useFirestore() {
   }
   return firestore;
 }
+
+// Create hook for accessing Firebase Storage
+export function useStorage() {
+  const { storage } = useFirebase();
+  if (!storage) {
+    throw new Error('useStorage must be used within a FirebaseProvider');
+  }
+  return storage;
+}
+
 
 /**
  * A hook to memoize a Firestore query or document reference. This is useful for

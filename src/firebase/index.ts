@@ -12,6 +12,11 @@ import {
   type Firestore,
   connectFirestoreEmulator,
 } from 'firebase/firestore';
+import {
+  getStorage,
+  type FirebaseStorage,
+  connectStorageEmulator,
+} from 'firebase/storage';
 
 import { getFirebaseConfig } from './config';
 import { useUser } from './auth/use-user';
@@ -21,20 +26,14 @@ import { useDoc } from './firestore/use-doc';
 let app: FirebaseApp;
 let auth: Auth;
 let firestore: Firestore;
-let firebasePromise: Promise<{ app: FirebaseApp, auth: Auth, firestore: Firestore }> | null = null;
+let storage: FirebaseStorage;
+let firebasePromise: Promise<{ app: FirebaseApp, auth: Auth, firestore: Firestore, storage: FirebaseStorage }> | null = null;
 
 export function initializeFirebase() {
   if (firebasePromise) {
-     // If initialization is already in progress, return the existing promise.
-     // We don't have the initialized instances yet, so we can't return them.
-     // This path is unlikely in a typical client-side scenario but good for safety.
-     // The component using this will suspend until the promise resolves.
-     // A better pattern might involve a context that provides the resolved values.
-     // For now, we'll return the initialized instances if they exist, or throw.
-     if(app && auth && firestore) {
-        return { app, auth, firestore };
+     if(app && auth && firestore && storage) {
+        return { app, auth, firestore, storage };
      }
-     // This case should ideally not be hit if used within React's lifecycle
      throw new Error("Firebase initialization is in progress.");
   }
 
@@ -42,7 +41,8 @@ export function initializeFirebase() {
     app = getApp();
     auth = getAuth(app);
     firestore = getFirestore(app);
-    return { app, auth, firestore };
+    storage = getStorage(app);
+    return { app, auth, firestore, storage };
   }
 
   const firebaseConfig = getFirebaseConfig();
@@ -51,8 +51,8 @@ export function initializeFirebase() {
     app = initializeApp(firebaseConfig);
     auth = getAuth(app);
     firestore = getFirestore(app);
+    storage = getStorage(app);
 
-    // Persist authentication state for the current session.
     setPersistence(auth, browserSessionPersistence);
 
     if (process.env.NEXT_PUBLIC_EMULATOR_HOST) {
@@ -62,6 +62,7 @@ export function initializeFirebase() {
         disableWarnings: true,
       });
       connectFirestoreEmulator(firestore, host, 8080);
+      connectStorageEmulator(storage, host, 9199);
     } else {
       console.log('Connecting to production Firebase services.');
     }
@@ -69,7 +70,7 @@ export function initializeFirebase() {
     console.error('Failed to initialize Firebase', e);
   }
 
-  return { app, auth, firestore };
+  return { app, auth, firestore, storage };
 }
 
 export * from './provider';

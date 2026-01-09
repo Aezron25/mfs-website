@@ -1,4 +1,3 @@
-
 import type { Timestamp } from 'firebase/firestore';
 
 export type UserProfile = {
@@ -13,7 +12,7 @@ export type Appointment = {
   id: string;
   clientId: string;
   expertId: string;
-  date: string; 
+  date: string;
   time: string;
   status: 'pending' | 'confirmed' | 'cancelled';
   notes?: string;
@@ -39,11 +38,18 @@ export type Message = {
 };
 
 export type ServiceRequest = {
-    id: string;
-    clientId: string;
-    expertId?: string;
-    serviceType: string;
-    status: 'pending' | 'in-progress' | 'completed' | 'cancelled';
-    description: string;
-    createdAt: Timestamp;
+  id: string;
+  clientId: string;
+  expertId?: string;
+  serviceType: string;
+  status: 'pending' | 'in-progress' | 'completed' | 'cancelled';
+  description: string;
+  createdAt: Timestamp;
+};
+
+export type DocumentMetadata = {
+  path: string;
+  name: string;
+  size: number;
+  uploadDate: Date;
 };
