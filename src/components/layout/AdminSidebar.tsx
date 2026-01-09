@@ -22,6 +22,7 @@ import {
   Settings,
   LayoutDashboard,
   LogOut,
+  MessageSquare,
 } from 'lucide-react';
 import { type AppUser } from '@/firebase/auth/use-user';
 import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
@@ -49,6 +50,11 @@ const menuItems = [
     href: '/admin/appointments',
     label: 'Appointments',
     icon: Calendar,
+  },
+  {
+    href: '/admin/messages',
+    label: 'Messages',
+    icon: MessageSquare,
   },
   {
     href: '/admin/documents',
@@ -121,7 +127,7 @@ export function AdminSidebar({
               <SidebarMenuItem key={item.href}>
                 <SidebarMenuButton
                   asChild
-                  isActive={pathname === item.href}
+                  isActive={pathname.startsWith(item.href) && (item.href !== '/admin' || pathname === '/admin')}
                   tooltip={item.label}
                 >
                   <Link href={item.href}>

@@ -17,7 +17,7 @@ import { collection, query, where, limit, orderBy } from 'firebase/firestore';
 import type { Appointment, ServiceRequest } from '@/lib/types';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
-import { PlusCircle, Upload, CalendarPlus, LogOut } from 'lucide-react';
+import { PlusCircle, Upload, CalendarPlus, LogOut, MessageSquare } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import {
   Table,
@@ -291,7 +291,7 @@ function AuthenticatedDashboard({
         </p>
       </div>
 
-      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 mb-10">
+      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4 mb-10">
         <Button
           asChild
           size="lg"
@@ -312,6 +312,17 @@ function AuthenticatedDashboard({
           <Link href="/upload-document">
             <Upload className="h-6 w-6 text-primary" />
             <span className="text-base font-semibold">Upload Document</span>
+          </Link>
+        </Button>
+        <Button
+          asChild
+          size="lg"
+          variant="outline"
+          className="p-6 flex justify-start items-center gap-4"
+        >
+          <Link href="/dashboard/messages">
+            <MessageSquare className="h-6 w-6 text-primary" />
+            <span className="text-base font-semibold">Messages</span>
           </Link>
         </Button>
         <Button

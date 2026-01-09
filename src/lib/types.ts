@@ -21,19 +21,19 @@ export type Appointment = {
 
 export type Conversation = {
   id: string;
-  clientId: string;
-  expertId: string;
+  participants: string[];
+  participantNames: { [key: string]: string };
+  participantImages: { [key: string]: string };
   lastMessage: string;
-  updatedAt: Timestamp;
+  lastMessageAt: Timestamp;
+  createdAt: Timestamp;
 };
 
 export type Message = {
   id: string;
-  conversationId: string;
   senderId: string;
-  text?: string;
-  fileUrl?: string;
-  fileName?: string;
+  text: string;
+  read: boolean;
   createdAt: Timestamp;
 };
 

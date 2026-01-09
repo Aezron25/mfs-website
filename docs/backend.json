@@ -30,29 +30,31 @@
     },
     "conversation": {
       "title": "Conversation",
-      "description": "Represents a chat conversation between a client and an expert.",
+      "description": "Represents a chat conversation between users.",
       "type": "object",
       "properties": {
-        "clientId": { "type": "string", "description": "The ID of the client." },
-        "expertId": { "type": "string", "description": "The ID of the expert." },
+        "participants": { 
+          "type": "array", 
+          "items": { "type": "string" },
+          "description": "An array of user IDs participating in the conversation."
+        },
         "lastMessage": { "type": "string", "description": "The last message sent in the conversation." },
-        "updatedAt": { "type": "string", "format": "date-time", "description": "The timestamp when the conversation was last updated." }
+        "lastMessageAt": { "type": "string", "format": "date-time", "description": "The timestamp of the last message." },
+        "createdAt": { "type": "string", "format": "date-time", "description": "The timestamp when the conversation was created." }
       },
-      "required": ["clientId", "expertId", "lastMessage", "updatedAt"]
+      "required": ["participants", "lastMessageAt", "createdAt"]
     },
     "message": {
       "title": "Message",
       "description": "Represents a single message in a conversation.",
       "type": "object",
       "properties": {
-        "conversationId": { "type": "string", "description": "The ID of the conversation this message belongs to." },
         "senderId": { "type": "string", "description": "The ID of the user who sent the message." },
         "text": { "type": "string", "description": "The text content of the message." },
-        "fileUrl": { "type": "string", "format": "uri", "description": "The URL of an uploaded file." },
-        "fileName": { "type": "string", "description": "The name of the uploaded file." },
+        "read": { "type": "boolean", "description": "Whether the message has been read." },
         "createdAt": { "type": "string", "format": "date-time", "description": "The timestamp when the message was sent." }
       },
-      "required": ["conversationId", "senderId", "createdAt"]
+      "required": ["senderId", "text", "createdAt"]
     },
     "serviceRequest": {
       "title": "Service Request",
@@ -85,9 +87,9 @@
       "schema": { "$ref": "#/entities/conversation" },
       "description": "Stores metadata for each chat conversation."
     },
-    "/messages/{messageId}": {
+    "/conversations/{conversationId}/messages/{messageId}": {
       "schema": { "$ref": "#/entities/message" },
-      "description": "Stores all messages for all conversations."
+      "description": "Stores all messages for a single conversation."
     },
     "/serviceRequests/{serviceRequestId}": {
         "schema": { "$ref": "#/entities/serviceRequest" },
